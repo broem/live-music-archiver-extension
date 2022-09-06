@@ -1,0 +1,92 @@
+.navbar-custom {
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.collapse {
+  height: 300px;
+  width: 100%;
+  position: absolute;
+  top: 40;
+  left: 0;
+  z-index: 99;
+}
+
+.container {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: inherit;
+  height: auto; 
+  margin-left: 8%;
+  margin-right: 8%;
+}
+
+.row {
+  width: 100%;
+}
+
+.drpMenuHeight {
+  width: auto;
+  max-height: 200px;
+  overflow-y: auto;
+  opacity: 0.9;
+}
+
+.reg-button-size {
+  width: 106px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  font-size: small;
+}
+
+.drp-button-size {
+  width: 200px;
+  margin: 4px;
+  font-size: small;
+}
+
+.list-contain {
+  height: 160px;
+  margin-top: 16px;
+  overflow-y: auto;
+  outline: thin solid #58acecc2;
+}
+
+.list-item-contain {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.list-label {
+  color: white;
+  font-family: "Cairo", sans-serif;
+}
+
+.main-display-container {
+  color: white;
+  font-family: "Cairo", sans-serif;
+  word-wrap: break-word;
+  height: 150px;
+  overflow-y: auto;
+  outline: thin solid #58acecc2;
+  margin-top: 12px;
+}
+
+.text-area-caption {
+  color: white;
+  font-family: "Cairo", sans-serif;
+}
+
+.input-size {
+  margin: 3px;
+  padding: 3px;
+  height: 18px;
+}
+
+.icon-size {
+  width: 20px;
+  height: 20px;
+}

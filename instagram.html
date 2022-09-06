@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Instagram Scraper</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <link rel="stylesheet" href="instagram.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body style="background-color: rgb(45, 54, 54)">
+    <nav class="navbar navbar-dark bg-dark navbar-custom">
+      <div class="row">
+        <div
+          class="col-2"
+          style="align-items: right; justify-content: right; text-align: right"
+        >
+          <button id="back" type="button" class="btn btn-primary btn-danger">
+            <-
+          </button>
+        </div>
+        <div
+          class="col-4"
+          style="
+            font-size: 22px;
+            color: aliceblue;
+            font-family: 'Cairo', sans-serif;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+          "
+        >
+          <span>IG Scraper</span>
+        </div>
+        <div class="col-5">
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a id="setup" class="nav-link active" aria-current="page" href="#"
+                >Setup</a
+              >
+            </li>
+            <li class="nav-item">
+              <a id="profiles" class="nav-link" href="#">Profiles</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container" id="mainContainer">
+      <div class="row">
+        <div class="col">
+          <div class="input-group mb-3" style="margin-top: 100px">
+            <input
+              id="profileText"
+              type="text"
+              class="form-control"
+              placeholder="Instagram Profile"
+              aria-label="ig-profile"
+              aria-describedby="button-addon1"
+            />
+          </div>
+        </div>
+      </div>
+        <div class="row">
+          <div class="col">
+            <select class="form-select" id="frequency">
+              <option selected>Schedule</option>
+              <option value="Every Day">Every Day</option>
+              <option value="Every Other Day">Every Other Day</option>
+              <option value="Every Other Week">Every Other Week</option>
+              <option value="Every Month">Every Month</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-primary nav-button reg-button-size" type="button" id="scrape">
+              Scrape
+            </button>
+            </div>
+            </div>
+    </div>
+  </body>
+  <script src="instagram.js"></script>
+  <script src="bootstrap.bundle.min.js"></script>
+</html>

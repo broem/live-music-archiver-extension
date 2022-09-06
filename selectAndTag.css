@@ -1,0 +1,99 @@
+
+.previousBorderPrimary {
+  background: radial-gradient(
+    circle,
+    rgba(166, 161, 161, 0.478) 0%,
+    rgba(71, 140, 140, 0.542) 100%
+  );
+  border: 3px solid #088da5 !important;
+  border-radius: 9px !important;
+}
+
+.activeBorderPrimary {
+  background: radial-gradient(
+    circle,
+    rgba(245, 245, 245, 0.249) 0%,
+    rgba(102, 204, 204, 0.423) 100%
+  );
+  border: 3px solid #088da5 !important;
+  border-radius: 9px !important;
+}
+
+.activeBorderEvent {
+  background: radial-gradient(
+    circle,
+    rgba(245, 245, 220, 0.336) 0%,
+    rgba(255, 255, 102, 0.63) 100%
+  );
+  border: 3px solid #ccff00 !important;
+  border-radius: 9px !important;
+}
+
+.activeBorderArrows {
+  background-color: rgba(243, 11, 11, 0.4) !important;
+  border: 2px solid rgb(218, 96, 96) !important;
+  border-radius: 8px !important;
+}
+
+.activeBorderImage::after {
+  display: block;
+  position: relative;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0,
+    #fff 100%
+  );
+  margin-top: -150px;
+  height: 150px;
+  width: 100%;
+  content: "";
+}
+
+.closeButton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  z-index: 2147483647;
+}
+.closeButton::after {
+  display: inline-block;
+  content: "\00d7";
+}
+
+.popuptextTags {
+  position: absolute;
+  width: 80px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+}
+
+/* Popup arrow */
+.popuptextTags::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.myPopupMove {
+  position: absolute;
+  z-index: 80000;
+}
+
+.myPopup {
+  z-index: 83647;
+  cursor: move;
+  width: 80px;
+  height: 80px;
+  position: absolute;
+}
