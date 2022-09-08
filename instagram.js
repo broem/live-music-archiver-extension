@@ -130,7 +130,9 @@ profiles.addEventListener("click", async (event) => {
             "</div>" +
             '<div><b class="freq">Frequency:</b> ' +
             "</div>" +
-            '<div><b class="enabledDisplay">Enabled: ' +
+            '<div><b class="enabledDisplay' +
+            [i] +
+            '">Enabled: ' +
             scrapeEvents[i].enabled +
             "</b> " +
             "</div>";
@@ -153,19 +155,24 @@ profiles.addEventListener("click", async (event) => {
           button.textContent = buttonText;
           // add scrapeEvent to button
           button.scrapeEvent = scrapeEvents[i];
+          button.specialID = i;
 
           button.addEventListener("click", function (event) {
             console.log(event);
             event.target.scrapeEvent.enabled =
               !event.target.scrapeEvent.enabled;
 
+            var enabledDisplay = document.querySelector(
+              ".enabledDisplay" + event.target.specialID
+            );
+
             // change button text
-            if (button.textContent == "Enable") {
-              event.target.textContent = "Enabled: true";
+            if (button.textContent === "Enable") {
+              enabledDisplay.textContent = "Enabled: true";
               event.target.style.backgroundColor = "red";
               event.target.textContent = "Disable";
             } else {
-              event.target.textContent = "Enabled: false";
+              enabledDisplay.textContent = "Enabled: false";
               event.target.style.backgroundColor = "blue";
               event.target.textContent = "Enable";
             }
