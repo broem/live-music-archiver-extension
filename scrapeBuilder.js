@@ -23,7 +23,7 @@ let doorTime = document.getElementById("doorTime");
 let ticketCost = document.getElementById("ticketCost");
 let ticketURLs = document.getElementById("ticketURLs");
 let otherPerformers = document.getElementById("otherPerformers");
-let eventURLs = document.getElementById("eventURLs");
+let eventDescURL = document.getElementById("eventDescUrl");
 let ageRequired = document.getElementById("ageRequired");
 let facebookURL = document.getElementById("facebookURL");
 let twitterURL = document.getElementById("twitterURL");
@@ -98,153 +98,170 @@ profiles.addEventListener("click", async (event) => {
       var scrapeEvents = result.scrapeEvents;
       var hadItem = false;
 
-      // loop through scrapeEvents
-      for (var i = 0; i < scrapeEvents.length; i++) {
-        hadItem = true;
-        // create list item
-        var listItems = document.createElement("LI");
-        listItems.classList.add("list-group-item");
-        // make freuency dropdown menu
-        var frequencyDropdown = document.createElement("SELECT");
-        frequencyDropdown.classList.add("form-select");
-        frequencyDropdown.classList.add("frequencyDropdown");
-        // make option for every day
-        var everyDayOption = document.createElement("OPTION");
-        everyDayOption.value = "Every Day";
-        everyDayOption.textContent = "Every Day";
-        // make option for every other day
-        var everyOtherDayOption = document.createElement("OPTION");
-        everyOtherDayOption.value = "Every Other Day";
-        everyOtherDayOption.textContent = "Every Other Day";
-        // make option for every week
-        var everyWeekOption = document.createElement("OPTION");
-        everyWeekOption.value = "Every Week";
-        everyWeekOption.textContent = "Every Week";
-        // make option for every other week
-        var everyOtherWeekOption = document.createElement("OPTION");
-        everyOtherWeekOption.value = "Every Other Week";
-        everyOtherWeekOption.textContent = "Every Other Week";
-        // make option for every month
-        var everyMonthOption = document.createElement("OPTION");
-        everyMonthOption.value = "Every Month";
-        everyMonthOption.textContent = "Every Month";
-        // append options to dropdown
-        frequencyDropdown.appendChild(everyDayOption);
-        frequencyDropdown.appendChild(everyOtherDayOption);
-        frequencyDropdown.appendChild(everyWeekOption);
-        frequencyDropdown.appendChild(everyOtherWeekOption);
-        frequencyDropdown.appendChild(everyMonthOption);
-        // append dropdown to list item
-        frequencyDropdown.scrapeEvent = scrapeEvents[i];
+      if (scrapeEvents) {
+        // loop through scrapeEvents
+        for (var i = 0; i < scrapeEvents.length; i++) {
+          hadItem = true;
+          // create list item
+          var listItems = document.createElement("LI");
+          listItems.classList.add("list-group-item");
+          // make freuency dropdown menu
+          var frequencyDropdown = document.createElement("SELECT");
+          frequencyDropdown.classList.add("form-select");
+          frequencyDropdown.classList.add("frequencyDropdown");
+          // make option for every day
+          var everyDayOption = document.createElement("OPTION");
+          everyDayOption.value = "Every Day";
+          everyDayOption.textContent = "Every Day";
+          // make option for every other day
+          var everyOtherDayOption = document.createElement("OPTION");
+          everyOtherDayOption.value = "Every Other Day";
+          everyOtherDayOption.textContent = "Every Other Day";
+          // make option for every week
+          var everyWeekOption = document.createElement("OPTION");
+          everyWeekOption.value = "Every Week";
+          everyWeekOption.textContent = "Every Week";
+          // make option for every other week
+          var everyOtherWeekOption = document.createElement("OPTION");
+          everyOtherWeekOption.value = "Every Other Week";
+          everyOtherWeekOption.textContent = "Every Other Week";
+          // make option for every month
+          var everyMonthOption = document.createElement("OPTION");
+          everyMonthOption.value = "Every Month";
+          everyMonthOption.textContent = "Every Month";
+          // append options to dropdown
+          frequencyDropdown.appendChild(everyDayOption);
+          frequencyDropdown.appendChild(everyOtherDayOption);
+          frequencyDropdown.appendChild(everyWeekOption);
+          frequencyDropdown.appendChild(everyOtherWeekOption);
+          frequencyDropdown.appendChild(everyMonthOption);
 
-        // set frequency dropdown to correct value
-        if (scrapeEvents[i].frequency === "Every Day") {
-          frequencyDropdown.value = "Every Day";
-        } else if (scrapeEvents[i].frequency === "Every Other Day") {
-          frequencyDropdown.value = "Every Other Day";
-        } else if (scrapeEvents[i].frequency === "Every Week") {
-          frequencyDropdown.value = "Every Week";
-        } else if (scrapeEvents[i].frequency === "Every Other Week") {
-          frequencyDropdown.value = "Every Other Week";
-        } else if (scrapeEvents[i].frequency === "Every Month") {
-          frequencyDropdown.value = "Every Month";
-        }
+          // create unique id for each dropdown
+          frequencyDropdown.id = "frequencyDropdown" + i;
 
-        // add event listener to frequency dropdown
-        frequencyDropdown.addEventListener("change", function (event) {
-          console.log("frequencyDropdown change event");
-          // get value of dropdown
-          var frequency = event.target.value;
-
-          // update scrapeEvent
-          frequencyDropdown.scrapeEvent.frequency = frequency;
-          event.preventDefault();
-
-          // update through scrape-fetch.js
-          chrome.runtime.sendMessage({
-            msg: "updateScrape",
-            data: frequencyDropdown.scrapeEvent,
-          });
-        });
-
-        listItems.innerHTML =
-          "<div><b>URL:</b> " +
-          scrapeEvents[i].url +
-          "</div>" +
-          '<div><b class="freq">Frequency:</b> ' +
-          "</div>" +
-          '<div><b class="enabledDisplay">Enabled: ' +
-          scrapeEvents[i].enabled +
-          "</b> " +
-          "</div>";
-
-        // add frequency dropdown to class=freq
-        listItems.querySelector(".freq").appendChild(frequencyDropdown);
-
-        // add button to list item
-        var button = document.createElement("BUTTON");
-        button.classList.add("btn", "btn-primary");
-        // text for button enabled or disabled
-        var buttonText = "";
-        if (scrapeEvents[i].enabled == true) {
-          button.style.backgroundColor = "red";
-          buttonText = "Disable";
-        } else {
-          button.style.backgroundColor = "blue";
-          buttonText = "Enable";
-        }
-        button.textContent = buttonText;
-        // add scrapeEvent to button
-        button.scrapeEvent = scrapeEvents[i];
-
-        button.addEventListener("click", function (event) {
-          console.log(event);
-          button.scrapeEvent.enabled = !button.scrapeEvent.enabled;
-
-          // find enabledDisplay
-          var enabledDisplay =
-            event.target.parentElement.querySelector(".enabledDisplay");
-          // change button text
-          if (button.textContent == "Enable") {
-            enabledDisplay.textContent = "Enabled: true";
-            button.style.backgroundColor = "red";
-            button.textContent = "Disable";
-          } else {
-            enabledDisplay.textContent = "Enabled: false";
-            button.style.backgroundColor = "blue";
-            button.textContent = "Enable";
+          // set frequency dropdown to correct value
+          if (scrapeEvents[i].frequency === "Every Day") {
+            frequencyDropdown.value = "Every Day";
+          } else if (scrapeEvents[i].frequency === "Every Other Day") {
+            frequencyDropdown.value = "Every Other Day";
+          } else if (scrapeEvents[i].frequency === "Every Week") {
+            frequencyDropdown.value = "Every Week";
+          } else if (scrapeEvents[i].frequency === "Every Other Week") {
+            frequencyDropdown.value = "Every Other Week";
+          } else if (scrapeEvents[i].frequency === "Every Month") {
+            frequencyDropdown.value = "Every Month";
           }
-          event.preventDefault();
 
-          // update through scrape-fetch.js
-          chrome.runtime.sendMessage({
-            msg: "updateScrape",
-            data: button.scrapeEvent,
+          // make deep copy of scrapeEvent
+          var scrapeEventCopy = JSON.parse(JSON.stringify(scrapeEvents[i]));
+          // console.log(scrapeEventCopy);
+          frequencyDropdown.scrapeEvent = scrapeEventCopy;
+
+          // add event listener to frequency dropdown
+          frequencyDropdown.addEventListener("change", function (event) {
+            console.log("frequencyDropdown change event");
+            console.log(event);
+            console.log(event.target.scrapeEvent);
+            // get value of dropdown
+            var frequency = event.target.value;
+
+            // update scrapeEvent
+            event.target.scrapeEvent.frequency = frequency;
+            console.log(event.target.scrapeEvent);
+            event.preventDefault();
+
+            // update through scrape-fetch.js
+            chrome.runtime.sendMessage({
+              msg: "updateScrape",
+              data: event.target.scrapeEvent,
+            });
           });
-        });
-        // add button to list item
-        listItems.appendChild(button);
 
-        // make delete button
-        var deleteButton = document.createElement("BUTTON");
-        deleteButton.classList.add("btn", "btn-danger");
-        deleteButton.textContent = "Delete";
-        deleteButton.scrapeEvent = scrapeEvents[i];
+          listItems.innerHTML =
+            "<div><b>URL:</b> " +
+            scrapeEvents[i].url +
+            "</div>" +
+            '<div><b class="freq' +
+            i +
+            '"">Frequency:</b> ' +
+            "</div>" +
+            '<div><b class="enabledDisplay">Enabled: ' +
+            scrapeEvents[i].enabled +
+            "</b> " +
+            "</div>";
 
-        deleteButton.addEventListener("click", function (event) {
-          // delete scrapeEvent
-          chrome.runtime.sendMessage({
-            msg: "deleteScrape",
-            data: deleteButton.scrapeEvent,
+          // add frequency dropdown to class=freq+i
+          listItems.querySelector(".freq" + i).appendChild(frequencyDropdown);
+
+          // add button to list item
+          var button = document.createElement("BUTTON");
+          button.classList.add("btn", "btn-primary");
+
+          // add unique id to button
+          button.id = "button" + i;
+          // text for button enabled or disabled
+          var buttonText = "";
+          if (scrapeEvents[i].enabled == true) {
+            button.style.backgroundColor = "red";
+            buttonText = "Disable";
+          } else {
+            button.style.backgroundColor = "blue";
+            buttonText = "Enable";
+          }
+          button.textContent = buttonText;
+
+          // add scrapeEvent to button
+          button.scrapeEvent = scrapeEventCopy;
+
+          button.addEventListener("click", function (event) {
+            console.log(event);
+            event.target.scrapeEvent.enabled =
+              !event.target.scrapeEvent.enabled;
+
+            // find enabledDisplay
+            var enabledDisplay = event.target.querySelector(".enabledDisplay");
+            // change button text
+            if (button.textContent == "Enable") {
+              event.target.textContent = "Enabled: true";
+              event.target.style.backgroundColor = "red";
+              event.target.textContent = "Disable";
+            } else {
+              event.target.textContent = "Enabled: false";
+              event.target.style.backgroundColor = "blue";
+              event.target.textContent = "Enable";
+            }
+            event.preventDefault();
+
+            // update through scrape-fetch.js
+            chrome.runtime.sendMessage({
+              msg: "updateScrape",
+              data: event.target.scrapeEvent,
+            });
           });
-          // remove list item
-          event.target.parentElement.remove();
-          event.preventDefault();
-        });
+          // add button to list item
+          listItems.appendChild(button);
 
-        // add delete button to list item
-        listItems.appendChild(deleteButton);
-        listGroup.appendChild(listItems);
+          // make delete button
+          var deleteButton = document.createElement("BUTTON");
+          deleteButton.classList.add("btn", "btn-danger");
+          deleteButton.textContent = "Delete";
+          deleteButton.scrapeEvent = scrapeEvents[i];
+
+          deleteButton.addEventListener("click", function (event) {
+            // delete scrapeEvent
+            chrome.runtime.sendMessage({
+              msg: "deleteScrape",
+              data: event.target.scrapeEvent,
+            });
+            // remove list item
+            event.target.parentElement.remove();
+            event.preventDefault();
+          });
+
+          // add delete button to list item
+          listItems.appendChild(deleteButton);
+          listGroup.appendChild(listItems);
+        }
       }
 
       if (hadItem == false) {
@@ -343,10 +360,10 @@ otherPerformers.addEventListener("click", async (event) => {
   eventButton.textContent = "Other Performers";
   checkEvent(otherPerformers, event);
 });
-eventURLs.addEventListener("click", async (event) => {
-  item = "Event URLs";
-  eventButton.textContent = "Event URLs";
-  checkEvent(eventURLs, event);
+eventDescURL.addEventListener("click", async (event) => {
+  item = "Event Desc URL";
+  eventButton.textContent = "Event Desc URL";
+  checkEvent(eventDescURL, event);
 });
 ageRequired.addEventListener("click", async (event) => {
   item = "Age Required";
@@ -518,6 +535,7 @@ verify.addEventListener("click", async (event) => {
     verify.disabled = true;
     submitScrape.disabled = false;
     cancel.disabled = false;
+    mainDisplayText.textContent = "Verifying...This may take a few minutes.";
   } else {
     let tempText = mainDisplayText.textContent;
     mainDisplayText.textContent =
@@ -571,7 +589,9 @@ cancel.addEventListener("click", async (event) => {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.scrapeThis === "Add to scrape builder") {
     scrapeItemRecieved = true;
-    mainDisplayText.textContent = request.data.textC;
+    // remove additonal new lines
+    var textC = request.data.textC.replace(/(\r\n|\n|\r)/gm, "");
+    mainDisplayText.textContent = textC;
     textC = request.data.textC;
     innerH = request.data.innerH;
     innerT = request.data.innerT;
@@ -590,9 +610,96 @@ function PopupButtonClickDetector(changes, area) {
 
   for (let node of changedItems) {
     if (node == "verifyItem" && area == "sync") {
-      console.log(changes["verifyItem"].newValue);
-      var scrape = JSON.stringify(changes["verifyItem"].newValue);
-      mainDisplayText.textContent = scrape;
+      // create pretty display of returned event
+      var event = changes[node].newValue;
+      var eventCount = event.EventCount;
+      var eventObj = event.Event;
+      var eventTitle = eventObj.eventTitle;
+      var eventDate = eventObj.eventDate;
+      var eventTime = eventObj.eventTime;
+      var eventVenue = eventObj.eventVenue;
+      var eventVenueAddress = eventObj.eventVenueAddress;
+      var eventDesc = eventObj.eventDesc;
+      var eventTicketCost = eventObj.eventTicketCost;
+      var eventTicketURL = eventObj.eventTicketURL;
+      var eventDescURL = eventObj.eventDescURL;
+      var eventImages = eventObj.eventImages;
+      var eventFacebookURL = eventObj.eventFacebookURL;
+      var eventTwitterURL = eventObj.eventTwitterURL;
+      var eventOtherPerformers = eventObj.eventOtherPerformers;
+      var eventMisc = eventObj.eventMisc;
+      var eventVenueContactInfo = eventObj.eventVenueContactInfo;
+      var eventAgeRequired = eventObj.eventAgeRequired;
+      var captureDate = eventObj.captureDate;
+      var cbsa = eventObj.cbsa;
+      var countyFips = eventObj.countyFips;
+      var stateFips = eventObj.stateFips;
+
+      // display event in main display
+      mainDisplayText.textContent =
+        "Total Event Count: " +
+        eventCount +
+        "\n" +
+        "Title: " +
+        eventTitle +
+        "\n" +
+        "Date: " +
+        eventDate +
+        "\n" +
+        "Time: " +
+        eventTime +
+        "\n" +
+        "Ticket Cost: " +
+        eventTicketCost +
+        "\n" +
+        "Venue: " +
+        eventVenue +
+        "\n" +
+        "Venue Address: " +
+        eventVenueAddress +
+        "\n" +
+        "Description: " +
+        eventDesc +
+        "\n" +
+        "Ticket URL: " +
+        eventTicketURL +
+        "\n" +
+        "Event Desc URL: " +
+        eventDescURL +
+        "\n" +
+        "Event Images: " +
+        eventImages +
+        "\n" +
+        "Facebook URL: " +
+        eventFacebookURL +
+        "\n" +
+        "Twitter URL: " +
+        eventTwitterURL +
+        "\n" +
+        "Other Performers: " +
+        eventOtherPerformers +
+        "\n" +
+        "Misc: " +
+        eventMisc +
+        "\n" +
+        "Venue Contact Info: " +
+        eventVenueContactInfo +
+        "\n" +
+        "Age Required: " +
+        eventAgeRequired +
+        "\n" +
+        "Capture Date: " +
+        captureDate +
+        "\n" +
+        "CBSA: " +
+        cbsa +
+        "\n" +
+        "County FIPS: " +
+        countyFips +
+        "\n" +
+        "State FIPS: " +
+        stateFips +
+        "\n";
     }
   }
 }

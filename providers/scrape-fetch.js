@@ -22,7 +22,55 @@ async function scrapeInstagram(IgMapper) {
     )
       .then((blob) => blob.json())
       .then((resp) => {
+        if (resp === true) {
+          chrome.runtime.sendMessage({
+            msg: "scrapeIgSetup",
+          });
+        }
         console.log(resp);
+      });
+  });
+}
+
+// downloadIGRecent
+async function downloadIGRecent(data) {
+  chrome.storage.session.get(["userId", "config"], async function (result) {
+    var config = result["config"];
+    const response = await fetch(
+      "http://" +
+        config["remote-address"] +
+        "/api/myIgScrapes/" +
+        result["userId"],
+      {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          Authorization: `Bearer ${currRaw}`,
+          "Content-Type": "application/json",
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify(data),
+      }
+    )
+      .then((blob) => blob.text())
+      .then((resp) => {
+        chrome.tabs.query(
+          {
+            active: true,
+            lastFocusedWindow: true,
+          },
+          function (tabs) {
+            // and use that tab to fill in out title and url
+            var tab = tabs[0];
+            chrome.tabs.sendMessage(tab.id, {
+              msg: "recentIGScrapes",
+              data: resp,
+            });
+          }
+        );
       });
   });
 }
@@ -266,13 +314,17 @@ async function scrapeBuilderPost(data) {
         console.log(resp);
         let verifyItem = resp;
         chrome.storage.sync.set({ verifyItem });
+        // set mapid to local storage
+        chrome.storage.session.set({ mapId: resp["Event"]["mapId"] });
       });
   });
 }
 
 async function verified(data) {
-  chrome.storage.session.get("config", async function (result) {
+  chrome.storage.session.get(["config", "mapId"], async function (result) {
     const config = result["config"];
+    const mapId = result["mapId"];
+    data["mapId"] = mapId;
     const response = await fetch(
       "http://" + config["remote-address"] + "/api/verified",
       {
@@ -293,8 +345,7 @@ async function verified(data) {
       .then((blob) => blob.json())
       .then((resp) => {
         console.log(resp);
-        if (resp.includes("true")) {
-          console.log("was here bro");
+        if (resp === true) {
           chrome.runtime.sendMessage({
             reloadScrapeBuilder: "Reload scrape builder",
           });
@@ -458,4 +509,5 @@ export {
   getCurrentIGScrapeEvents,
   updateIGScrape,
   deleteIGScrape,
+  downloadIGRecent,
 };

@@ -173,6 +173,16 @@ if (window.contentScriptInjected !== true) {
           "previousBorderPrimary"
         ) ?? activeSelected[0].classList.remove("previousBorderPrimary");
       }
+      if (
+        activeSelected[activeSelected.length - 1].classList.contains(
+          "activeBorderImage" ||
+            activeSelected[0].classList.contains("activeBorderImage")
+        )
+      ) {
+        activeSelected[activeSelected.length - 1].classList.remove(
+          "activeBorderImage"
+        ) ?? activeSelected[0].classList.remove("activeBorderImage");
+      }
 
       prevSelected.push(activeSelected[activeSelected.length - 1]) ??
         prevSelected.push(activeSelected[0]);

@@ -35,18 +35,17 @@ captureEvent.frequency = {};
 captureEvent.cbsa = {};
 captureEvent.stateFips = {};
 captureEvent.countyFips = {};
+captureEvent.mapID = {};
 
 // fetch json data from server
-fetch('./config.json')
-  .then(response => response.json())
-  .then(data => {
+fetch("./config.json")
+  .then((response) => response.json())
+  .then((data) => {
     // set config data to local storage
-    chrome.storage.session.set({ "config": data }, function () {
-      console.log('config data set to local storage');
+    chrome.storage.session.set({ config: data }, function () {
+      console.log("config data set to local storage");
     });
   });
-
-
 
 chrome.action.onClicked.addListener(() => {
   chrome.tabs.create(
@@ -214,6 +213,15 @@ chrome.runtime.onMessage.addListener(async function (
     });
   }
 
+  // downloadIGRecent handler
+  if (request.msg === "downloadIGRecent") {
+    console.log("download IG recent");
+    // download recent
+    await scrape.downloadIGRecent().then((recent) => {
+      console.log(recent);
+    });
+  }
+
   // updateScrape handler
   if (request.msg === "updateScrape") {
     // update scrape
@@ -325,13 +333,13 @@ chrome.runtime.onMessage.addListener(async function (
       captureEvent.otherPerformers["className"] = d;
       captureEvent.otherPerformers["tagName"] = e;
       captureEvent.otherPerformers["url"] = f;
-    } else if (request.data.addThisTitle === "Event URLs") {
-      captureEvent.eventURLS["textContent"] = a;
-      captureEvent.eventURLS["innerHTML"] = b;
-      captureEvent.eventURLS["innerText"] = c;
-      captureEvent.eventURLS["className"] = d;
-      captureEvent.eventURLS["tagName"] = e;
-      captureEvent.eventURLS["url"] = f;
+    } else if (request.data.addThisTitle === "Event Desc URL") {
+      captureEvent.eventDescURL["textContent"] = a;
+      captureEvent.eventDescURL["innerHTML"] = b;
+      captureEvent.eventDescURL["innerText"] = c;
+      captureEvent.eventDescURL["className"] = d;
+      captureEvent.eventDescURL["tagName"] = e;
+      captureEvent.eventDescURL["url"] = f;
     } else if (request.data.addThisTitle === "Age Required") {
       captureEvent.ageRequired["textContent"] = a;
       captureEvent.ageRequired["innerHTML"] = b;
@@ -391,6 +399,7 @@ chrome.runtime.onMessage.addListener(async function (
     captureEvent.venueContactInfo = {};
     captureEvent.eventTitle = {};
     captureEvent.eventDesc = {};
+    captureEvent.eventDescURL = {};
     captureEvent.images = {};
     captureEvent.startDate = {};
     captureEvent.endDate = {};
@@ -416,6 +425,7 @@ chrome.runtime.onMessage.addListener(async function (
       captureEvent.venueContactInfo = {};
       captureEvent.eventTitle = {};
       captureEvent.eventDesc = {};
+      captureEvent.eventDescURL = {};
       captureEvent.images = {};
       captureEvent.startDate = {};
       captureEvent.endDate = {};
@@ -430,7 +440,10 @@ chrome.runtime.onMessage.addListener(async function (
       captureEvent.misc = {};
       captureEvent.frequency = {};
     }
-    scrape.verified({ enabled: request.enable });
+    scrape.verified({
+      enabled: request.enable,
+      mapID: captureEvent.mapId,
+    });
   }
 
   if (request.msg === "Bring back popup") {
