@@ -459,8 +459,7 @@ function addTask(event) {
   listGenerator.innerHTML = `<div class="ms-2 me-auto">
     <div class="fw-bold">${item}</div>
     ${innerT}
-  </div>
-  <span class="badge bg-primary rounded-pill">14</span>`;
+  </div>`;
 
   var list = document.getElementById("list");
   list.prepend(listGenerator);
