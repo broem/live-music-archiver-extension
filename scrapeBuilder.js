@@ -594,9 +594,25 @@ cancel.addEventListener("click", async (event) => {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.scrapeThis === "Add to scrape builder") {
     scrapeItemRecieved = true;
+    if (mainDisplayText.hasChildNodes()) {
+      mainDisplayText.removeChild(mainDisplayText.childNodes[0]);
+    }
     // remove additonal new lines
     var textC = request.data.textC.replace(/(\r\n|\n|\r)/gm, "");
-    mainDisplayText.textContent = textC;
+    // mainDisplayText.textContent = textC;
+    // add element as child to mainDisplayText
+
+    // if mainDisplayText is an IMG
+    if (request.data.tagName === "IMG") {
+      var img = document.createElement("img");
+      img.src = request.data.src;
+      img.className = "img-fluid";
+      mainDisplayText.appendChild(img);
+    } else {
+      var text = document.createTextNode(textC);
+      mainDisplayText.appendChild(text);
+    }
+
     textC = request.data.textC;
     innerH = request.data.innerH;
     innerT = request.data.innerT;
@@ -617,6 +633,12 @@ function PopupButtonClickDetector(changes, area) {
     if (node == "verifyItem" && area == "sync") {
       // create pretty display of returned event
       var event = changes[node].newValue;
+
+      if (event == null || event == undefined) {
+        mainDisplayText.textContent = "No event found. Try again.";
+        return;
+      }
+
       var eventCount = event.EventCount;
       var eventObj = event.Event;
       var eventTitle = eventObj.eventTitle;

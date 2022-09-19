@@ -5,7 +5,7 @@ if (window.contentScriptInjected !== true) {
   var stopAll = true;
   var freezeState = true;
   var runSelect = true;
-  var activeSelected = [];
+  var activeSelected = []; // Element type
   var prevSelected = [];
   var filtManualSelected = [];
   var borderedInnerHTML = [];
@@ -206,6 +206,7 @@ if (window.contentScriptInjected !== true) {
             activeSelected[activeSelected.length - 1].tagName ??
             activeSelected[0].tagName,
           url: window.location.href,
+          src: activeSelected[0].src,
         },
       });
       activeSelected[activeSelected.length - 1].classList.add(
@@ -289,6 +290,7 @@ if (window.contentScriptInjected !== true) {
             activeSelected[activeSelected.length - 1].tagName ??
             activeSelected[0].tagName,
           url: window.location.href,
+          src: activeSelected[0].src,
         },
       });
       activeSelected[activeSelected.length - 1].classList.add(

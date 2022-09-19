@@ -36,6 +36,7 @@ captureEvent.cbsa = {};
 captureEvent.stateFips = {};
 captureEvent.countyFips = {};
 captureEvent.mapID = {};
+captureEvent.eventDescURL = {};
 
 // fetch json data from server
 fetch("./config.json")
@@ -73,7 +74,6 @@ chrome.action.onClicked.addListener(() => {
         tab.url.length > 0 &&
         logic.substringSearch("chrome", tab.url) == -1
       ) {
-        console.log("injected script into: " + tab.url);
         chrome.scripting.executeScript({
           target: { tabId: tab.id },
           files: ["selectElements.js"], //, "tagElements.js"
@@ -98,7 +98,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     tab.url.length > 0 &&
     logic.substringSearch("chrome", tab.url) == -1
   ) {
-    console.log("injected script into: " + tab.url);
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
       files: ["selectElements.js"], //, "tagElements.js"
@@ -162,7 +161,6 @@ chrome.runtime.onMessage.addListener(async function (
       function (tabs) {
         // and use that tab to fill in out title and url
         var tab = tabs[0];
-        console.log(tab.url);
         chrome.tabs.remove(tab.id);
       }
     );
@@ -206,20 +204,14 @@ chrome.runtime.onMessage.addListener(async function (
   }
   // downloadRecent handler
   if (request.msg === "Download recent") {
-    console.log("download recent");
     // download recent
-    await scrape.downloadRecent().then((recent) => {
-      console.log(recent);
-    });
+    await scrape.downloadRecent().then((recent) => {});
   }
 
   // downloadIGRecent handler
   if (request.msg === "downloadIGRecent") {
-    console.log("download IG recent");
     // download recent
-    await scrape.downloadIGRecent().then((recent) => {
-      console.log(recent);
-    });
+    await scrape.downloadIGRecent().then((recent) => {});
   }
 
   // updateScrape handler
@@ -455,7 +447,6 @@ chrome.runtime.onMessage.addListener(async function (
       function (tabs) {
         // and use that tab to fill in out title and url
         var tab = tabs[0];
-        console.log(tab.url);
         chrome.tabs.remove(tab.id);
       }
     );
@@ -505,7 +496,6 @@ chrome.runtime.onMessage.addListener(async function (
       function (tabs) {
         // and use that tab to fill in out title and url
         var tab = tabs[0];
-        console.log(tab.url);
         chrome.tabs.remove(tab.id);
       }
     );

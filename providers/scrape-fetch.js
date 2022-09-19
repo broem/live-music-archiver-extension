@@ -27,7 +27,9 @@ async function scrapeInstagram(IgMapper) {
             msg: "scrapeIgSetup",
           });
         }
-        console.log(resp);
+      })
+      .catch((err) => {
+        console.log(err);
       });
   });
 }
@@ -71,6 +73,9 @@ async function downloadIGRecent(data) {
             });
           }
         );
+      })
+      .catch((err) => {
+        console.log(err);
       });
   });
 }
@@ -102,6 +107,9 @@ async function getCurrentIGScrapeEvents() {
       .then((resp) => {
         // save to local session storage
         chrome.storage.session.set({ scrapeIGEvents: resp });
+      })
+      .catch((err) => {
+        console.log(err);
       });
   });
 }
@@ -132,6 +140,9 @@ async function updateIGScrape(data) {
         // chrome.runtime.sendMessage({
         //   reloadScrapeBuilder: "Reload scrape builder",
         // });
+      })
+      .catch((err) => {
+        console.log(err);
       });
   });
 }
@@ -156,7 +167,10 @@ async function deleteIGScrape(data) {
       }
     )
       .then((blob) => blob.json())
-      .then((resp) => {});
+      .then((resp) => {})
+      .catch((err) => {
+        console.log(err);
+      });
   });
 }
 
@@ -198,6 +212,9 @@ async function downloadRecent() {
             });
           }
         );
+      })
+      .catch((err) => {
+        console.log(err);
       });
   });
 }
@@ -229,6 +246,9 @@ async function getCurrentScrapeEvents() {
       .then((resp) => {
         // save to local session storage
         chrome.storage.session.set({ scrapeEvents: resp });
+      })
+      .catch((err) => {
+        console.log(err);
       });
   });
 }
@@ -313,47 +333,61 @@ async function scrapeBuilderPost(data) {
       .then((resp) => {
         console.log(resp);
         let verifyItem = resp;
+        if (resp == null || resp == undefined) {
+          chrome.storage.sync.set({ verifyItem });
+          return;
+        }
         chrome.storage.sync.set({ verifyItem });
         // set mapid to local storage
         chrome.storage.session.set({ mapId: resp["Event"]["mapId"] });
+      })
+      .catch((err) => {
+        let verifyItem = null;
+        chrome.storage.sync.set({ verifyItem });
+        console.log(err);
       });
   });
 }
 
 async function verified(data) {
-  chrome.storage.session.get(["config", "mapId"], async function (result) {
-    const config = result["config"];
-    const mapId = result["mapId"];
-    data["mapId"] = mapId;
-    const response = await fetch(
-      "http://" + config["remote-address"] + "/api/verified",
-      {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          Authorization: `Bearer ${currRaw}`,
+  chrome.storage.session.get(
+    ["config", "userId", "mapId"],
+    async function (result) {
+      const config = result["config"];
+      const mapId = result["mapId"];
+      const userId = result["userId"];
+      data["mapId"] = mapId;
+      data["userId"] = userId;
+      const response = await fetch(
+        "http://" + config["remote-address"] + "/api/verified",
+        {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          mode: "cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            Authorization: `Bearer ${currRaw}`,
 
-          "Content-Type": "application/json",
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify(data),
-      }
-    )
-      .then((blob) => blob.json())
-      .then((resp) => {
-        console.log(resp);
-        if (resp === true) {
-          chrome.runtime.sendMessage({
-            reloadScrapeBuilder: "Reload scrape builder",
-          });
-        } else {
-          console.log("switch back to selecting needs to happen now");
+            "Content-Type": "application/json",
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify(data),
         }
-      });
-  });
+      )
+        .then((blob) => blob.json())
+        .then((resp) => {
+          console.log(resp);
+          if (resp === true) {
+            chrome.runtime.sendMessage({
+              reloadScrapeBuilder: "Reload scrape builder",
+            });
+          } else {
+            console.log("switch back to selecting needs to happen now");
+          }
+        });
+    }
+  );
 }
 
 async function logoutPost() {
