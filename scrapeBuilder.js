@@ -29,6 +29,7 @@ let facebookURL = document.getElementById("facebookURL");
 let twitterURL = document.getElementById("twitterURL");
 let misc = document.getElementById("misc");
 
+let once = document.getElementById("once");
 let everyDay = document.getElementById("everyDay");
 let everyOtherDay = document.getElementById("everyOtherDay");
 let everyWeek = document.getElementById("everyWeek");
@@ -109,6 +110,10 @@ profiles.addEventListener("click", async (event) => {
           var frequencyDropdown = document.createElement("SELECT");
           frequencyDropdown.classList.add("form-select");
           frequencyDropdown.classList.add("frequencyDropdown");
+          // make option for once
+          var once = document.createElement("OPTION");
+          once.value = "once";
+          once.textContent = "Just Once";
           // make option for every day
           var everyDayOption = document.createElement("OPTION");
           everyDayOption.value = "Every Day";
@@ -130,6 +135,7 @@ profiles.addEventListener("click", async (event) => {
           everyMonthOption.value = "Every Month";
           everyMonthOption.textContent = "Every Month";
           // append options to dropdown
+          frequencyDropdown.appendChild(once);
           frequencyDropdown.appendChild(everyDayOption);
           frequencyDropdown.appendChild(everyOtherDayOption);
           frequencyDropdown.appendChild(everyWeekOption);
@@ -279,6 +285,11 @@ profiles.addEventListener("click", async (event) => {
   }
 });
 
+once.addEventListener("click", function (event) {
+  // get value of dropdown
+  frequency = "once";
+  frequencyButton.textContent = "Just Once";
+});
 everyDay.addEventListener("click", async () => {
   frequency = "Every Day";
   frequencyButton.textContent = "Every Day";
@@ -517,7 +528,8 @@ verify.addEventListener("click", async (event) => {
     frequency === "Every Other Day" ||
     frequency === "Every Week" ||
     frequency === "Every Other Week" ||
-    frequency === "Every Month"
+    frequency === "Every Month" ||
+    frequency === "once"
   ) {
     // get user input from form and pass it to background page
     var cbsa = document.getElementById("cbsa").value;
