@@ -523,12 +523,16 @@ verify.addEventListener("click", async (event) => {
     var cbsa = document.getElementById("cbsa").value;
     var stateFips = document.getElementById("stateFips").value;
     var countyFips = document.getElementById("countyFips").value;
+    var latitude = document.getElementById("latitude").value;
+    var longitude = document.getElementById("longitude").value;
 
     metaData = {
       frequency: frequency,
       cbsa: cbsa,
       stateFips: stateFips,
       countyFips: countyFips,
+      latitude: latitude,
+      longitude: longitude,
     };
 
     chrome.runtime.sendMessage({
@@ -660,6 +664,8 @@ function PopupButtonClickDetector(changes, area) {
       var cbsa = eventObj.cbsa;
       var countyFips = eventObj.countyFips;
       var stateFips = eventObj.stateFips;
+      var latitude = eventObj.latitude;
+      var longitude = eventObj.longitude;
 
       // display event in main display
       mainDisplayText.textContent =
@@ -726,6 +732,8 @@ function PopupButtonClickDetector(changes, area) {
         "State FIPS: " +
         stateFips +
         "\n";
+      "Latitude: " + latitude + "\n";
+      "Longitude: " + longitude + "\n";
     }
   }
 }

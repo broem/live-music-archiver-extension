@@ -33,6 +33,8 @@ captureEvent.userId = {};
 captureEvent.userEmail = {};
 captureEvent.frequency = {};
 captureEvent.cbsa = {};
+captureEvent.latitude = {};
+captureEvent.longitude = {};
 captureEvent.stateFips = {};
 captureEvent.countyFips = {};
 captureEvent.mapID = {};
@@ -137,6 +139,8 @@ chrome.runtime.onMessage.addListener(async function (
       captureEvent.cbsa = request.data.cbsa;
       captureEvent.stateFips = request.data.stateFips;
       captureEvent.countyFips = request.data.countyFips;
+      captureEvent.latitude = request.data.latitude;
+      captureEvent.longitude = request.data.longitude;
 
       scrape.scrapeBuilderPost(captureEvent);
     });
