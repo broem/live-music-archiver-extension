@@ -1,0 +1,24 @@
+.container {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.buttonHoverText {
+    font-family: "Cairo", sans-serif;
+}
+
+.button {
+    background-color: #04aa6d;
+    color: white;
+    padding: 10px 10px 10px 10px;
+    margin: 4px 0;
+    border: none;
+    cursor: pointer;
+    width: 50%;
+}
+
+html {
+    font-family: "Cairo", sans-serif;
+    background-color: #333333;
+}

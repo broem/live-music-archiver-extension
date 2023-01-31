@@ -20,6 +20,9 @@ if (window.contentScriptInjected !== true) {
     if (node.nodeName == "IMG") {
       node.classList.add("activeBorderImage");
       node.classList.add("activeBorderPrimary");
+    } else if (node.nodeName == "A") {
+      node.style.position = "relative";
+      node.classList.add("activeBorderPrimary");
     } else {
       node.classList.add("activeBorderPrimary");
     }
@@ -33,6 +36,11 @@ if (window.contentScriptInjected !== true) {
 
       if (node.nodeName == "IMG") {
         node.classList.add("activeBorderImage");
+        node.classList.add("activeBorderEvent");
+        if (prevNode != null) removeBorderEvent(prevNode);
+      } else if (node.nodeName == "A") {
+        // remove position relative
+        node.style.position = "relative";
         node.classList.add("activeBorderEvent");
         if (prevNode != null) removeBorderEvent(prevNode);
       } else {
@@ -66,6 +74,10 @@ if (window.contentScriptInjected !== true) {
     borderedItem.forEach((node) => {
       node.classList.remove("activeBorderPrimary");
       node.classList.remove("activeBorderImage");
+      // if node has position absolute, remove it
+      if (node.style.position == "absolute") {
+        node.style.position = "";
+      }
     });
   }
   function removeEventBorderAll() {
@@ -91,7 +103,7 @@ if (window.contentScriptInjected !== true) {
   function selectingElements() {
     //this function is ran at start of script, and managed via stopAll/freezeState/etc
     var x = document.querySelectorAll(
-      "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article"
+      "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article, iframe, html"
       //"span, th, td, button, input, a, textarea, p, li, ol, card, img, section, nav, footer, header, map, video, audio, embed, iframe, object, picture, portal, param, source, form, fieldset, datalist, label, legend, select, option, output, progress, meter, h1, h2, h3, h4, h5, h6, pre"
     );
     x.forEach((node) => {
@@ -363,6 +375,7 @@ if (window.contentScriptInjected !== true) {
     var locB = null;
 
     document.addEventListener("mousedown", function (e) {
+      console.log("mousedown");
       if (!stopAll) {
         stopMouseover = false;
         if (!freezeState) {
@@ -376,6 +389,7 @@ if (window.contentScriptInjected !== true) {
     });
 
     document.addEventListener("mousemove", function (e) {
+      console.log("mousemove");
       if (locA && stopMouseover == false && !freezeState && !stopAll) {
         locB = getMousePos(canvas, e);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -391,6 +405,7 @@ if (window.contentScriptInjected !== true) {
     });
 
     document.addEventListener("mouseup", function (e) {
+      console.log("Mouse up");
       if (!stopAll) {
         if (!freezeState && locA && locB) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -403,11 +418,17 @@ if (window.contentScriptInjected !== true) {
           ctx.strokeStyle = "rgb(123, 168, 252)";
           ctx.strokeRect(locA.x, locA.y, locB.x - locA.x, locB.y - locA.y);
           ctx.fillRect(locA.x, locA.y, locB.x - locA.x, locB.y - locA.y);
+          console.log("COLLECTING...");
           var x = document.querySelectorAll(
-            "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article"
-            //"span, th, td, button, input, a, textarea, p, li, ol, card, img, section, nav, footer, header, map, video, audio, embed, iframe, object, picture, portal, param, source, form, fieldset, datalist, label, legend, select, option, output, progress, meter, h1, h2, h3, h4, h5, h6, pre"
+            // "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article, iframe, html"
+            "span, th, td, button, input, a, textarea, p, li, ol, card, img, section, nav, footer, header, map, video, audio, embed, iframe, object, picture, portal, param, source, form, fieldset, datalist, label, legend, select, option, output, progress, meter, h1, h2, h3, h4, h5, h6, pre"
           );
           x.forEach((node) => {
+            // remove position absolute
+            if (node.style.position === "absolute") {
+              console.log("absolute");
+              node.style.position = "relative";
+            }
             if (borderInRectCheck(node, locA, locB)) {
               addBorderEvent(node);
             }
