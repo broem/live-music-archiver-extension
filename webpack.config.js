@@ -137,6 +137,15 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
+          from: 'src/config.json',
+          to: path.join(__dirname, 'build'),
+          force: true,
+        },
+      ],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
           from: 'src/pages/ScrapeBuilder/selectAndTag.css',
           to: path.join(__dirname, 'build'),
           force: true,
@@ -185,30 +194,6 @@ var options = {
       chunks: ['popup'],
       cache: false,
     }),
-    new HtmlWebpackPlugin({
-      template: path.join(
-        __dirname,
-        'src',
-        'pages',
-        'ScrapeBuilder',
-        'scrapeBuilder.html'
-      ),
-      filename: 'scrapeBuilder.html',
-      chunks: ['scrapeBuilder'],
-      cache: false,
-    }),
-    // new HtmlWebpackPlugin({
-    //   template: path.join(
-    //     __dirname,
-    //     'src',
-    //     'pages',
-    //     'InstagramBuilder',
-    //     'instagram.html'
-    //   ),
-    //   filename: 'instagram.html',
-    //   chunks: ['instagram'],
-    //   cache: false,
-    // }),
   ],
   infrastructureLogging: {
     level: 'info',

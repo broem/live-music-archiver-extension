@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import Link from "../Link";
 import './home.css';
 
 const Home = () => {
@@ -40,10 +39,6 @@ const Home = () => {
   var textIsClicked = false;
 
   function mouseEnter(e) {
-    console.log("mouse enter");
-    console.log(e);
-    console.log(selectButton);
-
     selectButton.current.style = "fill:rgba(23, 218, 234, 1)";
     selectButtonBlue.current.style = "fill:rgba(23, 218, 234, 1)";
     selectButtonInner.current.style= "fill:rgb(252, 249, 154)";
@@ -86,8 +81,6 @@ const Home = () => {
   }
 
   function scrapeBuilderClick(e) {
-    console.log("scrape builder click");
-
     e.preventDefault();
     // update url
     window.history.pushState({}, "", "/scrapeBuilder");
@@ -95,9 +88,6 @@ const Home = () => {
     // communicate to Routes that URL has changed
     const navEvent = new PopStateEvent('popstate');
     window.dispatchEvent(navEvent);
-    // chrome.runtime.sendMessage({
-    //   msg: "Switch to scrape builder",
-    // });
   }
 
   function scrapeInstagramClick(e) {

@@ -1,5 +1,4 @@
-import * as logic from '../../providers/business-logic.js';
-import * as scrape from '../../server/scrape-fetch.js';
+import * as scrape from './scrape-fetch.js';
 
 const BRING_BACK_POP_CTX = 'BRING_BACK_POP';
 let selectElementsIndex = 0;
@@ -41,23 +40,25 @@ captureEvent.mapID = {};
 captureEvent.eventDescURL = {};
 
 // fetch json data from server
-// fetch('./config.json')
-//   .then((response) => response.json())
-//   .then((data) => {
-//     // set config data to local storage
-//     chrome.storage.session.set({ config: data }, function () {
-//       console.log('config data set to local storage');
-//     });
-//   });
+fetch('./config.json')
+  .then((response) => response.json())
+  .then((data) => {
+    // set config data to local storage
+    chrome.storage.session.set({ config: data }, function () {
+      console.log('config data set to local storage');
+      console.log('checking user');
+      CheckUser();
+    });
+  });
 
 chrome.action.onClicked.addListener(() => {
-  console.log('action clicked');
   chrome.tabs.create(
     {
       url: chrome.runtime.getURL('popup.html'),
       active: false,
     },
     async function (tab) {
+      console.log('tab created');
       // After the tab has been created, open a window to inject the tab
       await chrome.windows.create({
         tabId: tab.id,
@@ -75,31 +76,52 @@ chrome.action.onClicked.addListener(() => {
         tab.url != null &&
         tab.url != undefined &&
         tab.url.length > 0 &&
-        logic.substringSearch('chrome', tab.url) == -1
+        substringSearch('chrome', tab.url) == -1
       ) {
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          files: ['selectElements.js'], //, "tagElements.js"
-        });
+        chrome.scripting
+          .executeScript({
+            target: { tabId: tab.id },
+            files: ['./selectElements.js'], //, "tagElements.js"
+          })
+          .then(() => {
+            console.log('selectElements.js injected');
+          });
       }
     });
   });
   chrome.identity.getProfileUserInfo(
     { accountStatus: 'ANY' },
     function (userInfo) {
+      console.log('checking user info');
       // set user id and email
       chrome.storage.session.set({ userId: userInfo.id });
       chrome.storage.session.set({ userEmail: userInfo.email });
+
+      // check if user exists in database
+      console.log('getting user');
+      checkUser();
     }
   );
 });
+
+async function checkUser() {
+  console.log('dededeee user');
+  await scrape
+    .getUser()
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   if (
     tab.url != null &&
     tab.url != undefined &&
     tab.url.length > 0 &&
-    logic.substringSearch('chrome', tab.url) == -1
+    substringSearch('chrome', tab.url) == -1
   ) {
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
@@ -118,12 +140,43 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener(bringBackPopContextExe);
 
+function substringSearch(pattern, text) {
+  if (pattern.length == 0) {
+    return 0; // Immediate match
+  }
+  var lsp = [0];
+  for (var i = 1; i < pattern.length; i++) {
+    var j = lsp[i - 1];
+    while (j > 0 && pattern.charAt(i) != pattern.charAt(j)) j = lsp[j - 1];
+    if (pattern.charAt(i) == pattern.charAt(j)) j++;
+    lsp.push(j);
+  }
+
+  var j = 0;
+  for (var i = 0; i < text.length; i++) {
+    while (j > 0 && text.charAt(i) != pattern.charAt(j)) j = lsp[j - 1];
+    if (text.charAt(i) == pattern.charAt(j)) {
+      j++;
+      if (j == pattern.length) return i - (j - 1);
+    }
+  }
+  return -1; // Not found
+}
+
+function CheckUser() {
+  console.log('check user');
+  chrome.storage.session.get(['userId'], function (result) {
+    console.log(result);
+  });
+}
+
 chrome.runtime.onMessage.addListener(async function (
   request,
   sender,
   sendResponse
 ) {
   if (request.selectElements === 'Select elements') {
+    console.log('select elements');
     selectElementsIndex += 1;
     chrome.storage.sync.set({ selectElementsIndex });
   }
@@ -155,38 +208,6 @@ chrome.runtime.onMessage.addListener(async function (
   if (request.disableSelect === 'Disable select') {
     disableSelect += 1;
     chrome.storage.sync.set({ disableSelect });
-  }
-
-  if (request.msg === 'Switch to scrape builder') {
-    console.log('switch to scrape builder');
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      function (tabs) {
-        // and use that tab to fill in out title and url
-        var tab = tabs[0];
-        chrome.tabs.remove(tab.id);
-      }
-    );
-    chrome.tabs.create(
-      {
-        url: chrome.runtime.getURL('scrapeBuilder.html'),
-        active: false,
-      },
-      async function (tab) {
-        // After the tab has been created, open a window to inject the tab
-        await chrome.windows.create({
-          tabId: tab.id,
-          type: 'popup',
-          focused: true,
-          height: 700,
-          width: 600,
-          // incognito, top, left, ...w
-        });
-      }
-    );
   }
 
   if (request.msg === 'GetIGScrapes') {

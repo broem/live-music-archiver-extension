@@ -1,21 +1,12 @@
 import React from "react";
+import Back from "../Common/back";
 
 const Instagram = () => {
-
-  // return to home page
-  function onBack() {
-    window.history.back();
-  };
-
     return (
       <div>
   <nav className="navbar navbar-dark bg-dark navbar-custom">
     <div className="row">
-      <div className="col-2">
-        <button id="back" type="button" className="btn btn-primary btn-danger" onClick={onBack}>
-          Back
-        </button>
-      </div>
+      <Back />
       <div className="col-4">
         <span>IG Scraper</span>
       </div>

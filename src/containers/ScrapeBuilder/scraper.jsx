@@ -1,8 +1,211 @@
 import React from "react";
+import Back from "../Common/back";
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import { useState } from 'react';
 
-const Scraper = () => {
+function selectElementsClick() {
+    console.log("select elements");
+    document.getElementById("submitScrape").disabled = true;
+    document.getElementById("cancel").disabled = true;
+  chrome.runtime.sendMessage({
+    selectElements: "Select elements",
+  });
+}
 
-/* eslint-disable no-inner-declarations */
+const ScraperBuild = () => {
+    return (
+        <div className="container" id="mainContainer">
+        <div className="row">
+        <div className="col-6 scrape-select">
+            <button id="selectElements" type="button" className="btn btn-primary nav-button reg-button-size" onClick={selectElementsClick}>
+            Select
+            </button>
+
+            <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size">
+            Disable
+            </button>
+            <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
+            Download Recent
+            </button>
+        </div>
+        <div className="col-6 scrape-schedule">
+            <div className="dropdown">
+            <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false" id="frequencyButton">
+                Schedule
+            </button>
+            <ul className="dropdown-menu">
+                <li>
+                <a className="dropdown-item" href="#" id="once">Just Once</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="everyDay">Every Day</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="everyOtherDay">Every Other Day</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="everyWeek">Every Week</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="everyOtherWeek">Every Other Week</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="everyMonth">Every Month</a>
+                </li>
+            </ul>
+            </div>
+            <div className="dropdown">
+            <button id="eventButton" className="btn btn-success dropdown-toggle drp-button-size" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Event Options
+            </button>
+            <ul className="dropdown-menu dropdown-menu-dark drpMenuHeight navPos">
+                <li>
+                <a className="dropdown-item" href="#" id="eventArea">Event Area</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="venueName">Venue Name</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="venueAddress">Venue Address</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="venueContactInfo">Venue Contact Info</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="eventTitle">Event Title</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="eventDesc">Event Description</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="images">Images</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="startDate">Start Date</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="endDate">End Date</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="doorTime">Door Time</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="ticketCost">Ticket Cost</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="ticketURLs">Ticket URLs</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="otherPerformers">Other Performers</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="eventDescUrl">Event Desc URL</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="ageRequired">Age Required</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="facebookURL">Facebook URL</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="twitterURL">Twitter URL</a>
+                </li>
+                <li>
+                <a className="dropdown-item" href="#" id="misc">Misc</a>
+                </li>
+            </ul>
+            </div>
+        </div>
+        </div>
+        <form id="setupScrape">
+        <div className="row">
+            <div className="col">
+            <div className="main-display-container">
+                <figcaption className="text-area-caption">
+                <b>Is This What You Selected?</b>
+                <div id="mainDisplay scrape-preview"></div>
+                </figcaption>
+            </div>
+            </div>
+        </div>
+        <div className="row">
+            <div className="col-3 scrape-verify">
+            <button disabled id="verify" className="btn btn-primary reg-button-size">
+                Verify
+            </button>
+            <button disabled id="submitScrape" type="button" className="btn btn-primary reg-button-size">
+                Submit
+            </button>
+            <button disabled id="cancel" type="button" className="btn btn-primary reg-button-size">
+                Cancel
+            </button>
+            <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
+                Clear
+            </button>
+            </div>
+            <div className="col-9">
+            <div className="list-contain">
+                <figcaption className="list-label">
+                <b>Currently Selected</b>
+                </figcaption>
+                <ol id="list" className="list-group list-group-numbered"></ol>
+            </div>
+            </div>
+        </div>
+        </form>
+    </div>
+    );
+}
+
+const AdminPage = () => {
+        return (
+            <div>
+                <div>Admin page hello</div>
+            </div>
+        )
+}
+
+
+function Admin(props) {
+    if (!props.isAdmin) {
+        return null;
+    }
+
+  return (
+    <>Admin</>
+  );
+}
+
+const ChangePage = ({ location }) => {
+    console.log("change pp" + location)
+    switch (location) {
+        case "scrapeBuilder":
+            return (
+                <ScraperBuild />
+            )
+        case "admin":
+            return (
+                <div>
+                    <div>Admin page hello</div>
+                </div>
+            )
+        default:
+            return (
+                <ScraperBuild />
+            )
+    }
+}
+
+
+const Scraper = ({ user }) => {
+    var navPath = 1;
+    let scraperBuilder = true;
+    let admin = false;
+
 var mainDisplayText = document.getElementById("mainDisplay");
 let profiles = document.getElementById("scrapers");
 let sb = document.getElementById("sb");
@@ -59,8 +262,21 @@ var tagName = "";
 var url = "";
 var scrapeItemRecieved = false;
 
-function onBack() {
-    window.history.back();
+function setScraperBuilder() {
+    console.log("setScraperBuilder");
+    scraperBuilder = true;
+    admin = false;
+}
+
+function setAdmin() {
+    console.log("setAdmin");
+    admin = true;
+    scraperBuilder = false;
+}
+
+function navClick(location) {
+    console.log("navClick");
+    navPath = location;
 }
 
 function sbClick(e) {
@@ -75,9 +291,10 @@ function sbClick(e) {
 }
 
 function scrapersClick(e) {
-    if (!profiles.classNameList.contains("active")) {
+    console.log("scrapersClick");
+    if (!document.getElementById("scrapers").classNameList.contains("active")) {
         e.preventDefault();
-        profiles.classNameList.add("active");
+        document.getElementById("scrapers").classNameList.add("active");
         sb.classNameList.remove("active");
         orginalSb = document.getElementById("mainContainer");
         var tempSb = document.getElementById("mainContainer");
@@ -769,32 +986,33 @@ chrome.storage.onChanged.addListener(PopupButtonClickDetector);
 
     return (
         <div>
+            <Navbar bg="dark" variant="dark">
+                <Container>
+                <Navbar.Brand>Scrape Builder</Navbar.Brand>
+                <Nav className="me-auto">
+                    <Nav.Link href="#builder" onClick={() => setScraperBuilder()}>
+                        Builder
+                    </Nav.Link>
+                    <Nav.Link href="#scrapers" onClick={() => navClick(2)}>
+                        Scrapers
+                    </Nav.Link>
+                    <Nav.Link href="#admin" onClick={() => setAdmin()}>
+                        <Admin isAdmin={user.is_admin}/>
+                    </Nav.Link>
+                </Nav>
+                <Back />
+                </Container>
+            </Navbar>
             <nav className="navbar navbar-dark bg-dark navbar-custom">
-        <div className="row">
-        <div className="col-2 scrape-back">
-            <button id="back" type="button" className="btn btn-primary btn-danger" onClick={onBack}>back</button>
-        </div>
-        <div className="col-4 scrape-title">
-            <span> Scrape Builder</span>
-        </div>
-        <div className="col-4">
-            <ul className="nav nav-tabs">
-            <li className="nav-item">
-                <a id="sb" className="nav-link active" aria-current="page" href="#" onClick={sbClick}>SB</a>
-            </li>
-            <li className="nav-item">
-                <a id="scrapers" className="nav-link" href="#" onClick={scrapersClick}>Scrapers</a>
-            </li>
-            </ul>
-        </div>
-        <div className="col-1 container-fluid icon-size">
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
-            data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
-            aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-            </button>
-        </div>
-        </div>
+                <div className="row">
+                <div className="col-1 container-fluid icon-size">
+                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span className="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+                </div>
             </nav>
             <div className="collapse" id="navbarToggleExternalContent">
                 <div className="bg-dark p-4">
@@ -827,148 +1045,8 @@ chrome.storage.onChanged.addListener(PopupButtonClickDetector);
                 </div>
                 </div>
             </div>
-            <div className="container" id="mainContainer">
-                <div className="row">
-                <div className="col-6 scrape-select">
-                    <button id="selectElements" type="button" className="btn btn-primary nav-button reg-button-size">
-                    Select
-                    </button>
-
-                    <button id="disableSelect" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
-                    Disable
-                    </button>
-                    <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
-                    Download Recent
-                    </button>
-                </div>
-                <div className="col-6 scrape-schedule">
-                    <div className="dropdown">
-                    <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false" id="frequencyButton">
-                        Schedule
-                    </button>
-                    <ul className="dropdown-menu">
-                        <li>
-                        <a className="dropdown-item" href="#" id="once">Just Once</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="everyDay">Every Day</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="everyOtherDay">Every Other Day</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="everyWeek">Every Week</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="everyOtherWeek">Every Other Week</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="everyMonth">Every Month</a>
-                        </li>
-                    </ul>
-                    </div>
-                    <div className="dropdown">
-                    <button id="eventButton" className="btn btn-success dropdown-toggle drp-button-size" type="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        Event Options
-                    </button>
-                    <ul className="dropdown-menu dropdown-menu-dark drpMenuHeight navPos">
-                        <li>
-                        <a className="dropdown-item" href="#" id="eventArea">Event Area</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="venueName">Venue Name</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="venueAddress">Venue Address</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="venueContactInfo">Venue Contact Info</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="eventTitle">Event Title</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="eventDesc">Event Description</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="images">Images</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="startDate">Start Date</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="endDate">End Date</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="doorTime">Door Time</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="ticketCost">Ticket Cost</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="ticketURLs">Ticket URLs</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="otherPerformers">Other Performers</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="eventDescUrl">Event Desc URL</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="ageRequired">Age Required</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="facebookURL">Facebook URL</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="twitterURL">Twitter URL</a>
-                        </li>
-                        <li>
-                        <a className="dropdown-item" href="#" id="misc">Misc</a>
-                        </li>
-                    </ul>
-                    </div>
-                </div>
-                </div>
-                <form id="setupScrape">
-                <div className="row">
-                    <div className="col">
-                    <div className="main-display-container">
-                        <figcaption className="text-area-caption">
-                        <b>Is This What You Selected?</b>
-                        <div id="mainDisplay scrape-preview"></div>
-                        </figcaption>
-                    </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-3 scrape-verify">
-                    <button disabled id="verify" className="btn btn-primary reg-button-size">
-                        Verify
-                    </button>
-                    <button disabled id="submitScrape" type="button" className="btn btn-primary reg-button-size">
-                        Submit
-                    </button>
-                    <button disabled id="cancel" type="button" className="btn btn-primary reg-button-size">
-                        Cancel
-                    </button>
-                    <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
-                        Clear
-                    </button>
-                    </div>
-                    <div className="col-9">
-                    <div className="list-contain">
-                        <figcaption className="list-label">
-                        <b>Currently Selected</b>
-                        </figcaption>
-                        <ol id="list" className="list-group list-group-numbered"></ol>
-                    </div>
-                    </div>
-                </div>
-                </form>
-            </div>
+            {scraperBuilder && <ScraperBuild/>}
+            {admin && <AdminPage/>}
         </div>
     );
 }
