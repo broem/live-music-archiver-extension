@@ -378,6 +378,39 @@ async function scrapeBuilderPost(data) {
   });
 }
 
+async function adminGetUsers() {
+  // chrome.storage.session.get(['config'], async function (result) {
+  //   var config = result['config'];
+  // var url = 'http://' + config['remote-address'] + '/api/admin/getUsers';
+  var url = 'http://' + 'localhost:3424' + '/api/admin/getUsers';
+  return await fetch(url, {
+    method: 'GET', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer',
+  })
+    .then((blob) => blob.json())
+    .then((resp) => {
+      console.log(resp);
+      // map the users to a list
+      let users = resp.map((user) => {
+        return {
+          label: user,
+        };
+      });
+
+      console.log(users);
+
+      return users;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  // });
+}
+
 async function verified(data) {
   chrome.storage.session.get(
     ['config', 'userId', 'mapId'],
@@ -574,4 +607,5 @@ export {
   deleteIGScrape,
   downloadIGRecent,
   getUser,
+  adminGetUsers,
 };

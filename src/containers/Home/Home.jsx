@@ -716,6 +716,4 @@ const Home = () => {
   );
 };
 
-console.log('Home.js');
-
 export default Home;

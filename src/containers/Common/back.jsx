@@ -1,7 +1,8 @@
 import React from 'react';
 
 function onBack() {
-    window.history.back();
+    // go back to home page
+    window.location.href = '/popup.html';
 }
 
 const Back = () => {

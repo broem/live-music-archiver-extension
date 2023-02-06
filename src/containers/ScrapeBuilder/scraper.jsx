@@ -4,6 +4,10 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { useState } from 'react';
+import EnhancedTable from "../Common/table";
+import NestedList from "../Common/nestedList";
+import CustomizedMenus from "../Common/menu";
+import * as scrape from "../../pages/Background/scrape-fetch.js";
 
 function selectElementsClick() {
     console.log("select elements");
@@ -161,12 +165,59 @@ const ScraperBuild = () => {
     );
 }
 
-const AdminPage = () => {
+async function items(){
+    var u = [];
+    // simulate a fetch
+    // wait 1 second
+    // then return the items
+    // this is just to show how to use the loading state
+    // you can remove this and just return the items
+    // directly
+    await scrape.adminGetUsers().then((users) => {
+        console.log("users returned from adminGetUsers");
+        u = users;
+    }).catch((err) => {
+        console.log(err);
+    });
+
+    return u;
+}
+
+class AdminPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            usersReturned : false,
+            users : [],
+        }
+    }
+
+    componentDidMount() {
+        items().then((items) => {
+            console.log(items);
+            this.setState({usersReturned: true});
+            this.setState({users: items});
+        }).catch((err) => {
+            console.log(err);
+        });
+    }
+
+    render() {
+        if (!this.state.usersReturned) {
+            return (
+                <div>
+                    <div>Loading...</div>
+                </div>
+            )
+        }
+
         return (
             <div>
-                <div>Admin page hello</div>
+                <CustomizedMenus items={this.state.users}/>
+                {/* <EnhancedTable/> */}
             </div>
         )
+    }
 }
 
 
@@ -201,85 +252,82 @@ const ChangePage = ({ location }) => {
 }
 
 
-const Scraper = ({ user }) => {
-    var navPath = 1;
-    let scraperBuilder = true;
-    let admin = false;
+class Scraper extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            location: "scrapeBuilder",
+            admin : false,
+            scraperBuilder: true,
+        }
+    }
 
-var mainDisplayText = document.getElementById("mainDisplay");
-let profiles = document.getElementById("scrapers");
-let sb = document.getElementById("sb");
-let selectElements = document.getElementById("selectElements");
-let verify = document.getElementById("verify");
-let downloadRecent = document.getElementById("downloadRecent");
-let back = document.getElementById("back");
-let submitScrape = document.getElementById("submitScrape");
-let disableSelect = document.getElementById("disableSelect");
-let clearSelected = document.getElementById("clearSelected");
-let cancel = document.getElementById("cancel");
-let eventArea = document.getElementById("eventArea");
-let venueName = document.getElementById("venueName");
-let venueAddress = document.getElementById("venueAddress");
-let venueContactInfo = document.getElementById("venueContactInfo");
-let eventTitle = document.getElementById("eventTitle");
-let eventDesc = document.getElementById("eventDesc");
-let images = document.getElementById("images");
-let startDate = document.getElementById("startDate");
-let endDate = document.getElementById("endDate");
-let doorTime = document.getElementById("doorTime");
-let ticketCost = document.getElementById("ticketCost");
-let ticketURLs = document.getElementById("ticketURLs");
-let otherPerformers = document.getElementById("otherPerformers");
-let eventDescURL = document.getElementById("eventDescUrl");
-let ageRequired = document.getElementById("ageRequired");
-let facebookURL = document.getElementById("facebookURL");
-let twitterURL = document.getElementById("twitterURL");
-let misc = document.getElementById("misc");
+// var mainDisplayText = document.getElementById("mainDisplay");
+// let profiles = document.getElementById("scrapers");
+// let sb = document.getElementById("sb");
+// let selectElements = document.getElementById("selectElements");
+// let verify = document.getElementById("verify");
+// let downloadRecent = document.getElementById("downloadRecent");
+// let back = document.getElementById("back");
+// let submitScrape = document.getElementById("submitScrape");
+// let disableSelect = document.getElementById("disableSelect");
+// let clearSelected = document.getElementById("clearSelected");
+// let cancel = document.getElementById("cancel");
+// let eventArea = document.getElementById("eventArea");
+// let venueName = document.getElementById("venueName");
+// let venueAddress = document.getElementById("venueAddress");
+// let venueContactInfo = document.getElementById("venueContactInfo");
+// let eventTitle = document.getElementById("eventTitle");
+// let eventDesc = document.getElementById("eventDesc");
+// let images = document.getElementById("images");
+// let startDate = document.getElementById("startDate");
+// let endDate = document.getElementById("endDate");
+// let doorTime = document.getElementById("doorTime");
+// let ticketCost = document.getElementById("ticketCost");
+// let ticketURLs = document.getElementById("ticketURLs");
+// let otherPerformers = document.getElementById("otherPerformers");
+// let eventDescURL = document.getElementById("eventDescUrl");
+// let ageRequired = document.getElementById("ageRequired");
+// let facebookURL = document.getElementById("facebookURL");
+// let twitterURL = document.getElementById("twitterURL");
+// let misc = document.getElementById("misc");
 
-let once = document.getElementById("once");
-let everyDay = document.getElementById("everyDay");
-let everyOtherDay = document.getElementById("everyOtherDay");
-let everyWeek = document.getElementById("everyWeek");
-let everyOtherWeek = document.getElementById("everyOtherWeek");
-let everyMonth = document.getElementById("everyMonth");
+// let once = document.getElementById("once");
+// let everyDay = document.getElementById("everyDay");
+// let everyOtherDay = document.getElementById("everyOtherDay");
+// let everyWeek = document.getElementById("everyWeek");
+// let everyOtherWeek = document.getElementById("everyOtherWeek");
+// let everyMonth = document.getElementById("everyMonth");
 
-let eventButton = document.getElementById("eventButton");
-let frequencyButton = document.getElementById("frequencyButton");
+// let eventButton = document.getElementById("eventButton");
+// let frequencyButton = document.getElementById("frequencyButton");
 
-var orginalSb;
-var item = "";
-var frequency = "";
+// var orginalSb;
+// var item = "";
+// var frequency = "";
 
-var selectedItems = [];
+// var selectedItems = [];
 
-// eventButton.textContent = "Event Options";
+// // eventButton.textContent = "Event Options";
 
-var textC = "";
-var innerH = "";
-var innerT = "";
-var cName = "";
-var tagName = "";
-var url = "";
-var scrapeItemRecieved = false;
+// var textC = "";
+// var innerH = "";
+// var innerT = "";
+// var cName = "";
+// var tagName = "";
+// var url = "";
+// var scrapeItemRecieved = false;
 
-function setScraperBuilder() {
-    console.log("setScraperBuilder");
-    scraperBuilder = true;
-    admin = false;
+setScraperBuilder() {
+    this.setState({scraperBuilder: true, admin: false});
 }
 
-function setAdmin() {
-    console.log("setAdmin");
-    admin = true;
-    scraperBuilder = false;
+ setAdmin() {
+    this.setState({scraperBuilder: false, admin: true});
 }
 
-function navClick(location) {
-    console.log("navClick");
-    navPath = location;
-}
 
-function sbClick(e) {
+ sbClick(e) {
   if (!sb.classNameList.contains("active")) {
     e.preventDefault();
     sb.classNameList.add("active");
@@ -290,7 +338,7 @@ function sbClick(e) {
   }
 }
 
-function scrapersClick(e) {
+ scrapersClick(e) {
     console.log("scrapersClick");
     if (!document.getElementById("scrapers").classNameList.contains("active")) {
         e.preventDefault();
@@ -724,26 +772,26 @@ function scrapersClick(e) {
 // });
 
 // listen for messages from the background script
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.msg === "Recent scrapes") {
-    // download recent
-    // get from local storage
-    console.log(message.data);
-    // create reuslt url
+// chrome.runtime.onMessage.addListener((message) => {
+//   if (message.msg === "Recent scrapes") {
+//     // download recent
+//     // get from local storage
+//     console.log(message.data);
+//     // create reuslt url
 
-    // string to blob
-    var blob = new Blob([message.data], { type: "text/csv" });
+//     // string to blob
+//     var blob = new Blob([message.data], { type: "text/csv" });
 
-    var resultURL = window.URL.createObjectURL(blob);
-    // create download link
-    var downloadLink = document.createElement("a");
-    downloadLink.href = resultURL;
-    downloadLink.download = "recent.csv";
-    // click download link
-    downloadLink.click();
-    // download recent
-  }
-});
+//     var resultURL = window.URL.createObjectURL(blob);
+//     // create download link
+//     var downloadLink = document.createElement("a");
+//     downloadLink.href = resultURL;
+//     downloadLink.download = "recent.csv";
+//     // click download link
+//     downloadLink.click();
+//     // download recent
+//   }
+// });
 
 // verify.addEventListener("click", async (event) => {
 //   submitScrape.disabled = true;
@@ -867,7 +915,7 @@ chrome.runtime.onMessage.addListener((message) => {
 //   }
 // });
 
-function PopupButtonClickDetector(changes, area) {
+ PopupButtonClickDetector(changes, area) {
   let changedItems = Object.keys(changes);
 
   for (let node of changedItems) {
@@ -976,34 +1024,36 @@ function PopupButtonClickDetector(changes, area) {
   }
 }
 
-chrome.runtime.sendMessage({
-  msg: "GetCurrentScrapes",
-});
+// chrome.runtime.sendMessage({
+//   msg: "GetCurrentScrapes",
+// });
 
-chrome.storage.onChanged.addListener(PopupButtonClickDetector);
+// chrome.storage.onChanged.addListener(PopupButtonClickDetector);
 
 
-
+render() {
     return (
         <div>
             <Navbar bg="dark" variant="dark">
                 <Container>
                 <Navbar.Brand>Scrape Builder</Navbar.Brand>
                 <Nav className="me-auto">
-                    <Nav.Link href="#builder" onClick={() => setScraperBuilder()}>
+                    <Nav.Link href="#builder" onClick={() => this.setScraperBuilder()}>
                         Builder
                     </Nav.Link>
-                    <Nav.Link href="#scrapers" onClick={() => navClick(2)}>
+                    <Nav.Link href="#scrapers">
                         Scrapers
                     </Nav.Link>
-                    <Nav.Link href="#admin" onClick={() => setAdmin()}>
-                        <Admin isAdmin={user.is_admin}/>
+                    {this.props.user.is_admin &&
+                    <Nav.Link href="#admin" onClick={() => this.setAdmin()}>
+                        Admin
                     </Nav.Link>
+                    }
                 </Nav>
                 <Back />
                 </Container>
             </Navbar>
-            <nav className="navbar navbar-dark bg-dark navbar-custom">
+            {/* <nav className="navbar navbar-dark bg-dark navbar-custom">
                 <div className="row">
                 <div className="col-1 container-fluid icon-size">
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -1044,11 +1094,12 @@ chrome.storage.onChanged.addListener(PopupButtonClickDetector);
                     aria-describedby="addon-wrapping" />
                 </div>
                 </div>
-            </div>
-            {scraperBuilder && <ScraperBuild/>}
-            {admin && <AdminPage/>}
+            </div> */}
+            {this.state.scraperBuilder && <ScraperBuild/>}
+            {this.state.admin && <AdminPage/>}
         </div>
     );
+}
 }
 
 export default Scraper;
