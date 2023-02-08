@@ -131,11 +131,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    title: 'Bring back popup',
-    contexts: ['all'],
-    id: BRING_BACK_POP_CTX,
-  });
 });
 
 chrome.contextMenus.onClicked.addListener(bringBackPopContextExe);
@@ -396,7 +391,7 @@ chrome.runtime.onMessage.addListener(async function (
       async function (tabs) {
         var x = 0;
         tabs.forEach((tab) => {
-          let findPopupMatch = logic.substringSearch(
+          let findPopupMatch = substringSearch(
             'scrapeBuilder.html',
             tab.url
           );
@@ -505,7 +500,7 @@ chrome.runtime.onMessage.addListener(async function (
       async function (tabs) {
         var x = 0;
         tabs.forEach((tab) => {
-          let findActiveMatch = logic.substringSearch(sender.url, tab.url);
+          let findActiveMatch = substringSearch(sender.url, tab.url);
           if (findActiveMatch != -1) {
             chrome.windows.update(tabs[x].windowId, { focused: true });
           }

@@ -21,6 +21,7 @@ import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
+import { Button } from '@mui/material';
 
 function createData(id, email, venue_base_url, schedule, enabled, last_run, approved) {
   return {
@@ -109,6 +110,24 @@ const headCells = [
     disablePadding: false,
     label: 'Map Approved',
   },
+  {
+    id: 'download_recent',
+    numeric: false,
+    disablePadding: false,
+    label: 'Download Recent',
+  },
+  {
+    id: 'display_recent',
+    numeric: false,
+    disablePadding: false,
+    label: 'Display Recent',
+  },
+  {
+    id: 'edit',
+    numeric: false,
+    disablePadding: false,
+    label: 'Edit',
+  }
 ];
 
 function EnhancedTableHead(props) {
@@ -158,8 +177,14 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
+
 function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
+  const { numSelected, selected } = props;
+
+  function deleteSelected() {
+    console.log("kill it");
+    console.log(selected);
+  }
 
   return (
     <Toolbar
@@ -192,10 +217,10 @@ function EnhancedTableToolbar(props) {
         </Typography>
       )}
 
-      {numSelected == 1 ? (
-        <Tooltip title="Edit">
-          <IconButton>
-            <DeleteIcon />
+      {numSelected >= 1 ? (
+        <Tooltip title="Delete">
+          <IconButton onClick={() => deleteSelected()}>
+            <DeleteIcon/> 
           </IconButton>
         </Tooltip>
       ) : (
@@ -273,7 +298,7 @@ export default function EnhancedTable() {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        <EnhancedTableToolbar numSelected={selected.length} selected={selected} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -328,6 +353,11 @@ export default function EnhancedTable() {
                       <TableCell align="right">{row.enabled}</TableCell>
                       <TableCell align="right">{row.last_run}</TableCell>
                       <TableCell align="right">{row.approved}</TableCell>
+                      <TableCell padding='checkbox'>
+                        <Button>
+                          Edit
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}

@@ -311,19 +311,30 @@ async function deleteScrape(data) {
 
 async function getUser() {
   console.log('Getting user');
-  chrome.storage.session.get(['userEmail', 'config'], async function (result) {
+  chrome.storage.session.get(['userEmail', 'config', 'userId'], async function (result) {
     var config = result['config'];
     var userEmail = result['userEmail'];
+    var userId = result['userId'];
+    var data = {
+      "user_id" : userId,
+      "email": userEmail
+    }
     console.log(userEmail);
-    var url = 'http://' + config['remote-address'] + '/api/user/' + userEmail;
+    var url = 'http://' + config['remote-address'] + '/api/user';
     console.log(url);
     await fetch(url, {
-      method: 'GET', // *GET, POST, PUT, DELETE, etc.
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
       mode: 'cors', // no-cors, *cors, same-origin
       cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
       credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        Authorization: `Bearer ${currRaw}`,
+
+        'Content-Type': 'application/json',
+      },
       redirect: 'follow', // manual, *follow, error
       referrerPolicy: 'no-referrer',
+      body: JSON.stringify(data),
     })
       .then((blob) => blob.json())
       .then((resp) => {

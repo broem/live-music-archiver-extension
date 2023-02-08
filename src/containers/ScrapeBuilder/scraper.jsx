@@ -3,6 +3,8 @@ import Back from "../Common/back";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
 import EnhancedTable from "../Common/table";
 import NestedList from "../Common/nestedList";
@@ -18,7 +20,46 @@ function selectElementsClick() {
   });
 }
 
+const scheduleOptions = [
+  {
+    label: "Just Once",
+  },
+  {
+    label: "Every Day",
+  },
+  {
+    label: "Every Other Day",
+  },
+  {
+    label: "Every Week",
+  },
+  {
+    label: "Every Other Week",
+  },
+  {
+    label: "Every Month",
+  },
+]
+
 const ScraperBuild = () => {
+
+
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [scheduleText, setSchedule] = React.useState("Schedule");
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    console.log("im clickin")
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (label) => {
+    setSchedule(label);
+    setAnchorEl(null);
+  };
+
+
     return (
         <div className="container" id="mainContainer">
         <div className="row">
@@ -36,30 +77,29 @@ const ScraperBuild = () => {
         </div>
         <div className="col-6 scrape-schedule">
             <div className="dropdown">
-            <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button" data-bs-toggle="dropdown"
-                aria-expanded="false" id="frequencyButton">
-                Schedule
+            <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
+                aria-controls={open ? 'basic-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                onClick={handleClick}
+                id="basic-button">
+                  {scheduleText}
             </button>
-            <ul className="dropdown-menu">
-                <li>
-                <a className="dropdown-item" href="#" id="once">Just Once</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="everyDay">Every Day</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="everyOtherDay">Every Other Day</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="everyWeek">Every Week</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="everyOtherWeek">Every Other Week</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="everyMonth">Every Month</a>
-                </li>
-            </ul>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              {scheduleOptions && scheduleOptions.map((item) => (
+                <MenuItem key={item.label} onClick={() => handleClose(item.label)} disableRipple>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Menu>
             </div>
             <div className="dropdown">
             <button id="eventButton" className="btn btn-success dropdown-toggle drp-button-size" type="button"
@@ -189,7 +229,14 @@ class AdminPage extends React.Component {
         this.state = {
             usersReturned : false,
             users : [],
+            selectedUser: "",
         }
+    }
+
+    setUserSelect = (user) => {
+      console.log("setting user")
+      this.setState({selectedUser: user});
+      console.log(user);
     }
 
     componentDidMount() {
@@ -213,11 +260,32 @@ class AdminPage extends React.Component {
 
         return (
             <div>
-                <CustomizedMenus items={this.state.users}/>
-                {/* <EnhancedTable/> */}
+                <CustomizedMenus items={this.state.users} selectOption={this.setUserSelect}/>
+                {this.state.selectedUser.length > 0 && <EnhancedTable/>}
             </div>
         )
     }
+}
+
+class ScrapersPage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {}
+  }
+
+  render() {
+    return (
+      <div className="container"> 
+        <div className="card" style={{width: "18rem"}}>
+         <div className="card-header">
+          My Event Scrapers
+            </div>
+            <ul className="list-group list-group-flush">
+            </ul>
+          </div>
+        </div>      
+    )
+  }
 }
 
 
@@ -258,6 +326,7 @@ class Scraper extends React.Component {
         this.state = {
             location: "scrapeBuilder",
             admin : false,
+            scrapers: false,
             scraperBuilder: true,
         }
     }
@@ -319,11 +388,15 @@ class Scraper extends React.Component {
 // var scrapeItemRecieved = false;
 
 setScraperBuilder() {
-    this.setState({scraperBuilder: true, admin: false});
+    this.setState({scraperBuilder: true, admin: false, scrapers: false});
 }
 
  setAdmin() {
-    this.setState({scraperBuilder: false, admin: true});
+    this.setState({scraperBuilder: false, admin: true, scrapers: false});
+}
+
+setScrapersPage() {
+  this.setState({scraperBuilder: false, admin: false, scrapers: true})
 }
 
 
@@ -1041,7 +1114,7 @@ render() {
                     <Nav.Link href="#builder" onClick={() => this.setScraperBuilder()}>
                         Builder
                     </Nav.Link>
-                    <Nav.Link href="#scrapers">
+                    <Nav.Link href="#scrapers" onClick={() => this.setScrapersPage()}>
                         Scrapers
                     </Nav.Link>
                     {this.props.user.is_admin &&
@@ -1097,6 +1170,7 @@ render() {
             </div> */}
             {this.state.scraperBuilder && <ScraperBuild/>}
             {this.state.admin && <AdminPage/>}
+            {this.state.scrapers && <ScrapersPage/>}
         </div>
     );
 }

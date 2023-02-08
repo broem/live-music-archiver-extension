@@ -375,7 +375,6 @@ if (window.contentScriptInjected !== true) {
     var locB = null;
 
     document.addEventListener("mousedown", function (e) {
-      console.log("mousedown");
       if (!stopAll) {
         stopMouseover = false;
         if (!freezeState) {
@@ -389,7 +388,6 @@ if (window.contentScriptInjected !== true) {
     });
 
     document.addEventListener("mousemove", function (e) {
-      console.log("mousemove");
       if (locA && stopMouseover == false && !freezeState && !stopAll) {
         locB = getMousePos(canvas, e);
         ctx.clearRect(0, 0, canvas.width, canvas.height);

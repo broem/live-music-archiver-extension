@@ -59,6 +59,11 @@ export default function CustomizedMenus(props) {
     setAnchorEl(null);
   };
 
+  function handleOptionSelect(label) {
+    setAnchorEl(null);
+    props.selectOption(label)
+  };
+
   return (
     <div>
       <Button
@@ -83,7 +88,7 @@ export default function CustomizedMenus(props) {
         onClose={handleClose}
       >
         {props.items && props.items.map((item) => (
-            <MenuItem key={item.label} onClick={handleClose} disableRipple>
+            <MenuItem key={item.label} onClick={() => handleOptionSelect(item.label)} disableRipple>
                 {item.label}
             </MenuItem>
         ))}
