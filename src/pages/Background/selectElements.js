@@ -124,10 +124,12 @@ if (window.contentScriptInjected !== true) {
           e.preventDefault();
           e.stopPropagation();
           collectBordered();
+          console.log("bringing it back 1")
           chrome.runtime.sendMessage({
             msg: "Bring back scrape builder",
           });
 
+          stopAll = true; // TODO wtf is all this? 
           freezeState = true;
         }
       });
@@ -135,6 +137,7 @@ if (window.contentScriptInjected !== true) {
         if (!stopAll) {
           e.preventDefault();
           e.stopPropagation();
+          console.log("bringing it back 2")
           chrome.runtime.sendMessage({
             msg: "Bring back scrape builder",
           });
@@ -305,6 +308,8 @@ if (window.contentScriptInjected !== true) {
           src: activeSelected[0].src,
         },
       });
+
+      // add to the end or to the first if nothing else there.
       activeSelected[activeSelected.length - 1].classList.add(
         "previousBorderPrimary"
       ) ?? activeSelected[0].classList.add("previousBorderPrimary");
@@ -403,7 +408,6 @@ if (window.contentScriptInjected !== true) {
     });
 
     document.addEventListener("mouseup", function (e) {
-      console.log("Mouse up");
       if (!stopAll) {
         if (!freezeState && locA && locB) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -436,6 +440,7 @@ if (window.contentScriptInjected !== true) {
           freezeState = true;
           removeEventBorderAll();
           ctx.clearRect(0, 0, canvas.width, canvas.height);
+        console.log("bringing it back 3")
           chrome.runtime.sendMessage({
             msg: "Bring back scrape builder",
           });
@@ -447,15 +452,36 @@ if (window.contentScriptInjected !== true) {
     });
   }
 
+  chrome.runtime.onMessage.addListener(async function (req, sender, resp) {
+    if(req.msg === 'selectElements') {
+      console.log("shit now we gettin somewhere");
+      chrome.runtime.sendMessage({
+        msg: "Bring up active tab",
+      });
+      stopAll = false;
+      freezeState = false;
+      if (runSelect == true) {
+        selectingElements();
+        runSelect = false;
+      }
+    }
+  })
+
+  // This is triggered by listening to storage changes
   function PopupButtonClickDetector(changes, area) {
     let changedItems = Object.keys(changes);
+
+    console.log(changes)
 
     for (let node of changedItems) {
       if (node == "disableSelect" && area == "sync") {
         stopAll = true;
       }
 
-      if (node == "selectElementsIndex" && area == "sync") {
+      if (node == "selectElements" && area == "sync") {
+        let someval = JSON.parse(changes.selectElements.newValue)
+        console.log(someval.field);
+
         chrome.runtime.sendMessage({
           msg: "Bring up active tab",
         });

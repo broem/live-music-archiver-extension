@@ -9,16 +9,14 @@ import { useState } from 'react';
 import EnhancedTable from "../Common/table";
 import NestedList from "../Common/nestedList";
 import CustomizedMenus from "../Common/menu";
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import IconButton from '@mui/material/IconButton';
+import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
-
-function selectElementsClick() {
-    console.log("select elements");
-    document.getElementById("submitScrape").disabled = true;
-    document.getElementById("cancel").disabled = true;
-  chrome.runtime.sendMessage({
-    selectElements: "Select elements",
-  });
-}
 
 const scheduleOptions = [
   {
@@ -41,39 +39,164 @@ const scheduleOptions = [
   },
 ]
 
+let eventOptions = [
+  {"label":"Event Area" ,"value":"event"},
+  {"label":"Venue Name" ,"value":"venueName"},
+  {"label":"Venue Address" ,"value":"venueAddress"},
+  {"label":"Venue Contact Info" ,"value":"venueContactInfo"},
+  {"label":"Event Title" ,"value":"eventTitle"},
+  {"label":"Event Description" ,"value":"eventDesc"},
+  {"label":"Images" ,"value":"images"},
+  {"label":"Start Date" ,"value":"startDate"},
+  {"label":"End Date" ,"value":"endDate"},
+  {"label":"Door Time" ,"value":"doorTime"},
+  {"label":"Ticket Cost" ,"value":"ticketCost"},
+  {"label":"Ticket URL" ,"value":"ticketURLS"},
+  {"label":"Other Performers" ,"value":"otherPerformers"},
+  {"label":"Event Desc URL" ,"value":"eventDescURL"},
+  {"label":"Age Required" ,"value":"ageRequired"},
+  {"label":"Facebook URL" ,"value":"facebookURL"},
+  {"label":"Twitter URL" ,"value":"twitterURL"},
+  {"label":"Misc" ,"value":"misc"}
+]
+
 const ScraperBuild = () => {
-
-
-
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [evtAnchorEl, setEvtAnchorEl] = React.useState(null);
+  const [tempEventScrape, setTemp] = React.useState(null);
+  const [selectedEventList, setEventList] = React.useState([]);
+  const [addBtn, setAddBtn] = React.useState(true);
+  const [clearBtn, setClearBtn] = React.useState(true);
   const [scheduleText, setSchedule] = React.useState("Schedule");
+  const [eventOpt, setEventOpt] = React.useState(
+    {
+    label: "Event Options",
+    value: undefined,
+    });
+  const [scrapedText, setScrapedText] = React.useState("");
+
   const open = Boolean(anchorEl);
+  const evtOpen = Boolean(evtAnchorEl);
+  const addBtnDisabled = Boolean(addBtn);
+  const clearBtnDisabled = Boolean(clearBtn);
+
+  const handleEvtClick = (event) => {
+    setEvtAnchorEl(event.currentTarget);
+  };
+
+  const handleEvtClose = (item) => {
+    if(item && item.value) {
+      document.getElementById("submitScrape").disabled = true;
+      document.getElementById("cancel").disabled = true;
+      chrome.runtime.sendMessage({
+        selectElements: "Select elements",
+      });
+      setEventOpt(item);
+    }
+    setEvtAnchorEl(null);
+  };
 
   const handleClick = (event) => {
-    console.log("im clickin")
     setAnchorEl(event.currentTarget);
   };
 
   const handleClose = (label) => {
-    setSchedule(label);
+    if(label) {
+      console.log("shit")
+      setSchedule(label);
+    }
     setAnchorEl(null);
   };
+
+  const addEventProperty = () => {
+    console.log("adding evt prop")
+    if(tempEventScrape) {
+      // if(selectedEventList.length === 0) {
+
+      //   setEventList([tempEventScrape])
+      // } else {
+      // add it to some collection
+      setEventList([
+        ...selectedEventList,
+        tempEventScrape
+      ])
+      // }
+
+      console.log(selectedEventList);
+
+      setEventOpt(
+        {
+          label: "Event Options",
+          value: undefined,
+        }
+      )
+
+      setScrapedText("");
+
+      // remove it from the event selected list
+      eventOptions = eventOptions.filter(x => x.label !== tempEventScrape.label)
+    }
+
+  }
+  
+  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.scrapeThis === "Add to scrape builder") {
+      // we dont want to save the null eventOpt value
+      if(eventOpt.value === undefined) {
+        return;
+      }
+
+      // remove additonal new lines
+      var textC = request.data.textC.replace(/(\r\n|\n|\r)/gm, "");
+  
+      // if mainDisplayText is an IMG
+      if (request.data.tagName === "IMG") {
+        var img = document.createElement("img");
+        img.src = request.data.src;
+        img.classNameName = "img-fluid";
+        // mainDisplayText.appendChild(img);
+      } else {
+        var text = document.createTextNode(textC);
+        // mainDisplayText.appendChild(text);
+      }
+
+      // make the event thing
+      var ok = {
+        [eventOpt.value] : {
+          "textContent": textC,
+          "innerHTML": request.data.innerH ?? "",
+          "innerText": request.data.innerT ?? "",
+          "className": request.data.cName ?? "",
+          "tagName": request.data.tagName ?? "",
+          "url": request.data.url ?? "",
+        },
+        "label": eventOpt.label,
+        "textContent": textC,
+      }
+  
+      setScrapedText(textC);
+      setAddBtn(false);
+      setClearBtn(false);
+      setTemp(ok);
+    }
+  
+    if (request.reloadScrapeBuilder === "Reload scrape builder") {
+      window.location.reload(true);
+    }
+  });
+  
 
 
     return (
         <div className="container" id="mainContainer">
         <div className="row">
         <div className="col-6 scrape-select">
-            <button id="selectElements" type="button" className="btn btn-primary nav-button reg-button-size" onClick={selectElementsClick}>
-            Select
-            </button>
-
-            <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size">
+          <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size">
             Disable
-            </button>
-            <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
+          </button>
+          <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
             Download Recent
-            </button>
+          </button>
         </div>
         <div className="col-6 scrape-schedule">
             <div className="dropdown">
@@ -89,7 +212,7 @@ const ScraperBuild = () => {
               id="basic-menu"
               anchorEl={anchorEl}
               open={open}
-              onClose={handleClose}
+              onClose={() => handleClose(undefined)}
               MenuListProps={{
                 'aria-labelledby': 'basic-button',
               }}
@@ -102,66 +225,30 @@ const ScraperBuild = () => {
             </Menu>
             </div>
             <div className="dropdown">
-            <button id="eventButton" className="btn btn-success dropdown-toggle drp-button-size" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false">
-                Event Options
+            <button className="btn btn-success dropdown-toggle drp-button-size" 
+                    type="button"
+                    aria-controls={evtOpen ? 'basic-evt-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={evtOpen ? 'true' : undefined}
+                    onClick={handleEvtClick}
+                    id="event-button">
+                {eventOpt.label}
             </button>
-            <ul className="dropdown-menu dropdown-menu-dark drpMenuHeight navPos">
-                <li>
-                <a className="dropdown-item" href="#" id="eventArea">Event Area</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="venueName">Venue Name</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="venueAddress">Venue Address</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="venueContactInfo">Venue Contact Info</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="eventTitle">Event Title</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="eventDesc">Event Description</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="images">Images</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="startDate">Start Date</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="endDate">End Date</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="doorTime">Door Time</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="ticketCost">Ticket Cost</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="ticketURLs">Ticket URLs</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="otherPerformers">Other Performers</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="eventDescUrl">Event Desc URL</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="ageRequired">Age Required</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="facebookURL">Facebook URL</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="twitterURL">Twitter URL</a>
-                </li>
-                <li>
-                <a className="dropdown-item" href="#" id="misc">Misc</a>
-                </li>
-            </ul>
+            <Menu
+              id="basic-evt-menu"
+              anchorEl={evtAnchorEl}
+              open={evtOpen}
+              onClose={() => handleEvtClose(undefined)}
+              MenuListProps={{
+                'aria-labelledby': 'event-button',
+              }}
+            >
+              {eventOptions && eventOptions.map((item) => (
+                <MenuItem key={item.label} onClick={() => handleEvtClose(item)} disableRipple>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Menu>
             </div>
         </div>
         </div>
@@ -171,9 +258,17 @@ const ScraperBuild = () => {
             <div className="main-display-container">
                 <figcaption className="text-area-caption">
                 <b>Is This What You Selected?</b>
-                <div id="mainDisplay scrape-preview"></div>
+                <div id="mainDisplay scrape-preview">
+                  {scrapedText}
+                </div>
                 </figcaption>
             </div>
+            <IconButton sx={{ color: 'white' }} edge="end" title="Add" disabled={addBtnDisabled} onClick={() => addEventProperty()}>
+              <AddIcon />
+            </IconButton>
+            <IconButton sx={{ color: 'white' }} edge="end" title="Clear" disabled={clearBtnDisabled}>
+              <RemoveIcon />
+            </IconButton>
             </div>
         </div>
         <div className="row">
@@ -193,16 +288,49 @@ const ScraperBuild = () => {
             </div>
             <div className="col-9">
             <div className="list-contain">
-                <figcaption className="list-label">
-                <b>Currently Selected</b>
-                </figcaption>
-                <ol id="list" className="list-group list-group-numbered"></ol>
+            <figcaption className="text-area-caption">
+                Currently Selected
+          </figcaption>
+                <List
+                  sx={{
+                    width: '100%',
+                    maxWidth: 360,
+                    bgcolor: 'background.paper',
+                    position: 'relative',
+                    overflow: 'auto',
+                    maxHeight: 'fit-content',
+                    '& ul': { padding: 0 },
+                  }} 
+                  dense={true}>
+              {selectedEventList && selectedEventList.map(item => (
+                <ListItem
+                  key={item.label}
+                  secondaryAction={
+                    <IconButton edge="end" aria-label="delete">
+                      <RemoveIcon />
+                    </IconButton>
+                  }
+                >
+                  <ListItemText
+                    primary={item.label}
+                  />
+                </ListItem>
+              ))}
+            </List>
             </div>
             </div>
         </div>
         </form>
     </div>
     );
+}
+
+function generate(element) {
+  return [0, 1, 2, 3, 4, 5, 6, 7].map((value) =>
+    React.cloneElement(element, {
+      key: value,
+    }),
+  );
 }
 
 async function items(){
@@ -330,62 +458,6 @@ class Scraper extends React.Component {
             scraperBuilder: true,
         }
     }
-
-// var mainDisplayText = document.getElementById("mainDisplay");
-// let profiles = document.getElementById("scrapers");
-// let sb = document.getElementById("sb");
-// let selectElements = document.getElementById("selectElements");
-// let verify = document.getElementById("verify");
-// let downloadRecent = document.getElementById("downloadRecent");
-// let back = document.getElementById("back");
-// let submitScrape = document.getElementById("submitScrape");
-// let disableSelect = document.getElementById("disableSelect");
-// let clearSelected = document.getElementById("clearSelected");
-// let cancel = document.getElementById("cancel");
-// let eventArea = document.getElementById("eventArea");
-// let venueName = document.getElementById("venueName");
-// let venueAddress = document.getElementById("venueAddress");
-// let venueContactInfo = document.getElementById("venueContactInfo");
-// let eventTitle = document.getElementById("eventTitle");
-// let eventDesc = document.getElementById("eventDesc");
-// let images = document.getElementById("images");
-// let startDate = document.getElementById("startDate");
-// let endDate = document.getElementById("endDate");
-// let doorTime = document.getElementById("doorTime");
-// let ticketCost = document.getElementById("ticketCost");
-// let ticketURLs = document.getElementById("ticketURLs");
-// let otherPerformers = document.getElementById("otherPerformers");
-// let eventDescURL = document.getElementById("eventDescUrl");
-// let ageRequired = document.getElementById("ageRequired");
-// let facebookURL = document.getElementById("facebookURL");
-// let twitterURL = document.getElementById("twitterURL");
-// let misc = document.getElementById("misc");
-
-// let once = document.getElementById("once");
-// let everyDay = document.getElementById("everyDay");
-// let everyOtherDay = document.getElementById("everyOtherDay");
-// let everyWeek = document.getElementById("everyWeek");
-// let everyOtherWeek = document.getElementById("everyOtherWeek");
-// let everyMonth = document.getElementById("everyMonth");
-
-// let eventButton = document.getElementById("eventButton");
-// let frequencyButton = document.getElementById("frequencyButton");
-
-// var orginalSb;
-// var item = "";
-// var frequency = "";
-
-// var selectedItems = [];
-
-// // eventButton.textContent = "Event Options";
-
-// var textC = "";
-// var innerH = "";
-// var innerT = "";
-// var cName = "";
-// var tagName = "";
-// var url = "";
-// var scrapeItemRecieved = false;
 
 setScraperBuilder() {
     this.setState({scraperBuilder: true, admin: false, scrapers: false});
@@ -953,40 +1025,6 @@ setScrapersPage() {
 //   scrapeItemRecieved = true;
 // });
 
-// chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-//   if (request.scrapeThis === "Add to scrape builder") {
-//     scrapeItemRecieved = true;
-//     if (mainDisplayText.hasChildNodes()) {
-//       mainDisplayText.removeChild(mainDisplayText.childNodes[0]);
-//     }
-//     // remove additonal new lines
-//     var textC = request.data.textC.replace(/(\r\n|\n|\r)/gm, "");
-//     // mainDisplayText.textContent = textC;
-//     // add element as child to mainDisplayText
-
-//     // if mainDisplayText is an IMG
-//     if (request.data.tagName === "IMG") {
-//       var img = document.createElement("img");
-//       img.src = request.data.src;
-//       img.classNameName = "img-fluid";
-//       mainDisplayText.appendChild(img);
-//     } else {
-//       var text = document.createTextNode(textC);
-//       mainDisplayText.appendChild(text);
-//     }
-
-//     textC = request.data.textC;
-//     innerH = request.data.innerH;
-//     innerT = request.data.innerT;
-//     cName = request.data.cName;
-//     tagName = request.data.tagName;
-//     url = request.data.url;
-//   }
-
-//   if (request.reloadScrapeBuilder === "Reload scrape builder") {
-//     window.location.reload(true);
-//   }
-// });
 
  PopupButtonClickDetector(changes, area) {
   let changedItems = Object.keys(changes);
