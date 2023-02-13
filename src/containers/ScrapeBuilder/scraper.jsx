@@ -82,11 +82,11 @@ const ScraperBuild = () => {
   const [mainDisplayText, setMainDisplay] = React.useState(mainDisplayDefault);
   const [scrapedText, setScrapedText] = React.useState();
   const [showAdditionalEl, setShowAdditional] = React.useState();
-  const [cbsa, setCbsa] = React.useState(null);
-  const [countyFips, setCountyFips] = React.useState(null);
-  const [stateFips, setStateFips] = React.useState(null);
-  const [longitude, setLongitude] = React.useState(null);
-  const [latitude, setLatitude] = React.useState(null);
+  const [cbsa, setCbsa] = React.useState("");
+  const [countyFips, setCountyFips] = React.useState("");
+  const [stateFips, setStateFips] = React.useState("");
+  const [longitude, setLongitude] = React.useState("");
+  const [latitude, setLatitude] = React.useState("");
 
   const open = Boolean(anchorEl);
   const evtOpen = Boolean(evtAnchorEl);
@@ -95,8 +95,7 @@ const ScraperBuild = () => {
   const showAdditional = Boolean(showAdditionalEl);
 
   useEffect(() => {
-    console.log("creating this shiiit");
-    const ok  = chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       if (request.scrapeThis === "Add to scrape builder") {
         console.log("got you mboy");
         console.log(eventOpt);
@@ -110,15 +109,14 @@ const ScraperBuild = () => {
           var img = document.createElement("img");
           img.src = request.data.src;
           img.classNameName = "img-fluid";
-          // mainDisplayText.appendChild(img);
         } else {
           var text = document.createTextNode(textC);
-          // mainDisplayText.appendChild(text);
         }
   
         // make the event thing
         var ok = {
-          [request.data.value] : {
+          key: request.data.value , 
+          val : {
             "textContent": textC,
             "innerHTML": request.data.innerH ?? "",
             "innerText": request.data.innerT ?? "",
@@ -173,7 +171,6 @@ const ScraperBuild = () => {
 
   const handleClose = (label) => {
     if(label) {
-      console.log("shit")
       setSchedule(label);
     }
     setAnchorEl(null);
@@ -230,15 +227,21 @@ const ScraperBuild = () => {
     });
   }
 
+  const doAThing = () => {
+    setEventList([])
+  }
+
   const addEventProperty = () => {
     console.log("adding evt prop")
     if(tempEventScrape) {
       // add it to some collection
+      let selected = structuredClone(selectedEventList);
+      let temp = structuredClone(tempEventScrape);
+
       setEventList([
-        ...selectedEventList,
-        tempEventScrape
-      ])
-      // }
+        ...selected,
+        temp,
+        ])
 
       console.log(selectedEventList);
 
@@ -262,202 +265,226 @@ const ScraperBuild = () => {
     setMainDisplay(mainDisplayAdditional);
     setShowAdditional(true);
   }
+
+  const hereWeGo = () => {
+    var mapped = selectedEventList.map(item => ({ [item.key]: item.val }) );
+    var newObj = Object.assign({}, ...mapped );
+    return newObj;
+  }
+
+  const verify = () => {
+    let metaData = {
+      frequency: scheduleText,
+      cbsa: cbsa,
+      stateFips: stateFips,
+      countyFips: countyFips,
+      latitude: latitude,
+      longitude: longitude,
+    };
+
+    let eventData = hereWeGo();
+
+    let combined = { ... eventData, ...metaData };
+
+    // call the backend
+    console.log(combined);
+  }
   
-    return (
-        <div className="container" id="mainContainer">
-        <div className="row">
-          <div className="col-3 scrape-schedule">
-              <div className="dropdown">
-              <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
-                  aria-controls={open ? 'basic-menu' : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={open ? 'true' : undefined}
-                  onClick={handleClick}
-                  id="basic-button">
-                    {scheduleText}
-              </button>
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={() => handleClose(undefined)}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
-              >
-                {scheduleOptions && scheduleOptions.map((item) => (
-                  <MenuItem key={item.label} onClick={() => handleClose(item.label)} disableRipple>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </Menu>
-              </div>
-          </div>
-          <div className="col-3 scrape-schedule">
-          <div className="dropdown">
-          <button className="btn btn-success dropdown-toggle drp-button-size" 
-                  type="button"
-                  aria-controls={evtOpen ? 'basic-evt-menu' : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={evtOpen ? 'true' : undefined}
-                  onClick={handleEvtClick}
-                  id="event-button">
-              {eventOpt.label}
-          </button>
-          <Menu
-            id="basic-evt-menu"
-            anchorEl={evtAnchorEl}
-            open={evtOpen}
-            onClose={() => handleEvtClose(undefined)}
-            MenuListProps={{
-              'aria-labelledby': 'event-button',
-            }}
-          >
-            {eventOptions && eventOptions.map((item) => (
-              <MenuItem key={item.label} onClick={() => handleEvtClose(item)} disableRipple>
-                {item.label}
-              </MenuItem>
-            ))}
-          </Menu>
-          </div>
-        </div>
-          <div className="col-3 scrape-schedule">
-              <button className="btn btn-success dropdown-toggle drp-button-size" onClick={() => displayAdditional()}>
-                Additional
-              </button>
-          </div>
-        </div>
-        <form id="setupScrape">
-        <div className="row">
-            <div className="selected-display col-11">
-              <div className="main-display-container">
-                  <figcaption className="text-area-caption">
-                  <b>{mainDisplayText}</b>
-                  <div id="mainDisplay scrape-preview">
-                    {scrapedText}
-                    <FormControl sx={{ input: {color: 'white'} }}>
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="CBSA" 
-                                            variant="standard"
-                                            value={cbsa}
-                                            onChange={(event) => {
-                                              setCbsa(event.target.value);
-                                            }} />}
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="County FIPS" 
-                                            variant="standard"
-                                            value={countyFips}
-                                            onChange={(event) => {
-                                              setCountyFips(event.target.value);
-                                            }} />}
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="State FIPS" 
-                                            variant="standard"
-                                            value={stateFips}
-                                            onChange={(event) => {
-                                              setStateFips(event.target.value);
-                                            }} />}
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="Latitude" 
-                                            variant="standard"
-                                            value={latitude}
-                                            onChange={(event) => {
-                                              setLatitude(event.target.value);
-                                            }} />}
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="Longitude" 
-                                            variant="standard"
-                                            value={longitude}
-                                            onChange={(event) => {
-                                              setLongitude(event.target.value);
-                                            }} />}
-                    </FormControl>
-                  </div>
-                  </figcaption>
-              </div>
-            </div>
-            <div className="selected-btn-container col-1">
-              <div>
-            <IconButton sx={{ color: 'white' }} edge="end" title="Add" disabled={addBtnDisabled} onClick={() => addEventProperty()}>
-              <AddIcon />
-            </IconButton>
-            </div>
-            <div>
-            <IconButton sx={{ color: 'white' }} edge="end" title="Clear" disabled={clearBtnDisabled} onClick={() => removeEventProperty()}>
-              <RemoveIcon />
-            </IconButton>
-            </div>
-            </div>
-        </div>
-        <div className="row">
-        <div className="col-4 scrape-select">
-          <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size" onClick={() => disableSelection()}>
-            Disable
-          </button>
-          </div>
-          <div className="col-3 scrape-select">
-          <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
-            Download Recent
-          </button>
-        </div>
-        </div>
-        <div className="row">
-            <div className="col-3 scrape-verify">
-            <button disabled id="verify" className="btn btn-primary reg-button-size">
-                Verify
+  return (
+      <div className="container" id="mainContainer">
+      <div className="row">
+        <div className="col-3 scrape-schedule">
+            <div className="dropdown">
+            <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
+                aria-controls={open ? 'basic-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
+                onClick={handleClick}
+                id="basic-button">
+                  {scheduleText}
             </button>
-            <button disabled id="submitScrape" type="button" className="btn btn-primary reg-button-size">
-                Submit
-            </button>
-            <button disabled id="cancel" type="button" className="btn btn-primary reg-button-size">
-                Cancel
-            </button>
-            <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
-                Clear
-            </button>
-            </div>
-            <div className="col-9">
-            <div className="list-contain">
-            <figcaption className="text-area-caption">
-                Currently Selected
-          </figcaption>
-                <List
-                  sx={{
-                    width: '100%',
-                    maxWidth: 360,
-                    bgcolor: 'background.paper',
-                    position: 'relative',
-                    overflow: 'auto',
-                    maxHeight: 'fit-content',
-                    '& ul': { padding: 0 },
-                  }} 
-                  dense={true}>
-              {selectedEventList && selectedEventList.map(item => (
-                <ListItem
-                  key={item.label}
-                  secondaryAction={
-                    <IconButton edge="end" aria-label="delete" onClick={() => removeItem(item)}>
-                      <RemoveIcon />
-                    </IconButton>
-                  }
-                >
-                  <ListItemText
-                    primary={item.label}
-                  />
-                </ListItem>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={() => handleClose(undefined)}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+            >
+              {scheduleOptions && scheduleOptions.map((item) => (
+                <MenuItem key={item.label} value={item.label} onClick={() => handleClose(item.label)} disableRipple>
+                  {item.label}
+                </MenuItem>
               ))}
-            </List>
-            </div>
+            </Menu>
             </div>
         </div>
-        </form>
-    </div>
-    );
+        <div className="col-3 scrape-schedule">
+        <div className="dropdown">
+        <button className="btn btn-success dropdown-toggle drp-button-size" 
+                type="button"
+                aria-controls={evtOpen ? 'basic-evt-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={evtOpen ? 'true' : undefined}
+                onClick={handleEvtClick}
+                id="event-button">
+            {eventOpt.label}
+        </button>
+        <Menu
+          id="basic-evt-menu"
+          anchorEl={evtAnchorEl}
+          open={evtOpen}
+          onClose={() => handleEvtClose(undefined)}
+          MenuListProps={{
+            'aria-labelledby': 'event-button',
+          }}
+        >
+          {eventOptions && eventOptions.map((item) => (
+            <MenuItem key={item.label} onClick={() => handleEvtClose(item)} disableRipple>
+              {item.label}
+            </MenuItem>
+          ))}
+        </Menu>
+        </div>
+      </div>
+        <div className="col-3 scrape-schedule">
+            <button className="btn btn-success dropdown-toggle drp-button-size" onClick={() => displayAdditional()}>
+              Additional
+            </button>
+        </div>
+      </div>
+      <form id="setupScrape">
+      <div className="row">
+          <div className="selected-display col-11">
+            <div className="main-display-container">
+                <figcaption className="text-area-caption">
+                <b>{mainDisplayText}</b>
+                <div id="mainDisplay scrape-preview">
+                  {scrapedText}
+                  <FormControl sx={{ input: {color: 'white'} }}>
+                    {showAdditional && <TextField 
+                                          id="standard-basic" 
+                                          label="CBSA" 
+                                          variant="standard"
+                                          value={cbsa}
+                                          onChange={(event) => {
+                                            setCbsa(event.target.value);
+                                          }} />}
+                    {showAdditional && <TextField 
+                                          id="standard-basic" 
+                                          label="County FIPS" 
+                                          variant="standard"
+                                          value={countyFips}
+                                          onChange={(event) => {
+                                            setCountyFips(event.target.value);
+                                          }} />}
+                    {showAdditional && <TextField 
+                                          id="standard-basic" 
+                                          label="State FIPS" 
+                                          variant="standard"
+                                          value={stateFips}
+                                          onChange={(event) => {
+                                            setStateFips(event.target.value);
+                                          }} />}
+                    {showAdditional && <TextField 
+                                          id="standard-basic" 
+                                          label="Latitude" 
+                                          variant="standard"
+                                          value={latitude}
+                                          onChange={(event) => {
+                                            setLatitude(event.target.value);
+                                          }} />}
+                    {showAdditional && <TextField 
+                                          id="standard-basic" 
+                                          label="Longitude" 
+                                          variant="standard"
+                                          value={longitude}
+                                          onChange={(event) => {
+                                            setLongitude(event.target.value);
+                                          }} />}
+                  </FormControl>
+                </div>
+                </figcaption>
+            </div>
+          </div>
+          <div className="selected-btn-container col-1">
+            <div>
+          <IconButton sx={{ color: 'white' }} edge="end" title="Add" disabled={addBtnDisabled} onClick={() => addEventProperty()}>
+            <AddIcon />
+          </IconButton>
+          </div>
+          <div>
+          <IconButton sx={{ color: 'white' }} edge="end" title="Clear" disabled={clearBtnDisabled} onClick={() => removeEventProperty()}>
+            <RemoveIcon />
+          </IconButton>
+          </div>
+          </div>
+      </div>
+      <div className="row">
+      <div className="col-4 scrape-select">
+        <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size" onClick={() => disableSelection()}>
+          Disable
+        </button>
+        </div>
+        <div className="col-3 scrape-select">
+        <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
+          Download Recent
+        </button>
+      </div>
+      </div>
+      <div className="row">
+          <div className="col-3 scrape-verify">
+          <button id="verify" type="button" className="btn btn-primary reg-button-size" onClick={() => verify()}>
+              Verify
+          </button>
+          <button disabled id="submitScrape" type="button" className="btn btn-primary reg-button-size">
+              Submit
+          </button>
+          <button disabled id="cancel" type="button" className="btn btn-primary reg-button-size">
+              Cancel
+          </button>
+          <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
+              Clear
+          </button>
+          </div>
+          <div className="col-9">
+          <div className="list-contain">
+          <figcaption className="text-area-caption">
+              Currently Selected
+        </figcaption>
+              <List
+                sx={{
+                  width: '100%',
+                  maxWidth: 360,
+                  bgcolor: 'background.paper',
+                  position: 'relative',
+                  overflow: 'auto',
+                  maxHeight: 'fit-content',
+                  '& ul': { padding: 0 },
+                }} 
+                dense={true}>
+            {selectedEventList && selectedEventList.map(item => (
+              <ListItem
+                key={item.label}
+                secondaryAction={
+                  <IconButton edge="end" aria-label="delete" onClick={() => removeItem(item)}>
+                    <RemoveIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemText
+                  primary={item.label}
+                />
+              </ListItem>
+            ))}
+          </List>
+          </div>
+          </div>
+      </div>
+      </form>
+  </div>
+  );
 }
 
 function generate(element) {
@@ -606,17 +633,6 @@ setScrapersPage() {
   this.setState({scraperBuilder: false, admin: false, scrapers: true})
 }
 
-
- sbClick(e) {
-  if (!sb.classNameList.contains("active")) {
-    e.preventDefault();
-    sb.classNameList.add("active");
-    profiles.classNameList.remove("active");
-    var removeSb = document.getElementById("scrapersPage");
-    removeSb.remove();
-    document.body.appendChild(orginalSb);
-  }
-}
 
  scrapersClick(e) {
     console.log("scrapersClick");
