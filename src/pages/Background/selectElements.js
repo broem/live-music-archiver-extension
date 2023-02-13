@@ -106,6 +106,7 @@ if (window.contentScriptInjected !== true) {
       "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article, iframe, html"
       //"span, th, td, button, input, a, textarea, p, li, ol, card, img, section, nav, footer, header, map, video, audio, embed, iframe, object, picture, portal, param, source, form, fieldset, datalist, label, legend, select, option, output, progress, meter, h1, h2, h3, h4, h5, h6, pre"
     );
+
     x.forEach((node) => {
       node.addEventListener("mouseenter", function addBorder() {
         if (!freezeState && stopMouseover && !stopAll) {
@@ -119,20 +120,8 @@ if (window.contentScriptInjected !== true) {
           removeBorderPrimary(node);
         }
       });
-      node.addEventListener("click", function addBorder(e) {
-        if (!stopAll) {
-          e.preventDefault();
-          e.stopPropagation();
-          collectBordered();
-          console.log("bringing it back 1")
-          chrome.runtime.sendMessage({
-            msg: "Bring back scrape builder",
-          });
+      node.addEventListener("click", doClick);
 
-          stopAll = true; // TODO wtf is all this? 
-          freezeState = true;
-        }
-      });
       node.addEventListener("dblclick", function addBorder(e) {
         if (!stopAll) {
           e.preventDefault();
@@ -145,18 +134,58 @@ if (window.contentScriptInjected !== true) {
       });
     });
   }
+  var doClick  = (e) => doathing(e);
+
+  function doathing(e) {
+    if (!stopAll) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      collectBordered();
+      chrome.runtime.sendMessage({
+        msg: "Bring back scrape builder",
+      });
+
+      stopAll = true; // TODO wtf is all this? 
+      freezeState = true;
+    }
+  }
+
+  function addBorderClick(e) {
+    console.log(e)
+    if (!stopAll) {
+      e.preventDefault();
+      e.stopPropagation();
+      collectBordered();
+      chrome.runtime.sendMessage({
+        msg: "Bring back scrape builder",
+      });
+
+      stopAll = true; // TODO wtf is all this? 
+      freezeState = true;
+      
+      e.srcElement.removeEventListener("click", addBorderClick);
+    }
+  }
+
+  function removeBordered(field) {
+    var borderedItem = document.querySelector(".previousBorderPrimary." + field);
+
+    borderedItem.classList.remove("previousBorderPrimary", field);
+  }
 
   function collectBordered() {
+    console.log(activeSelected);
     activeSelected.length = 0;
+    console.log("grabbing borderedItems")
     var borderedItem = document.querySelectorAll(".activeBorderPrimary");
+    console.log("gottem")
 
     borderedItem.forEach((node) => {
       activeSelected.push(node);
     });
+    console.log("pushed nodes")
 
-    borderedInnerHTML = Array.from(activeSelected).map(
-      (anchor) => anchor.innerHTML
-    );
     if (activeSelected.length > 0) {
       if (
         activeSelected[activeSelected.length - 1].classList.contains(
@@ -202,6 +231,8 @@ if (window.contentScriptInjected !== true) {
       prevSelected.push(activeSelected[activeSelected.length - 1]) ??
         prevSelected.push(activeSelected[0]);
 
+        console.log("send to bring back mboy")
+
       chrome.runtime.sendMessage({
         scrapeThis: "Add to scrape builder",
         data: {
@@ -222,11 +253,14 @@ if (window.contentScriptInjected !== true) {
             activeSelected[0].tagName,
           url: window.location.href,
           src: activeSelected[0].src,
+          value: myField,
+          label: myLabel
         },
       });
+      console.log("mboy sent the mssg");
       activeSelected[activeSelected.length - 1].classList.add(
-        "previousBorderPrimary"
-      ) ?? activeSelected[0].classList.add("previousBorderPrimary");
+        "previousBorderPrimary", myField
+      ) ?? activeSelected[0].classList.add("previousBorderPrimary", myField);
     }
   }
 
@@ -286,6 +320,7 @@ if (window.contentScriptInjected !== true) {
       prevSelected.push(activeSelected[activeSelected.length - 1]) ??
         prevSelected.push(activeSelected[0]);
 
+        console.log("yo wtf this is");
       chrome.runtime.sendMessage({
         scrapeThis: "Add to scrape builder",
         data: {
@@ -306,6 +341,8 @@ if (window.contentScriptInjected !== true) {
             activeSelected[0].tagName,
           url: window.location.href,
           src: activeSelected[0].src,
+          value: myField,
+          label: myLabel,
         },
       });
 
@@ -467,6 +504,9 @@ if (window.contentScriptInjected !== true) {
     }
   })
 
+  var myField = "";
+  var myLabel = "";
+
   // This is triggered by listening to storage changes
   function PopupButtonClickDetector(changes, area) {
     let changedItems = Object.keys(changes);
@@ -474,20 +514,31 @@ if (window.contentScriptInjected !== true) {
     console.log(changes)
 
     for (let node of changedItems) {
-      if (node == "disableSelect" && area == "sync") {
+      if (node === "disableSelect" && area === "sync") {
         stopAll = true;
       }
 
-      if (node == "selectElements" && area == "sync") {
-        let someval = JSON.parse(changes.selectElements.newValue)
-        console.log(someval.field);
+      if(node === "removeElement" && area === "sync") {
+        let someval = JSON.parse(changes.removeElement.newValue)
+        removeBordered(someval.field);
+      }
 
+      if (node === "selectElements" && area === "sync") {
+        console.log("bout to parse")
+        let someval = JSON.parse(changes.selectElements.newValue)
+        console.log("parsed")
+        // someVal.field is the field the user selected on the extension. 
+        // this is used to find the selected area on the page
+        myField = someval.field;
+        myLabel = someval.label;
+        console.log("bout to send bring up tab")
         chrome.runtime.sendMessage({
           msg: "Bring up active tab",
         });
         stopAll = false;
         freezeState = false;
         if (runSelect == true) {
+          console.log("running select")
           selectingElements();
           runSelect = false;
         }

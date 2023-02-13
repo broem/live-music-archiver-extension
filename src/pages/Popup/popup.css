@@ -176,16 +176,25 @@ html {
   opacity: 0.9;
 }
 
+.selected-display {
+  padding-right: 0;
+}
+
+.selected-btn-container {
+  padding-left: 0;
+}
+
 .reg-button-size {
-  width: 106px;
+  min-width: 120px;
+  max-width: 150px;
+  width: max-content;
   margin-top: 4px;
   margin-bottom: 4px;
   font-size: small;
 }
 
 .drp-button-size {
-  width: 200px;
-  margin: 4px;
+  width: 120px; 
   font-size: small;
 }
 

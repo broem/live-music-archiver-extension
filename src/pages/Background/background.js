@@ -164,6 +164,8 @@ function substringSearch(pattern, text) {
   return -1; // Not found
 }
 
+chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+
 function CheckUser() {
   console.log('check user');
   chrome.storage.session.get(['userId'], function (result) {
@@ -180,11 +182,21 @@ chrome.runtime.onMessage.addListener(async function (
     console.log('select elements');
     selectElementsIndex += 1;
     let payload = {
-      "field": "incoming",
+      "field": request.field,
+      "label": request.label,
       "updator": selectElementsIndex
     }
     chrome.storage.sync.set({ selectElements : JSON.stringify(payload) });
   }
+
+  if(request.msg === "removeElement") {
+    selectElementsIndex += 1;
+    let payload = {
+      "field": request.field,
+      "updator": selectElementsIndex
+    }
+    chrome.storage.sync.set({ removeElement : JSON.stringify(payload) });
+  } 
 
   if (request.verify === 'Verify') {
     verify += 1;
