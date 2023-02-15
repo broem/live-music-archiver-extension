@@ -22,6 +22,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Button } from '@mui/material';
+import * as scrape from "../../pages/Background/scrape-fetch.js";
+import { useEffect } from "react";
 
 function createData(id, email, venue_base_url, schedule, enabled, last_run, approved) {
   return {
@@ -34,10 +36,6 @@ function createData(id, email, venue_base_url, schedule, enabled, last_run, appr
     approved,
   };
 }
-
-const rows = [
-  createData('54325dfdfwe', 'r@relr', 'https://thecamel.org/', 24, 'true', '2021-09-01', 'true'),
-];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -179,12 +177,7 @@ EnhancedTableHead.propTypes = {
 
 
 function EnhancedTableToolbar(props) {
-  const { numSelected, selected } = props;
-
-  function deleteSelected() {
-    console.log("kill it");
-    console.log(selected);
-  }
+  const { numSelected, selected, email } = props;
 
   return (
     <Toolbar
@@ -197,39 +190,21 @@ function EnhancedTableToolbar(props) {
         }),
       }}
     >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          color="inherit"
-          variant="subtitle1"
-          component="div"
-        >
-          {numSelected} selected
-        </Typography>
-      ) : (
+
         <Typography
           sx={{ flex: '1 1 100%' }}
           variant="h6"
           id="tableTitle"
           component="div"
         >
-          User Mappers
+          User Mappers for {email}
         </Typography>
-      )}
 
-      {numSelected >= 1 ? (
-        <Tooltip title="Delete">
-          <IconButton onClick={() => deleteSelected()}>
-            <DeleteIcon/> 
-          </IconButton>
-        </Tooltip>
-      ) : (
         <Tooltip title="Filter list">
           <IconButton>
             <FilterListIcon />
           </IconButton>
         </Tooltip>
-      )}
     </Toolbar>
   );
 }
@@ -238,12 +213,27 @@ EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
 };
 
-export default function EnhancedTable() {
+export default function EnhancedTable(props) {
+  // set the state
+  const { email } = props;
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rows, setRows] = React.useState([]);
+
+
+
+  // on load, get the data
+  useEffect(() => {
+    // get email from props
+    // get the data from scrape
+    scrape.adminUserMaps(email).then((data) => {
+      // set the rows to the data
+      setRows(data);
+    });
+  }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -298,7 +288,7 @@ export default function EnhancedTable() {
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 2 }}>
-        <EnhancedTableToolbar numSelected={selected.length} selected={selected} />
+        <EnhancedTableToolbar numSelected={selected.length} selected={selected} email={email} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
@@ -327,7 +317,7 @@ export default function EnhancedTable() {
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
+                      key={row.map_id}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">

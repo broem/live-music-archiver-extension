@@ -425,10 +425,50 @@ async function scrapeBuilderPost(data) {
   }
 }
 
+async function adminUserMaps(data) {
+  let info = await getStorageInfo();
+  console.log('Getting storage info');
+  console.log(info);
+  var config = info['config'];
+  var userId = info['userId'];
+  var url = `http://${config['remote-address']}/api/admin/userMaps/${userId}`;
+  try {
+    const blob = await fetch(url, {
+      method: 'GET', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        Authorization: `Bearer ${currRaw}`,
+
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer',
+    });
+
+    if (blob.status == 200) {
+      const resp = await blob.json();
+      console.log('good to go');
+      console.log(resp);
+      return resp;
+    } else {
+      console.log('bad status');
+      return null;
+    }
+  } catch (err) {
+    // let verifyItem = null;
+    // chrome.storage.sync.set({ verifyItem });
+    console.log(err);
+    return null;
+  }
+}
+
 async function adminGetUsers() {
   // chrome.storage.session.get(['config'], async function (result) {
   //   var config = result['config'];
   // var url = 'http://' + config['remote-address'] + '/api/admin/getUsers';
+  // TODO: fix this
   var url = 'http://' + 'localhost:3424' + '/api/admin/getUsers';
   return await fetch(url, {
     method: 'GET', // *GET, POST, PUT, DELETE, etc.
@@ -641,4 +681,5 @@ export {
   downloadIGRecent,
   getUser,
   adminGetUsers,
+  adminUserMaps,
 };

@@ -289,37 +289,6 @@ chrome.runtime.onMessage.addListener(async function (
     );
   }
 
-  if (request.submitScrape === 'Submit scrape') {
-    if (request.enable == true) {
-      submitScrape += 1;
-      chrome.storage.sync.set({ submitScrape });
-      captureEvent.event = {};
-      captureEvent.venueName = {};
-      captureEvent.venueAddress = {};
-      captureEvent.venueContactInfo = {};
-      captureEvent.eventTitle = {};
-      captureEvent.eventDesc = {};
-      captureEvent.eventDescURL = {};
-      captureEvent.images = {};
-      captureEvent.startDate = {};
-      captureEvent.endDate = {};
-      captureEvent.doorTime = {};
-      captureEvent.ticketCost = {};
-      captureEvent.ticketURLS = {};
-      captureEvent.otherPerformers = {};
-      captureEvent.eventURLS = {};
-      captureEvent.ageRequired = {};
-      captureEvent.facebookURL = {};
-      captureEvent.twitterURL = {};
-      captureEvent.misc = {};
-      captureEvent.frequency = {};
-    }
-    scrape.verified({
-      enabled: request.enable,
-      mapID: captureEvent.mapId,
-    });
-  }
-
   if (request.msg === 'Bring back popup') {
     chrome.tabs.query(
       {
@@ -369,36 +338,7 @@ chrome.runtime.onMessage.addListener(async function (
       }
     );
   }
-  if (request.msg === 'Scrape instagram') {
-    console.log('scrape instagram');
-    chrome.tabs.query(
-      {
-        active: true,
-        lastFocusedWindow: true,
-      },
-      function (tabs) {
-        // and use that tab to fill in out title and url
-        var tab = tabs[0];
-        chrome.tabs.remove(tab.id);
-      }
-    );
-    chrome.tabs.create(
-      {
-        url: chrome.runtime.getURL('instagram.html'),
-        active: false,
-      },
-      async function (tab) {
-        // After the tab has been created, open a window to inject the tab
-        await chrome.windows.create({
-          tabId: tab.id,
-          type: 'popup',
-          focused: true,
-          height: 700,
-          width: 600,
-        });
-      }
-    );
-  }
+
 
   if (request.scrapeIGProfile === 'Scrape ig profile') {
     captureEvent = new Object();

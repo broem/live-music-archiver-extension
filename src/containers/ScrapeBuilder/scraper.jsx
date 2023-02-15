@@ -612,7 +612,7 @@ class AdminPage extends React.Component {
         return (
             <div>
                 <CustomizedMenus items={this.state.users} selectOption={this.setUserSelect}/>
-                {this.state.selectedUser.length > 0 && <EnhancedTable/>}
+                {this.state.selectedUser.length > 0 && <EnhancedTable email={this.state.selectedUser}/>}
             </div>
         )
     }
