@@ -349,44 +349,74 @@ async function getUser() {
   });
 }
 
+function getStorageInfo() {
+  // create new promise
+  let config = null;
+  let userId = null;
+  let userEmail = null;
+  // get the current userId from storage
+  return new Promise((resolve, reject) => {
+    chrome.storage.session.get(
+      ['config', 'userId', 'userEmail'],
+      (response) => {
+        console.log('RESPONSE');
+        console.log(response);
+        config = response['config'];
+        userId = response['userId'];
+        userEmail = response['userEmail'];
+
+        // return the info
+        resolve({
+          config: config,
+          userId: userId,
+          userEmail: userEmail,
+        });
+      }
+    );
+  });
+}
+
 async function scrapeBuilderPost(data) {
-  chrome.storage.session.get('config', async function (result) {
-    const config = result['config'];
-    const response = await fetch(
+  let config = null;
+  let userId = null;
+  let userEmail = null;
+  // get the current userId from storage
+
+  let info = await getStorageInfo();
+  console.log('Getting storage info');
+  console.log(info);
+  config = info['config'];
+  data.userId = info['userId'];
+  data.userEmail = info['userEmail'];
+
+  try {
+    const blob = await fetch(
       'http://' + config['remote-address'] + '/api/scrapeBuilder',
       {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
         headers: {
           Authorization: `Bearer ${currRaw}`,
 
           'Content-Type': 'application/json',
         },
-        redirect: 'follow', // manual, *follow, error
+        redirect: 'follow',
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(data),
       }
-    )
-      .then((blob) => blob.json())
-      .then((resp) => {
-        console.log(resp);
-        let verifyItem = resp;
-        if (resp == null || resp == undefined) {
-          chrome.storage.sync.set({ verifyItem });
-          return;
-        }
-        chrome.storage.sync.set({ verifyItem });
-        // set mapid to local storage
-        chrome.storage.session.set({ mapId: resp['Event']['mapId'] });
-      })
-      .catch((err) => {
-        let verifyItem = null;
-        chrome.storage.sync.set({ verifyItem });
-        console.log(err);
-      });
-  });
+    );
+    const resp = await blob.json();
+    console.log('good to go');
+    console.log(resp);
+    return resp;
+  } catch (err) {
+    // let verifyItem = null;
+    // chrome.storage.sync.set({ verifyItem });
+    console.log(err);
+    return null;
+  }
 }
 
 async function adminGetUsers() {

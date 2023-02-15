@@ -65,6 +65,8 @@ let eventOptions = [
 
 const mainDisplayDefault = "Is This What You Selected?";
 const mainDisplayAdditional = "Additional Inputs";
+const mainDisplayLoading = "Loading...";
+const mainDisplayVerifyError = "Unable to Verify";
 
 const ScraperBuild = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -272,7 +274,7 @@ const ScraperBuild = () => {
     return newObj;
   }
 
-  const verify = () => {
+  const verify = async () => {
     let metaData = {
       frequency: scheduleText,
       cbsa: cbsa,
@@ -288,6 +290,26 @@ const ScraperBuild = () => {
 
     // call the backend
     console.log(combined);
+
+    setMainDisplay(mainDisplayLoading);
+    setScrapedText("");
+
+    await getScrapeBuilderData(combined);
+  }
+
+  const getScrapeBuilderData = async (combined) => {
+    scrape.scrapeBuilderPost(combined).then( (res) => {
+      console.log("res");
+      console.log(res);
+      if(res) {
+        setMainDisplay(mainDisplayDefault);
+        setScrapedText(res["message"])
+        // display success message
+      } else {
+        setMainDisplay(mainDisplayVerifyError);
+        setScrapedText("There was an error verifying your scrape. Please try again.")
+      }
+    });
   }
   
   return (
@@ -579,37 +601,6 @@ class ScrapersPage extends React.Component {
 }
 
 
-function Admin(props) {
-    if (!props.isAdmin) {
-        return null;
-    }
-
-  return (
-    <>Admin</>
-  );
-}
-
-const ChangePage = ({ location }) => {
-    console.log("change pp" + location)
-    switch (location) {
-        case "scrapeBuilder":
-            return (
-                <ScraperBuild />
-            )
-        case "admin":
-            return (
-                <div>
-                    <div>Admin page hello</div>
-                </div>
-            )
-        default:
-            return (
-                <ScraperBuild />
-            )
-    }
-}
-
-
 class Scraper extends React.Component {
     constructor(props) {
         super(props);
@@ -853,296 +844,6 @@ setScrapersPage() {
       }
 }
 
-
-
-// once.addEventListener("click", function (event) {
-//   // get value of dropdown
-//   frequency = "once";
-//   frequencyButton.textContent = "Just Once";
-// });
-// everyDay.addEventListener("click", async () => {
-//   frequency = "Every Day";
-//   frequencyButton.textContent = "Every Day";
-// });
-// everyOtherDay.addEventListener("click", async () => {
-//   frequency = "Every Other Day";
-//   frequencyButton.textContent = "Every Other Day";
-// });
-// everyWeek.addEventListener("click", async () => {
-//   frequency = "Every Week";
-//   frequencyButton.textContent = "Every Week";
-// });
-// everyOtherWeek.addEventListener("click", async () => {
-//   frequency = "Every Other Week";
-//   frequencyButton.textContent = "Every Other Week";
-// });
-// everyMonth.addEventListener("click", async () => {
-//   frequency = "Every Month";
-//   frequencyButton.textContent = "Every Month";
-// });
-
-// eventArea.addEventListener("click", async (event) => {
-//   item = "Event Area";
-//   eventButton.textContent = "Event Area";
-//   checkEvent(eventArea, event);
-// });
-// venueName.addEventListener("click", async (event) => {
-//   item = "Venue Name";
-//   eventButton.textContent = "Venue Name";
-//   checkEvent(venueName, event);
-// });
-// venueAddress.addEventListener("click", async (event) => {
-//   item = "Venue Address";
-//   eventButton.textContent = "Venue Address";
-//   checkEvent(venueAddress, event);
-// });
-// venueContactInfo.addEventListener("click", async (event) => {
-//   item = "Venue Contact Info";
-//   eventButton.textContent = "Venue Contact Info";
-//   checkEvent(venueContactInfo, event);
-// });
-// eventTitle.addEventListener("click", async (event) => {
-//   item = "Event Title";
-//   eventButton.textContent = "Event Title";
-//   checkEvent(eventTitle, event);
-// });
-// eventDesc.addEventListener("click", async (event) => {
-//   item = "Event Desc";
-//   eventButton.textContent = "Event Desc";
-//   checkEvent(eventDesc, event);
-// });
-// images.addEventListener("click", async (event) => {
-//   item = "Images";
-//   eventButton.textContent = "Images";
-//   checkEvent(images, event);
-// });
-// startDate.addEventListener("click", async (event) => {
-//   item = "Start Date";
-//   eventButton.textContent = "Start Date";
-//   checkEvent(startDate, event);
-// });
-// endDate.addEventListener("click", async (event) => {
-//   item = "End Date";
-//   eventButton.textContent = "End Date";
-//   checkEvent(endDate, event);
-// });
-// doorTime.addEventListener("click", async (event) => {
-//   item = "Door Time";
-//   eventButton.textContent = "Door Time";
-//   checkEvent(doorTime, event);
-// });
-// ticketCost.addEventListener("click", async (event) => {
-//   item = "Ticket Cost";
-//   eventButton.textContent = "Ticket Cost";
-//   checkEvent(ticketCost, event);
-// });
-// ticketURLs.addEventListener("click", async (event) => {
-//   item = "Ticket URLs";
-//   eventButton.textContent = "Ticket URLs";
-//   checkEvent(ticketURLs, event);
-// });
-// otherPerformers.addEventListener("click", async (event) => {
-//   item = "Other Performers";
-//   eventButton.textContent = "Other Performers";
-//   checkEvent(otherPerformers, event);
-// });
-// eventDescURL.addEventListener("click", async (event) => {
-//   item = "Event Desc URL";
-//   eventButton.textContent = "Event Desc URL";
-//   checkEvent(eventDescURL, event);
-// });
-// ageRequired.addEventListener("click", async (event) => {
-//   item = "Age Required";
-//   eventButton.textContent = "Age Required";
-//   checkEvent(ageRequired, event);
-// });
-// facebookURL.addEventListener("click", async (event) => {
-//   item = "Facebook URL";
-//   eventButton.textContent = "Facebook URL";
-//   checkEvent(facebookURL, event);
-// });
-// twitterURL.addEventListener("click", async (event) => {
-//   item = "Twitter URL";
-//   eventButton.textContent = "Twitter URL";
-//   checkEvent(twitterURL, event);
-// });
-// misc.addEventListener("click", async (event) => {
-//   item = "Misc";
-//   eventButton.textContent = "Misc";
-//   checkEvent(misc, event);
-// });
-
-// function checkEvent(element, event) {
-//   if (scrapeItemRecieved == true) {
-//     addEvent(event);
-//     scrapeItemRecieved = false;
-//     element.remove();
-//     eventButton.textContent = "Event Options";
-//   } else {
-//     let tempText = "";
-//     mainDisplayText.textContent = "You have to select an item on the page.";
-//     setTimeout(() => {
-//       mainDisplayText.textContent = tempText;
-//     }, 3000);
-//     eventButton.textContent = "Event Options";
-//   }
-// }
-
-// function addEvent(event) {
-//   if (eventButton.textContent != "Event Options") {
-//     chrome.runtime.sendMessage({
-//       msg: "Take from scrape builder obj",
-//       data: {
-//         addThisTitle: item,
-//         textC: textC,
-//         innerH: innerH,
-//         innerT: innerT,
-//         cName: cName,
-//         tagName: tagName,
-//         url: url,
-//       },
-//     });
-//     if (selectedItems.includes(item)) {
-//       var listItems = document.querySelectorAll(".listItemContain");
-//       listItems.forEach((node) => {
-//         if (node.innerHTML.includes(item)) {
-//           node.remove();
-//         }
-//       });
-//       addTask(event);
-//       verify.disabled = false;
-//     } else if (item != "") {
-//       addTask(event);
-//       verify.disabled = false;
-//     }
-
-//     selectedItems.push(item);
-//     item = "";
-
-//     eventButton.textContent = "Event Options";
-//   } else {
-//     let tempText = mainDisplayText.textContent;
-//     mainDisplayText.textContent = "You have to select an event option.";
-//     setTimeout(() => {
-//       mainDisplayText.textContent = tempText;
-//     }, 3000);
-//     event.preventDefault();
-//   }
-// }
-
-// function addTask(event) {
-//   event.preventDefault();
-
-//   var listGenerator = document.createElement("LI");
-//   listGenerator.classNameName =
-//     "list-group-item d-flex justify-content-between align-items-start list-item-contain";
-
-//   listGenerator.innerHTML = `<div className="ms-2 me-auto">
-//     <div className="fw-bold">${item}</div>
-//     ${innerT}
-//   </div>`;
-
-//   var list = document.getElementById("list");
-//   list.prepend(listGenerator);
-// }
-
-// back.addEventListener("click", async () => {
-//   chrome.runtime.sendMessage({
-//     msg: "Bring back popup",
-//   });
-// });
-
-// selectElements.addEventListener("click", async () => {
-//   submitScrape.disabled = true;
-//   cancel.disabled = true;
-//   chrome.runtime.sendMessage({
-//     selectElements: "Select elements",
-//   });
-// });
-
-// // downloadRecent downloads the most recent scrapes
-// downloadRecent.addEventListener("click", async () => {
-//   chrome.runtime.sendMessage({
-//     msg: "Download recent",
-//   });
-// });
-
-// listen for messages from the background script
-// chrome.runtime.onMessage.addListener((message) => {
-//   if (message.msg === "Recent scrapes") {
-//     // download recent
-//     // get from local storage
-//     console.log(message.data);
-//     // create reuslt url
-
-//     // string to blob
-//     var blob = new Blob([message.data], { type: "text/csv" });
-
-//     var resultURL = window.URL.createObjectURL(blob);
-//     // create download link
-//     var downloadLink = document.createElement("a");
-//     downloadLink.href = resultURL;
-//     downloadLink.download = "recent.csv";
-//     // click download link
-//     downloadLink.click();
-//     // download recent
-//   }
-// });
-
-// verify.addEventListener("click", async (event) => {
-//   submitScrape.disabled = true;
-//   cancel.disabled = true;
-//   var metaData = new Object();
-//   if (
-//     frequency === "Every Day" ||
-//     frequency === "Every Other Day" ||
-//     frequency === "Every Week" ||
-//     frequency === "Every Other Week" ||
-//     frequency === "Every Month" ||
-//     frequency === "once"
-//   ) {
-//     // get user input from form and pass it to background page
-//     var cbsa = document.getElementById("cbsa").value;
-//     var stateFips = document.getElementById("stateFips").value;
-//     var countyFips = document.getElementById("countyFips").value;
-//     var latitude = document.getElementById("latitude").value;
-//     var longitude = document.getElementById("longitude").value;
-
-//     metaData = {
-//       frequency: frequency,
-//       cbsa: cbsa,
-//       stateFips: stateFips,
-//       countyFips: countyFips,
-//       latitude: latitude,
-//       longitude: longitude,
-//     };
-
-//     chrome.runtime.sendMessage({
-//       verify: "Verify",
-//       data: metaData,
-//     });
-//     selectElements.disabled = true;
-//     verify.disabled = true;
-//     submitScrape.disabled = false;
-//     cancel.disabled = false;
-//     mainDisplayText.textContent = "Verifying...This may take a few minutes.";
-//   } else {
-//     let tempText = mainDisplayText.textContent;
-//     mainDisplayText.textContent =
-//       "You must pick how often to gather data from the site.";
-//     setTimeout(() => {
-//       mainDisplayText.textContent = tempText;
-//     }, 3000);
-//     event.preventDefault();
-//   }
-// });
-
-// disableSelect.addEventListener("click", async () => {
-//   chrome.runtime.sendMessage({
-//     disableSelect: "Disable select",
-//   });
-// });
-
 // clearSelected.addEventListener("click", async () => {
 //   chrome.runtime.sendMessage({
 //     clearSelected: "Clear selected",
@@ -1177,121 +878,6 @@ setScrapersPage() {
 // });
 
 
- PopupButtonClickDetector(changes, area) {
-  let changedItems = Object.keys(changes);
-
-  for (let node of changedItems) {
-    if (node == "verifyItem" && area == "sync") {
-      // create pretty display of returned event
-      var event = changes[node].newValue;
-
-      if (event == null || event == undefined) {
-        mainDisplayText.textContent = "No event found. Try again.";
-        return;
-      }
-
-      var eventCount = event.EventCount;
-      var eventObj = event.Event;
-      var eventTitle = eventObj.eventTitle;
-      var eventDate = eventObj.eventDate;
-      var eventTime = eventObj.eventTime;
-      var eventVenue = eventObj.eventVenue;
-      var eventVenueAddress = eventObj.eventVenueAddress;
-      var eventDesc = eventObj.eventDesc;
-      var eventTicketCost = eventObj.eventTicketCost;
-      var eventTicketURL = eventObj.eventTicketURL;
-      var eventDescURL = eventObj.eventDescURL;
-      var eventImages = eventObj.eventImages;
-      var eventFacebookURL = eventObj.eventFacebookURL;
-      var eventTwitterURL = eventObj.eventTwitterURL;
-      var eventOtherPerformers = eventObj.eventOtherPerformers;
-      var eventMisc = eventObj.eventMisc;
-      var eventVenueContactInfo = eventObj.eventVenueContactInfo;
-      var eventAgeRequired = eventObj.eventAgeRequired;
-      var captureDate = eventObj.captureDate;
-      var cbsa = eventObj.cbsa;
-      var countyFips = eventObj.countyFips;
-      var stateFips = eventObj.stateFips;
-      var latitude = eventObj.latitude;
-      var longitude = eventObj.longitude;
-
-      // display event in main display
-        Text.textContent =
-        "Total Event Count: " +
-        eventCount +
-        "\n" +
-        "Title: " +
-        eventTitle +
-        "\n" +
-        "Date: " +
-        eventDate +
-        "\n" +
-        "Time: " +
-        eventTime +
-        "\n" +
-        "Ticket Cost: " +
-        eventTicketCost +
-        "\n" +
-        "Venue: " +
-        eventVenue +
-        "\n" +
-        "Venue Address: " +
-        eventVenueAddress +
-        "\n" +
-        "Description: " +
-        eventDesc +
-        "\n" +
-        "Ticket URL: " +
-        eventTicketURL +
-        "\n" +
-        "Event Desc URL: " +
-        eventDescURL +
-        "\n" +
-        "Event Images: " +
-        eventImages +
-        "\n" +
-        "Facebook URL: " +
-        eventFacebookURL +
-        "\n" +
-        "Twitter URL: " +
-        eventTwitterURL +
-        "\n" +
-        "Other Performers: " +
-        eventOtherPerformers +
-        "\n" +
-        "Misc: " +
-        eventMisc +
-        "\n" +
-        "Venue Contact Info: " +
-        eventVenueContactInfo +
-        "\n" +
-        "Age Required: " +
-        eventAgeRequired +
-        "\n" +
-        "Capture Date: " +
-        captureDate +
-        "\n" +
-        "CBSA: " +
-        cbsa +
-        "\n" +
-        "County FIPS: " +
-        countyFips +
-        "\n" +
-        "State FIPS: " +
-        stateFips +
-        "\n";
-      "Latitude: " + latitude + "\n";
-      "Longitude: " + longitude + "\n";
-    }
-  }
-}
-
-// chrome.runtime.sendMessage({
-//   msg: "GetCurrentScrapes",
-// });
-
-// chrome.storage.onChanged.addListener(PopupButtonClickDetector);
-
 
 render() {
     return (
@@ -1315,48 +901,6 @@ render() {
                 <Back />
                 </Container>
             </Navbar>
-            {/* <nav className="navbar navbar-dark bg-dark navbar-custom">
-                <div className="row">
-                <div className="col-1 container-fluid icon-size">
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                    <span className="navbar-toggler-icon"></span>
-                    </button>
-                </div>
-                </div>
-            </nav>
-            <div className="collapse" id="navbarToggleExternalContent">
-                <div className="bg-dark p-4">
-                <div className="input-group flex-nowrap">
-                    <span className="input-group-text" id="addon-wrapping">CBSA</span>
-                    <input type="text" className="form-control" placeholder="CBSA" aria-label="cbsa" id="cbsa"
-                    aria-describedby="addon-wrapping" />
-                </div>
-
-                <div className="input-group flex-nowrap">
-                    <span className="input-group-text" id="addon-wrapping">STATE FIPS</span>
-                    <input type="text" className="form-control" placeholder="STATE FIPS" aria-label="state-fips" id="stateFips"
-                    aria-describedby="addon-wrapping" />
-                </div>
-
-                <div className="input-group flex-nowrap">
-                    <span className="input-group-text" id="addon-wrapping">COUNTY FIPS</span>
-                    <input type="text" className="form-control" placeholder="COUNTY FIPS" aria-label="county-fips" id="countyFips"
-                    aria-describedby="addon-wrapping" />
-                </div>
-                <div className="input-group flex-nowrap">
-                    <span className="input-group-text" id="addon-wrapping">Latitude</span>
-                    <input type="text" className="form-control" placeholder="latitude" aria-label="latitude" id="latitude"
-                    aria-describedby="addon-wrapping" />
-                </div>
-                <div className="input-group flex-nowrap">
-                    <span className="input-group-text" id="addon-wrapping">Longitude</span>
-                    <input type="text" className="form-control" placeholder="longitude" aria-label="longitude" id="longitude"
-                    aria-describedby="addon-wrapping" />
-                </div>
-                </div>
-            </div> */}
             {this.state.scraperBuilder && <ScraperBuild/>}
             {this.state.admin && <AdminPage/>}
             {this.state.scrapers && <ScrapersPage/>}
