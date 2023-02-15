@@ -289,31 +289,6 @@ chrome.runtime.onMessage.addListener(async function (
     );
   }
 
-  if (request.clearSelected === 'Clear selected') {
-    clearSelected += 1;
-    chrome.storage.sync.set({ clearSelected });
-    captureEvent.event = {};
-    captureEvent.venueName = {};
-    captureEvent.venueAddress = {};
-    captureEvent.venueContactInfo = {};
-    captureEvent.eventTitle = {};
-    captureEvent.eventDesc = {};
-    captureEvent.eventDescURL = {};
-    captureEvent.images = {};
-    captureEvent.startDate = {};
-    captureEvent.endDate = {};
-    captureEvent.doorTime = {};
-    captureEvent.ticketCost = {};
-    captureEvent.ticketURLS = {};
-    captureEvent.otherPerformers = {};
-    captureEvent.eventURLS = {};
-    captureEvent.ageRequired = {};
-    captureEvent.facebookURL = {};
-    captureEvent.twitterURL = {};
-    captureEvent.misc = {};
-    captureEvent.frequency = {};
-  }
-
   if (request.submitScrape === 'Submit scrape') {
     if (request.enable == true) {
       submitScrape += 1;

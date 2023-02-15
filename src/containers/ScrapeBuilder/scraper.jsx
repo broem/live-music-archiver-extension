@@ -67,10 +67,12 @@ const mainDisplayDefault = "Is This What You Selected?";
 const mainDisplayAdditional = "Additional Inputs";
 const mainDisplayLoading = "Loading...";
 const mainDisplayVerifyError = "Unable to Verify";
+const mainDisplayScheduleError = "Schedule Error";
 
 const ScraperBuild = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [evtAnchorEl, setEvtAnchorEl] = React.useState(null);
+  const [submitDisabledEl, setSubmitDisabled] = React.useState(true);
   const [tempEventScrape, setTemp] = React.useState(null);
   const [selectedEventList, setEventList] = React.useState([]);
   const [addBtn, setAddBtn] = React.useState(true);
@@ -89,9 +91,13 @@ const ScraperBuild = () => {
   const [stateFips, setStateFips] = React.useState("");
   const [longitude, setLongitude] = React.useState("");
   const [latitude, setLatitude] = React.useState("");
+  
+  // set verify success message
+  const [verifySuccessMessage, setVerifySuccessMessage] = React.useState(null);
 
   const open = Boolean(anchorEl);
   const evtOpen = Boolean(evtAnchorEl);
+  const submitDisabled = Boolean(submitDisabledEl);
   const addBtnDisabled = Boolean(addBtn);
   const clearBtnDisabled = Boolean(clearBtn);
   const showAdditional = Boolean(showAdditionalEl);
@@ -152,7 +158,6 @@ const ScraperBuild = () => {
   const handleEvtClose = (item) => {
     if(item && item.value) {
       document.getElementById("submitScrape").disabled = true;
-      document.getElementById("cancel").disabled = true;
       chrome.runtime.sendMessage({
         selectElements: "Select elements",
         field: item.value,
@@ -266,6 +271,7 @@ const ScraperBuild = () => {
   const displayAdditional = () => {
     setMainDisplay(mainDisplayAdditional);
     setShowAdditional(true);
+    setScrapedText("");
   }
 
   const hereWeGo = () => {
@@ -275,6 +281,14 @@ const ScraperBuild = () => {
   }
 
   const verify = async () => {
+    // check schedule
+    if(scheduleText === "Schedule") {
+      setMainDisplay(mainDisplayScheduleError);
+      setScrapedText("Please select a schedule.");
+      return;
+    }
+
+    setShowAdditional(false);
     let metaData = {
       frequency: scheduleText,
       cbsa: cbsa,
@@ -297,15 +311,43 @@ const ScraperBuild = () => {
     await getScrapeBuilderData(combined);
   }
 
+  const submit = async () => {
+    setShowAdditional(false);
+
+    console.log(verifySuccessMessage);
+
+    scrape.verified({
+      mapId: verifySuccessMessage.mapId,
+      enabled: true,
+    })
+
+    setMainDisplay(mainDisplayDefault);
+    setScrapedText("Your scrape has been submitted!");
+
+    // reset the eventOptions from the selectedEventList
+    selectedEventList.forEach((item) => {
+      eventOptions.push(item);
+      chrome.runtime.sendMessage({
+        msg: "removeElement",
+        field: item.value,
+      });
+    });
+
+    // remove all the selectedEventList
+    setEventList([]);
+
+  }
+
   const getScrapeBuilderData = async (combined) => {
     scrape.scrapeBuilderPost(combined).then( (res) => {
-      console.log("res");
-      console.log(res);
       if(res) {
+        setSubmitDisabled(false);
         setMainDisplay(mainDisplayDefault);
         setScrapedText(res["message"])
+        setVerifySuccessMessage(res);
         // display success message
       } else {
+        setSubmitDisabled(true);
         setMainDisplay(mainDisplayVerifyError);
         setScrapedText("There was an error verifying your scrape. Please try again.")
       }
@@ -460,11 +502,8 @@ const ScraperBuild = () => {
           <button id="verify" type="button" className="btn btn-primary reg-button-size" onClick={() => verify()}>
               Verify
           </button>
-          <button disabled id="submitScrape" type="button" className="btn btn-primary reg-button-size">
+          <button disabled={submitDisabled} id="submitScrape" type="button" className="btn btn-success reg-button-size" onClick={() => submit()}>
               Submit
-          </button>
-          <button disabled id="cancel" type="button" className="btn btn-primary reg-button-size">
-              Cancel
           </button>
           <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
               Clear
@@ -843,41 +882,6 @@ setScrapersPage() {
         });
       }
 }
-
-// clearSelected.addEventListener("click", async () => {
-//   chrome.runtime.sendMessage({
-//     clearSelected: "Clear selected",
-//   });
-//   window.location.reload(true);
-// });
-
-// submitScrape.addEventListener("click", async () => {
-//   chrome.runtime.sendMessage({
-//     submitScrape: "Submit scrape",
-//     enable: true,
-//   });
-//   selectElements.disabled = false;
-//   selectedItems.length = 0;
-//   verify.disabled = true;
-//   submitScrape.disabled = true;
-//   cancel.disabled = true;
-//   scrapeItemRecieved = false;
-// });
-
-// cancel.addEventListener("click", async (event) => {
-//   event.preventDefault();
-//   chrome.runtime.sendMessage({
-//     submitScrape: "Submit scrape",
-//     enable: false,
-//   });
-//   selectElements.disabled = false;
-//   verify.disabled = false;
-//   submitScrape.disabled = true;
-//   cancel.disabled = true;
-//   scrapeItemRecieved = true;
-// });
-
-
 
 render() {
     return (

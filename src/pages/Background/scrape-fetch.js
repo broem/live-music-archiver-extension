@@ -407,10 +407,16 @@ async function scrapeBuilderPost(data) {
         body: JSON.stringify(data),
       }
     );
-    const resp = await blob.json();
-    console.log('good to go');
-    console.log(resp);
-    return resp;
+
+    if (blob.status == 200) {
+      const resp = await blob.json();
+      console.log('good to go');
+      console.log(resp);
+      return resp;
+    } else {
+      console.log('bad status');
+      return null;
+    }
   } catch (err) {
     // let verifyItem = null;
     // chrome.storage.sync.set({ verifyItem });
@@ -453,44 +459,30 @@ async function adminGetUsers() {
 }
 
 async function verified(data) {
-  chrome.storage.session.get(
-    ['config', 'userId', 'mapId'],
-    async function (result) {
-      const config = result['config'];
-      const mapId = result['mapId'];
-      const userId = result['userId'];
-      data['mapId'] = mapId;
-      data['userId'] = userId;
-      const response = await fetch(
-        'http://' + config['remote-address'] + '/api/verified',
-        {
-          method: 'POST', // *GET, POST, PUT, DELETE, etc.
-          mode: 'cors', // no-cors, *cors, same-origin
-          cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: 'same-origin', // include, *same-origin, omit
-          headers: {
-            Authorization: `Bearer ${currRaw}`,
+  chrome.storage.session.get(['config', 'userId'], async function (result) {
+    const config = result['config'];
+    const userId = result['userId'];
+    data['userId'] = userId;
+    const response = await fetch(
+      'http://' + config['remote-address'] + '/api/verified',
+      {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+          Authorization: `Bearer ${currRaw}`,
 
-            'Content-Type': 'application/json',
-          },
-          redirect: 'follow', // manual, *follow, error
-          referrerPolicy: 'no-referrer',
-          body: JSON.stringify(data),
-        }
-      )
-        .then((blob) => blob.json())
-        .then((resp) => {
-          console.log(resp);
-          if (resp === true) {
-            chrome.runtime.sendMessage({
-              reloadScrapeBuilder: 'Reload scrape builder',
-            });
-          } else {
-            console.log('switch back to selecting needs to happen now');
-          }
-        });
-    }
-  );
+          'Content-Type': 'application/json',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data),
+      }
+    )
+      .then((blob) => blob.json())
+      .then((resp) => {});
+  });
 }
 
 async function logoutPost() {
