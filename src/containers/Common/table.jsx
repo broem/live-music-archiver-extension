@@ -25,18 +25,6 @@ import { Button } from '@mui/material';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
 import { useEffect } from "react";
 
-function createData(id, email, venue_base_url, schedule, enabled, last_run, approved) {
-  return {
-    id,
-    email,
-    venue_base_url,
-    schedule,
-    enabled,
-    last_run,
-    approved,
-  };
-}
-
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -66,29 +54,23 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-    {
-        id: 'id',
-        numeric: false,
-        disablePadding: true,
-        label: 'ID',
-      },
   {
-    id: 'email',
+    id: 'name',
     numeric: false,
     disablePadding: true,
-    label: 'User Email',
+    label: 'Name',
   },
   {
     id: 'venue_base_url',
     numeric: false,
-    disablePadding: false,
+    disablePadding: true,
     label: 'Venue URL',
   },
   {
-    id: 'schedule',
-    numeric: true,
+    id: 'frequency',
+    numeric: false,
     disablePadding: false,
-    label: 'Schedule',
+    label: 'Frequency',
   },
   {
     id: 'enabled',
@@ -101,12 +83,6 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: 'Last Run',
-  },
-  {
-    id: 'approved',
-    numeric: false,
-    disablePadding: false,
-    label: 'Map Approved',
   },
   {
     id: 'download_recent',
@@ -230,6 +206,9 @@ export default function EnhancedTable(props) {
     // get email from props
     // get the data from scrape
     scrape.adminUserMaps(email).then((data) => {
+      if(!!!data) {
+        return;
+      }
       // set the rows to the data
       setRows(data);
     });
@@ -251,23 +230,23 @@ export default function EnhancedTable(props) {
   };
 
   const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
+    // const selectedIndex = selected.indexOf(name);
+    // let newSelected = [];
 
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
-    }
+    // if (selectedIndex === -1) {
+    //   newSelected = newSelected.concat(selected, name);
+    // } else if (selectedIndex === 0) {
+    //   newSelected = newSelected.concat(selected.slice(1));
+    // } else if (selectedIndex === selected.length - 1) {
+    //   newSelected = newSelected.concat(selected.slice(0, -1));
+    // } else if (selectedIndex > 0) {
+    //   newSelected = newSelected.concat(
+    //     selected.slice(0, selectedIndex),
+    //     selected.slice(selectedIndex + 1),
+    //   );
+    // }
 
-    setSelected(newSelected);
+    // setSelected(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -307,13 +286,13 @@ export default function EnhancedTable(props) {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.id);
+                  const isItemSelected = isSelected(row.map_id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.id)}
+                      onClick={(event) => handleClick(event, row.map_id)}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
@@ -321,29 +300,23 @@ export default function EnhancedTable(props) {
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            'aria-labelledby': labelId,
-                          }}
-                        />
                       </TableCell>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                      >
-                        {row.name}
+                      <TableCell className='table-cell' align="right">{row.name}</TableCell>
+                      <TableCell className='table-cell' align="right">{row.url}</TableCell>
+                      <TableCell className='table-cell' align="right">{row.frequency}</TableCell>
+                      <TableCell className='table-cell' align="right">{row.enabled}</TableCell>
+                      <TableCell className='table-cell' align="right">{row.lastRun}</TableCell>
+                      <TableCell className='table-cell' align="right">
+                        <Button>
+                          Download Recent
+                        </Button>
                       </TableCell>
-                      <TableCell align="right">{row.email}</TableCell>
-                      <TableCell align="right">{row.venue_base_url}</TableCell>
-                      <TableCell align="right">{row.schedule}</TableCell>
-                      <TableCell align="right">{row.enabled}</TableCell>
-                      <TableCell align="right">{row.last_run}</TableCell>
-                      <TableCell align="right">{row.approved}</TableCell>
-                      <TableCell padding='checkbox'>
+                      <TableCell className='table-cell' align="right">
+                        <Button>
+                          Show Recent
+                        </Button>
+                      </TableCell>
+                      <TableCell className='table-cell' padding='checkbox'>
                         <Button>
                           Edit
                         </Button>

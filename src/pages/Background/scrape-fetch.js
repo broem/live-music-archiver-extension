@@ -427,11 +427,8 @@ async function scrapeBuilderPost(data) {
 
 async function adminUserMaps(data) {
   let info = await getStorageInfo();
-  console.log('Getting storage info');
-  console.log(info);
   var config = info['config'];
-  var userId = info['userId'];
-  var url = `http://${config['remote-address']}/api/admin/userMaps/${userId}`;
+  var url = `http://${config['remote-address']}/api/admin/userMaps/${data}`;
   try {
     const blob = await fetch(url, {
       method: 'GET', // *GET, POST, PUT, DELETE, etc.
