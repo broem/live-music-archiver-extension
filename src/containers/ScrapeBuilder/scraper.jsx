@@ -69,7 +69,13 @@ const mainDisplayLoading = "Loading...";
 const mainDisplayVerifyError = "Unable to Verify";
 const mainDisplayScheduleError = "Schedule Error";
 
-const ScraperBuild = () => {
+const ScraperBuild = (props) => {
+  // get onShow and isActive from props
+  const { onShow, isActive } = props;
+
+  // pull event options from props
+  const [event, setEvent] = React.useState(props.event ?? null);
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [evtAnchorEl, setEvtAnchorEl] = React.useState(null);
   const [submitDisabledEl, setSubmitDisabled] = React.useState(true);
@@ -102,6 +108,13 @@ const ScraperBuild = () => {
   const addBtnDisabled = Boolean(addBtn);
   const clearBtnDisabled = Boolean(clearBtn);
   const showAdditional = Boolean(showAdditionalEl);
+
+  // set event on load if props.event is not null
+  onload = () => {
+    if (props.event !== null) {
+      setEvent(props.event);
+    }
+  }
 
   useEffect(() => {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -355,208 +368,213 @@ const ScraperBuild = () => {
     });
   }
   
-  return (
-    <div className="container" id="mainContainer">
-      <div className="row">
-        <div className="col-6 scrape-schedule">
-        <TextField 
-          id="standard-basic" 
-          label="Scraper Name" 
-          variant="standard"
-          onChange={(event) => setName(event.target.value)}
-        />
-        </div>
-      </div>
-      <div className="row">
-        <div className="col-4 scrape-schedule">
+  if(isActive) {
+    return (
+      <div className="container" id="mainContainer">
+          <div className="row">
+            <div className="col-6 scrape-schedule">
+            <TextField 
+              id="standard-basic" 
+              label="Scraper Name" 
+              variant="standard"
+              onChange={(event) => setName(event.target.value)}
+            />  
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-4 scrape-schedule">
+                <div className="dropdown">
+                <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
+                    aria-controls={open ? 'basic-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
+                    onClick={handleClick}
+                    id="basic-button">
+                      {scheduleText}
+                </button>
+                <Menu
+                  id="basic-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={() => handleClose(undefined)}
+                  MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                  }}
+                >
+                  {scheduleOptions && scheduleOptions.map((item) => (
+                    <MenuItem key={item.label} value={item.label} onClick={() => handleClose(item.label)} disableRipple>
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                </Menu>
+                </div>
+            </div>
+            <div className="col-4 scrape-schedule">
             <div className="dropdown">
-            <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
-                aria-controls={open ? 'basic-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
-                onClick={handleClick}
-                id="basic-button">
-                  {scheduleText}
+            <button className="btn btn-success dropdown-toggle drp-button-size" 
+                    type="button"
+                    aria-controls={evtOpen ? 'basic-evt-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={evtOpen ? 'true' : undefined}
+                    onClick={handleEvtClick}
+                    id="event-button">
+                {eventOpt.label}
             </button>
             <Menu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={() => handleClose(undefined)}
+              id="basic-evt-menu"
+              anchorEl={evtAnchorEl}
+              open={evtOpen}
+              onClose={() => handleEvtClose(undefined)}
               MenuListProps={{
-                'aria-labelledby': 'basic-button',
+                'aria-labelledby': 'event-button',
               }}
             >
-              {scheduleOptions && scheduleOptions.map((item) => (
-                <MenuItem key={item.label} value={item.label} onClick={() => handleClose(item.label)} disableRipple>
+              {eventOptions && eventOptions.map((item) => (
+                <MenuItem key={item.label} onClick={() => handleEvtClose(item)} disableRipple>
                   {item.label}
                 </MenuItem>
               ))}
             </Menu>
             </div>
-        </div>
-        <div className="col-4 scrape-schedule">
-        <div className="dropdown">
-        <button className="btn btn-success dropdown-toggle drp-button-size" 
-                type="button"
-                aria-controls={evtOpen ? 'basic-evt-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={evtOpen ? 'true' : undefined}
-                onClick={handleEvtClick}
-                id="event-button">
-            {eventOpt.label}
-        </button>
-        <Menu
-          id="basic-evt-menu"
-          anchorEl={evtAnchorEl}
-          open={evtOpen}
-          onClose={() => handleEvtClose(undefined)}
-          MenuListProps={{
-            'aria-labelledby': 'event-button',
-          }}
-        >
-          {eventOptions && eventOptions.map((item) => (
-            <MenuItem key={item.label} onClick={() => handleEvtClose(item)} disableRipple>
-              {item.label}
-            </MenuItem>
-          ))}
-        </Menu>
-        </div>
-      </div>
-        <div className="col-4 scrape-schedule">
-            <button className="btn btn-success dropdown-toggle drp-button-size" onClick={() => displayAdditional()}>
-              Additional
-            </button>
-        </div>
-      </div>
-      <form id="setupScrape">
-        <div className="row">
-            <div className="selected-display col-11">
-              <div className="main-display-container">
-                  <figcaption className="text-area-caption">
-                  <b>{mainDisplayText}</b>
-                  <div id="mainDisplay scrape-preview">
-                    {scrapedText}
-                    <FormControl sx={{ input: {color: 'white'} }}>
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="CBSA" 
-                                            variant="standard"
-                                            value={cbsa}
-                                            onChange={(event) => {
-                                              setCbsa(event.target.value);
-                                            }} />}
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="County FIPS" 
-                                            variant="standard"
-                                            value={countyFips}
-                                            onChange={(event) => {
-                                              setCountyFips(event.target.value);
-                                            }} />}
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="State FIPS" 
-                                            variant="standard"
-                                            value={stateFips}
-                                            onChange={(event) => {
-                                              setStateFips(event.target.value);
-                                            }} />}
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="Latitude" 
-                                            variant="standard"
-                                            value={latitude}
-                                            onChange={(event) => {
-                                              setLatitude(event.target.value);
-                                            }} />}
-                      {showAdditional && <TextField 
-                                            id="standard-basic" 
-                                            label="Longitude" 
-                                            variant="standard"
-                                            value={longitude}
-                                            onChange={(event) => {
-                                              setLongitude(event.target.value);
-                                            }} />}
-                    </FormControl>
-                  </div>
-                  </figcaption>
-              </div>
-            </div>
-            <div className="selected-btn-container col-1">
-              <div>
-            <IconButton sx={{ color: 'white' }} edge="end" title="Add" disabled={addBtnDisabled} onClick={() => addEventProperty()}>
-              <AddIcon />
-            </IconButton>
-            </div>
-            <div>
-            <IconButton sx={{ color: 'white' }} edge="end" title="Clear" disabled={clearBtnDisabled} onClick={() => removeEventProperty()}>
-              <RemoveIcon />
-            </IconButton>
-            </div>
-            </div>
-        </div>
-        <div className="row">
-        <div className="col-4 scrape-select">
-          <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size" onClick={() => disableSelection()}>
-            Disable
-          </button>
           </div>
-          <div className="col-3 scrape-select">
-          <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
-            Download Recent
-          </button>
-        </div>
-        </div>
-        <div className="row">
-            <div className="col-3 scrape-verify">
-            <button id="verify" type="button" className="btn btn-primary reg-button-size" onClick={() => verify()}>
-                Verify
-            </button>
-            <button disabled={submitDisabled} id="submitScrape" type="button" className="btn btn-success reg-button-size" onClick={() => submit()}>
-                Submit
-            </button>
-            <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
-                Clear
-            </button>
+            <div className="col-4 scrape-schedule">
+                <button className="btn btn-success dropdown-toggle drp-button-size" onClick={() => displayAdditional()}>
+                  Additional
+                </button>
             </div>
-            <div className="col-9">
-            <div className="list-contain">
-            <figcaption className="text-area-caption">
-                Currently Selected
-          </figcaption>
-                <List
-                  sx={{
-                    width: '100%',
-                    maxWidth: 360,
-                    bgcolor: 'background.paper',
-                    position: 'relative',
-                    overflow: 'auto',
-                    maxHeight: 'fit-content',
-                    '& ul': { padding: 0 },
-                  }} 
-                  dense={true}>
-              {selectedEventList && selectedEventList.map(item => (
-                <ListItem
-                  key={item.label}
-                  secondaryAction={
-                    <IconButton edge="end" aria-label="delete" onClick={() => removeItem(item)}>
-                      <RemoveIcon />
-                    </IconButton>
-                  }
-                >
-                  <ListItemText
-                    primary={item.label}
-                  />
-                </ListItem>
-              ))}
-            </List>
+          </div>
+          <form id="setupScrape">
+            <div className="row">
+                <div className="selected-display col-11">
+                  <div className="main-display-container">
+                      <figcaption className="text-area-caption">
+                      <b>{mainDisplayText}</b>
+                      <div id="mainDisplay scrape-preview">
+                        {scrapedText}
+                        <FormControl sx={{ input: {color: 'white'} }}>
+                          {showAdditional && <TextField 
+                                                id="standard-basic" 
+                                                label="CBSA" 
+                                                variant="standard"
+                                                value={cbsa}
+                                                onChange={(event) => {
+                                                  setCbsa(event.target.value);
+                                                }} />}
+                          {showAdditional && <TextField 
+                                                id="standard-basic" 
+                                                label="County FIPS" 
+                                                variant="standard"
+                                                value={countyFips}
+                                                onChange={(event) => {
+                                                  setCountyFips(event.target.value);
+                                                }} />}
+                          {showAdditional && <TextField 
+                                                id="standard-basic" 
+                                                label="State FIPS" 
+                                                variant="standard"
+                                                value={stateFips}
+                                                onChange={(event) => {
+                                                  setStateFips(event.target.value);
+                                                }} />}
+                          {showAdditional && <TextField 
+                                                id="standard-basic" 
+                                                label="Latitude" 
+                                                variant="standard"
+                                                value={latitude}
+                                                onChange={(event) => {
+                                                  setLatitude(event.target.value);
+                                                }} />}
+                          {showAdditional && <TextField 
+                                                id="standard-basic" 
+                                                label="Longitude" 
+                                                variant="standard"
+                                                value={longitude}
+                                                onChange={(event) => {
+                                                  setLongitude(event.target.value);
+                                                }} />}
+                        </FormControl>
+                      </div>
+                      </figcaption>
+                  </div>
+                </div>
+                <div className="selected-btn-container col-1">
+                  <div>
+                <IconButton sx={{ color: 'white' }} edge="end" title="Add" disabled={addBtnDisabled} onClick={() => addEventProperty()}>
+                  <AddIcon />
+                </IconButton>
+                </div>
+                <div>
+                <IconButton sx={{ color: 'white' }} edge="end" title="Clear" disabled={clearBtnDisabled} onClick={() => removeEventProperty()}>
+                  <RemoveIcon />
+                </IconButton>
+                </div>
+                </div>
+            </div>
+            <div className="row">
+            <div className="col-4 scrape-select">
+              <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size" onClick={() => disableSelection()}>
+                Disable
+              </button>
+              </div>
+              <div className="col-3 scrape-select">
+              <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
+                Download Recent
+              </button>
             </div>
             </div>
-        </div>
-      </form>
-    </div>
-  );
+            <div className="row">
+                <div className="col-3 scrape-verify">
+                <button id="verify" type="button" className="btn btn-primary reg-button-size" onClick={() => verify()}>
+                    Verify
+                </button>
+                <button disabled={submitDisabled} id="submitScrape" type="button" className="btn btn-success reg-button-size" onClick={() => submit()}>
+                    Submit
+                </button>
+                <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
+                    Clear
+                </button>
+                </div>
+                <div className="col-9">
+                <div className="list-contain">
+                <figcaption className="text-area-caption">
+                    Currently Selected
+              </figcaption>
+                    <List
+                      sx={{
+                        width: '100%',
+                        maxWidth: 360,
+                        bgcolor: 'background.paper',
+                        position: 'relative',
+                        overflow: 'auto',
+                        maxHeight: 'fit-content',
+                        '& ul': { padding: 0 },
+                      }} 
+                      dense={true}>
+                  {selectedEventList && selectedEventList.map(item => (
+                    <ListItem
+                      key={item.label}
+                      secondaryAction={
+                        <IconButton edge="end" aria-label="delete" onClick={() => removeItem(item)}>
+                          <RemoveIcon />
+                        </IconButton>
+                      }
+                    >
+                      <ListItemText
+                        primary={item.label}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+                </div>
+                </div>
+            </div>
+          </form>      
+      </div>         
+    );
+  } else {
+    // return nothing
+    return null;
+  }
 }
 
 function generate(element) {
@@ -585,34 +603,31 @@ async function items(){
     return u;
 }
 
-class AdminPage extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            usersReturned : false,
-            users : [],
-            selectedUser: "",
-        }
+const AdminPage = (props) => {
+    const [users, setUsers] = useState([]);
+    const [usersReturned, setUsersReturned] = useState(false);
+    const [selectedUser, setSelectedUser] = useState("");
+    const { isActive } = props;
+
+
+
+
+    const setUserSelect = (user) => {
+      setSelectedUser(user);
     }
 
-    setUserSelect = (user) => {
-      console.log("setting user")
-      this.setState({selectedUser: user});
-      console.log(user);
-    }
+    useEffect(() => {
+      items().then((items) => {
+        console.log(items);
+        setUsersReturned(true);
+        setUsers(items);
+    }).catch((err) => {
+        console.log(err);
+    });
+    }, []);
 
-    componentDidMount() {
-        items().then((items) => {
-            console.log(items);
-            this.setState({usersReturned: true});
-            this.setState({users: items});
-        }).catch((err) => {
-            console.log(err);
-        });
-    }
-
-    render() {
-        if (!this.state.usersReturned) {
+      if (isActive) {
+        if (!usersReturned) {
             return (
                 <div>
                     <div>Loading...</div>
@@ -622,20 +637,20 @@ class AdminPage extends React.Component {
 
         return (
             <div>
-                <CustomizedMenus items={this.state.users} selectOption={this.setUserSelect}/>
-                {this.state.selectedUser.length > 0 && <EnhancedTable email={this.state.selectedUser}/>}
+                <CustomizedMenus items={users} selectOption={setUserSelect}/>
+                {selectedUser.length > 0 && <EnhancedTable email={selectedUser}/>}
             </div>
         )
-    }
+      } else {
+        return null;
+      }
 }
 
-class ScrapersPage extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {}
-  }
+const ScrapersPage = (props) => {
+  // get isActive from props
+  const { isActive } = props;
 
-  render() {
+    if(isActive) {
     return (
       <div className="container"> 
         <div className="card" style={{width: "18rem"}}>
@@ -647,7 +662,9 @@ class ScrapersPage extends React.Component {
           </div>
         </div>      
     )
-  }
+  } else {
+    return null;
+    }
 }
 
 
@@ -659,6 +676,7 @@ class Scraper extends React.Component {
             admin : false,
             scrapers: false,
             scraperBuilder: true,
+            activeIndex: 0,
         }
     }
 
@@ -674,225 +692,231 @@ setScrapersPage() {
   this.setState({scraperBuilder: false, admin: false, scrapers: true})
 }
 
-
- scrapersClick(e) {
-    console.log("scrapersClick");
-    if (!document.getElementById("scrapers").classNameList.contains("active")) {
-        e.preventDefault();
-        document.getElementById("scrapers").classNameList.add("active");
-        sb.classNameList.remove("active");
-        orginalSb = document.getElementById("mainContainer");
-        var tempSb = document.getElementById("mainContainer");
-        tempSb.remove();
-    
-        var scrapersPage = document.createElement("DIV");
-        scrapersPage.id = "scrapersPage";
-    
-        scrapersPage.innerHTML = `<div className="container"> 
-        <div className="card" style="width: 18rem;">
-         <div className="card-header">
-          My Event Scrapers
-            </div>
-            <ul className="list-group list-group-flush">
-            </ul>
-          </div>
-        </div>`;
-    
-        document.body.appendChild(scrapersPage);
-    
-        // find list-group-flush
-        var listGroup = document.querySelector(".list-group-flush");
-    
-        // grab scrapeEvents from local session storage
-        chrome.storage.session.get("scrapeEvents", function (result) {
-          var scrapeEvents = result.scrapeEvents;
-          var hadItem = false;
-    
-          if (scrapeEvents) {
-            // loop through scrapeEvents
-            for (var i = 0; i < scrapeEvents.length; i++) {
-              hadItem = true;
-              // create list item
-              var listItems = document.createElement("LI");
-              listItems.classNameList.add("list-group-item");
-              // make freuency dropdown menu
-              var frequencyDropdown = document.createElement("SELECT");
-              frequencyDropdown.classNameList.add("form-select");
-              frequencyDropdown.classNameList.add("frequencyDropdown");
-              // make option for once
-              var once = document.createElement("OPTION");
-              once.value = "once";
-              once.textContent = "Just Once";
-              // make option for every day
-              var everyDayOption = document.createElement("OPTION");
-              everyDayOption.value = "Every Day";
-              everyDayOption.textContent = "Every Day";
-              // make option for every other day
-              var everyOtherDayOption = document.createElement("OPTION");
-              everyOtherDayOption.value = "Every Other Day";
-              everyOtherDayOption.textContent = "Every Other Day";
-              // make option for every week
-              var everyWeekOption = document.createElement("OPTION");
-              everyWeekOption.value = "Every Week";
-              everyWeekOption.textContent = "Every Week";
-              // make option for every other week
-              var everyOtherWeekOption = document.createElement("OPTION");
-              everyOtherWeekOption.value = "Every Other Week";
-              everyOtherWeekOption.textContent = "Every Other Week";
-              // make option for every month
-              var everyMonthOption = document.createElement("OPTION");
-              everyMonthOption.value = "Every Month";
-              everyMonthOption.textContent = "Every Month";
-              // append options to dropdown
-              frequencyDropdown.appendChild(once);
-              frequencyDropdown.appendChild(everyDayOption);
-              frequencyDropdown.appendChild(everyOtherDayOption);
-              frequencyDropdown.appendChild(everyWeekOption);
-              frequencyDropdown.appendChild(everyOtherWeekOption);
-              frequencyDropdown.appendChild(everyMonthOption);
-    
-              // create unique id for each dropdown
-              frequencyDropdown.id = "frequencyDropdown" + i;
-    
-              // set frequency dropdown to correct value
-              if (scrapeEvents[i].frequency === "Every Day") {
-                frequencyDropdown.value = "Every Day";
-              } else if (scrapeEvents[i].frequency === "Every Other Day") {
-                frequencyDropdown.value = "Every Other Day";
-              } else if (scrapeEvents[i].frequency === "Every Week") {
-                frequencyDropdown.value = "Every Week";
-              } else if (scrapeEvents[i].frequency === "Every Other Week") {
-                frequencyDropdown.value = "Every Other Week";
-              } else if (scrapeEvents[i].frequency === "Every Month") {
-                frequencyDropdown.value = "Every Month";
-              }
-    
-              // make deep copy of scrapeEvent
-              var scrapeEventCopy = JSON.parse(JSON.stringify(scrapeEvents[i]));
-              // console.log(scrapeEventCopy);
-              frequencyDropdown.scrapeEvent = scrapeEventCopy;
-    
-              // add event listener to frequency dropdown
-              frequencyDropdown.addEventListener("change", function (event) {
-                console.log("frequencyDropdown change event");
-                console.log(event);
-                console.log(event.target.scrapeEvent);
-                // get value of dropdown
-                var frequency = event.target.value;
-    
-                // update scrapeEvent
-                event.target.scrapeEvent.frequency = frequency;
-                console.log(event.target.scrapeEvent);
-                event.preventDefault();
-    
-                // update through scrape-fetch.js
-                chrome.runtime.sendMessage({
-                  msg: "updateScrape",
-                  data: event.target.scrapeEvent,
-                });
-              });
-    
-              listItems.innerHTML =
-                "<div><b>URL:</b> " +
-                scrapeEvents[i].url +
-                "</div>" +
-                '<div><b className="freq' +
-                i +
-                '"">Frequency:</b> ' +
-                "</div>" +
-                '<div><b className="enabledDisplay' +
-                [i] +
-                '">Enabled: ' +
-                scrapeEvents[i].enabled +
-                "</b> " +
-                "</div>";
-    
-              // add frequency dropdown to className=freq+i
-              listItems.querySelector(".freq" + i).appendChild(frequencyDropdown);
-    
-              // add button to list item
-              var button = document.createElement("BUTTON");
-              button.classNameList.add("btn", "btn-primary");
-    
-              // add unique id to button
-              button.id = "button" + i;
-              // text for button enabled or disabled
-              var buttonText = "";
-              if (scrapeEvents[i].enabled == true) {
-                button.style.backgroundColor = "red";
-                buttonText = "Disable";
-              } else {
-                button.style.backgroundColor = "blue";
-                buttonText = "Enable";
-              }
-              button.textContent = buttonText;
-    
-              // add scrapeEvent to button
-              button.scrapeEvent = scrapeEventCopy;
-              button.specialID = i;
-    
-              button.addEventListener("click", function (event) {
-                console.log(event);
-                event.target.scrapeEvent.enabled =
-                  !event.target.scrapeEvent.enabled;
-    
-                // find enabledDisplay
-                var enabledDisplay = document.querySelector(
-                  ".enabledDisplay" + event.target.specialID
-                );
-                // change button text
-                if (button.textContent === "Enable") {
-                  enabledDisplay.textContent = "Enabled: true";
-                  event.target.style.backgroundColor = "red";
-                  event.target.textContent = "Disable";
-                } else {
-                  enabledDisplay.textContent = "Enabled: false";
-                  event.target.style.backgroundColor = "blue";
-                  event.target.textContent = "Enable";
-                }
-                event.preventDefault();
-    
-                // update through scrape-fetch.js
-                chrome.runtime.sendMessage({
-                  msg: "updateScrape",
-                  data: event.target.scrapeEvent,
-                });
-              });
-              // add button to list item
-              listItems.appendChild(button);
-    
-              // make delete button
-              var deleteButton = document.createElement("BUTTON");
-              deleteButton.classNameList.add("btn", "btn-danger");
-              deleteButton.textContent = "Delete";
-              deleteButton.scrapeEvent = scrapeEvents[i];
-    
-              deleteButton.addEventListener("click", function (event) {
-                // delete scrapeEvent
-                chrome.runtime.sendMessage({
-                  msg: "deleteScrape",
-                  data: event.target.scrapeEvent,
-                });
-                // remove list item
-                event.target.parentElement.remove();
-                event.preventDefault();
-              });
-    
-              // add delete button to list item
-              listItems.appendChild(deleteButton);
-              listGroup.appendChild(listItems);
-            }
-          }
-    
-          if (hadItem == false) {
-            var listItems = document.createElement("LI");
-            listItems.classNameList.add("list-group-item");
-            listItems.textContent = "No items";
-            listGroup.appendChild(listItems);
-          }
-        });
-      }
+setActiveIndex(index) {
+  console.log("setActiveIndex");
+  console.log(index);
+  this.setState({activeIndex: index});
 }
+
+
+//  scrapersClick(e) {
+//     console.log("scrapersClick");
+//     if (!document.getElementById("scrapers").classNameList.contains("active")) {
+//         e.preventDefault();
+//         document.getElementById("scrapers").classNameList.add("active");
+//         sb.classNameList.remove("active");
+//         orginalSb = document.getElementById("mainContainer");
+//         var tempSb = document.getElementById("mainContainer");
+//         tempSb.remove();
+    
+//         var scrapersPage = document.createElement("DIV");
+//         scrapersPage.id = "scrapersPage";
+    
+//         scrapersPage.innerHTML = `<div className="container"> 
+//         <div className="card" style="width: 18rem;">
+//          <div className="card-header">
+//           My Event Scrapers
+//             </div>
+//             <ul className="list-group list-group-flush">
+//             </ul>
+//           </div>
+//         </div>`;
+    
+//         document.body.appendChild(scrapersPage);
+    
+//         // find list-group-flush
+//         var listGroup = document.querySelector(".list-group-flush");
+    
+//         // grab scrapeEvents from local session storage
+//         chrome.storage.session.get("scrapeEvents", function (result) {
+//           var scrapeEvents = result.scrapeEvents;
+//           var hadItem = false;
+    
+//           if (scrapeEvents) {
+//             // loop through scrapeEvents
+//             for (var i = 0; i < scrapeEvents.length; i++) {
+//               hadItem = true;
+//               // create list item
+//               var listItems = document.createElement("LI");
+//               listItems.classNameList.add("list-group-item");
+//               // make freuency dropdown menu
+//               var frequencyDropdown = document.createElement("SELECT");
+//               frequencyDropdown.classNameList.add("form-select");
+//               frequencyDropdown.classNameList.add("frequencyDropdown");
+//               // make option for once
+//               var once = document.createElement("OPTION");
+//               once.value = "once";
+//               once.textContent = "Just Once";
+//               // make option for every day
+//               var everyDayOption = document.createElement("OPTION");
+//               everyDayOption.value = "Every Day";
+//               everyDayOption.textContent = "Every Day";
+//               // make option for every other day
+//               var everyOtherDayOption = document.createElement("OPTION");
+//               everyOtherDayOption.value = "Every Other Day";
+//               everyOtherDayOption.textContent = "Every Other Day";
+//               // make option for every week
+//               var everyWeekOption = document.createElement("OPTION");
+//               everyWeekOption.value = "Every Week";
+//               everyWeekOption.textContent = "Every Week";
+//               // make option for every other week
+//               var everyOtherWeekOption = document.createElement("OPTION");
+//               everyOtherWeekOption.value = "Every Other Week";
+//               everyOtherWeekOption.textContent = "Every Other Week";
+//               // make option for every month
+//               var everyMonthOption = document.createElement("OPTION");
+//               everyMonthOption.value = "Every Month";
+//               everyMonthOption.textContent = "Every Month";
+//               // append options to dropdown
+//               frequencyDropdown.appendChild(once);
+//               frequencyDropdown.appendChild(everyDayOption);
+//               frequencyDropdown.appendChild(everyOtherDayOption);
+//               frequencyDropdown.appendChild(everyWeekOption);
+//               frequencyDropdown.appendChild(everyOtherWeekOption);
+//               frequencyDropdown.appendChild(everyMonthOption);
+    
+//               // create unique id for each dropdown
+//               frequencyDropdown.id = "frequencyDropdown" + i;
+    
+//               // set frequency dropdown to correct value
+//               if (scrapeEvents[i].frequency === "Every Day") {
+//                 frequencyDropdown.value = "Every Day";
+//               } else if (scrapeEvents[i].frequency === "Every Other Day") {
+//                 frequencyDropdown.value = "Every Other Day";
+//               } else if (scrapeEvents[i].frequency === "Every Week") {
+//                 frequencyDropdown.value = "Every Week";
+//               } else if (scrapeEvents[i].frequency === "Every Other Week") {
+//                 frequencyDropdown.value = "Every Other Week";
+//               } else if (scrapeEvents[i].frequency === "Every Month") {
+//                 frequencyDropdown.value = "Every Month";
+//               }
+    
+//               // make deep copy of scrapeEvent
+//               var scrapeEventCopy = JSON.parse(JSON.stringify(scrapeEvents[i]));
+//               // console.log(scrapeEventCopy);
+//               frequencyDropdown.scrapeEvent = scrapeEventCopy;
+    
+//               // add event listener to frequency dropdown
+//               frequencyDropdown.addEventListener("change", function (event) {
+//                 console.log("frequencyDropdown change event");
+//                 console.log(event);
+//                 console.log(event.target.scrapeEvent);
+//                 // get value of dropdown
+//                 var frequency = event.target.value;
+    
+//                 // update scrapeEvent
+//                 event.target.scrapeEvent.frequency = frequency;
+//                 console.log(event.target.scrapeEvent);
+//                 event.preventDefault();
+    
+//                 // update through scrape-fetch.js
+//                 chrome.runtime.sendMessage({
+//                   msg: "updateScrape",
+//                   data: event.target.scrapeEvent,
+//                 });
+//               });
+    
+//               listItems.innerHTML =
+//                 "<div><b>URL:</b> " +
+//                 scrapeEvents[i].url +
+//                 "</div>" +
+//                 '<div><b className="freq' +
+//                 i +
+//                 '"">Frequency:</b> ' +
+//                 "</div>" +
+//                 '<div><b className="enabledDisplay' +
+//                 [i] +
+//                 '">Enabled: ' +
+//                 scrapeEvents[i].enabled +
+//                 "</b> " +
+//                 "</div>";
+    
+//               // add frequency dropdown to className=freq+i
+//               listItems.querySelector(".freq" + i).appendChild(frequencyDropdown);
+    
+//               // add button to list item
+//               var button = document.createElement("BUTTON");
+//               button.classNameList.add("btn", "btn-primary");
+    
+//               // add unique id to button
+//               button.id = "button" + i;
+//               // text for button enabled or disabled
+//               var buttonText = "";
+//               if (scrapeEvents[i].enabled == true) {
+//                 button.style.backgroundColor = "red";
+//                 buttonText = "Disable";
+//               } else {
+//                 button.style.backgroundColor = "blue";
+//                 buttonText = "Enable";
+//               }
+//               button.textContent = buttonText;
+    
+//               // add scrapeEvent to button
+//               button.scrapeEvent = scrapeEventCopy;
+//               button.specialID = i;
+    
+//               button.addEventListener("click", function (event) {
+//                 console.log(event);
+//                 event.target.scrapeEvent.enabled =
+//                   !event.target.scrapeEvent.enabled;
+    
+//                 // find enabledDisplay
+//                 var enabledDisplay = document.querySelector(
+//                   ".enabledDisplay" + event.target.specialID
+//                 );
+//                 // change button text
+//                 if (button.textContent === "Enable") {
+//                   enabledDisplay.textContent = "Enabled: true";
+//                   event.target.style.backgroundColor = "red";
+//                   event.target.textContent = "Disable";
+//                 } else {
+//                   enabledDisplay.textContent = "Enabled: false";
+//                   event.target.style.backgroundColor = "blue";
+//                   event.target.textContent = "Enable";
+//                 }
+//                 event.preventDefault();
+    
+//                 // update through scrape-fetch.js
+//                 chrome.runtime.sendMessage({
+//                   msg: "updateScrape",
+//                   data: event.target.scrapeEvent,
+//                 });
+//               });
+//               // add button to list item
+//               listItems.appendChild(button);
+    
+//               // make delete button
+//               var deleteButton = document.createElement("BUTTON");
+//               deleteButton.classNameList.add("btn", "btn-danger");
+//               deleteButton.textContent = "Delete";
+//               deleteButton.scrapeEvent = scrapeEvents[i];
+    
+//               deleteButton.addEventListener("click", function (event) {
+//                 // delete scrapeEvent
+//                 chrome.runtime.sendMessage({
+//                   msg: "deleteScrape",
+//                   data: event.target.scrapeEvent,
+//                 });
+//                 // remove list item
+//                 event.target.parentElement.remove();
+//                 event.preventDefault();
+//               });
+    
+//               // add delete button to list item
+//               listItems.appendChild(deleteButton);
+//               listGroup.appendChild(listItems);
+//             }
+//           }
+    
+//           if (hadItem == false) {
+//             var listItems = document.createElement("LI");
+//             listItems.classNameList.add("list-group-item");
+//             listItems.textContent = "No items";
+//             listGroup.appendChild(listItems);
+//           }
+//         });
+//       }
+// }
 
 render() {
     return (
@@ -901,14 +925,14 @@ render() {
                 <Container>
                 <Navbar.Brand>Scrape Builder</Navbar.Brand>
                 <Nav className="me-auto">
-                    <Nav.Link href="#builder" onClick={() => this.setScraperBuilder()}>
+                    <Nav.Link href="#builder" onClick={() => this.setActiveIndex(0)}>
                         Builder
                     </Nav.Link>
-                    <Nav.Link href="#scrapers" onClick={() => this.setScrapersPage()}>
+                    <Nav.Link href="#scrapers" onClick={() => this.setActiveIndex(1)}>
                         Scrapers
                     </Nav.Link>
                     {this.props.user.is_admin &&
-                    <Nav.Link href="#admin" onClick={() => this.setAdmin()}>
+                    <Nav.Link href="#admin" onClick={() => this.setActiveIndex(2)}>
                         Admin
                     </Nav.Link>
                     }
@@ -916,9 +940,15 @@ render() {
                 <Back />
                 </Container>
             </Navbar>
-            {this.state.scraperBuilder && <ScraperBuild/>}
-            {this.state.admin && <AdminPage/>}
-            {this.state.scrapers && <ScrapersPage/>}
+            <ScraperBuild
+              isActive={this.state.activeIndex === 0}
+            />
+            <ScrapersPage
+              isActive={this.state.activeIndex === 1}
+            />
+            <AdminPage
+              isActive={this.state.activeIndex === 2}
+            />
         </div>
     );
 }
