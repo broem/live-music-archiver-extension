@@ -91,6 +91,7 @@ const ScraperBuild = () => {
   const [stateFips, setStateFips] = React.useState("");
   const [longitude, setLongitude] = React.useState("");
   const [latitude, setLatitude] = React.useState("");
+  const [name, setName] = React.useState("");
   
   // set verify success message
   const [verifySuccessMessage, setVerifySuccessMessage] = React.useState(null);
@@ -355,9 +356,19 @@ const ScraperBuild = () => {
   }
   
   return (
-      <div className="container" id="mainContainer">
+    <div className="container" id="mainContainer">
       <div className="row">
-        <div className="col-3 scrape-schedule">
+        <div className="col-6 scrape-schedule">
+        <TextField 
+          id="standard-basic" 
+          label="Scraper Name" 
+          variant="standard"
+          onChange={(event) => setName(event.target.value)}
+        />
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-4 scrape-schedule">
             <div className="dropdown">
             <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
                 aria-controls={open ? 'basic-menu' : undefined}
@@ -384,7 +395,7 @@ const ScraperBuild = () => {
             </Menu>
             </div>
         </div>
-        <div className="col-3 scrape-schedule">
+        <div className="col-4 scrape-schedule">
         <div className="dropdown">
         <button className="btn btn-success dropdown-toggle drp-button-size" 
                 type="button"
@@ -412,139 +423,139 @@ const ScraperBuild = () => {
         </Menu>
         </div>
       </div>
-        <div className="col-3 scrape-schedule">
+        <div className="col-4 scrape-schedule">
             <button className="btn btn-success dropdown-toggle drp-button-size" onClick={() => displayAdditional()}>
               Additional
             </button>
         </div>
       </div>
       <form id="setupScrape">
-      <div className="row">
-          <div className="selected-display col-11">
-            <div className="main-display-container">
-                <figcaption className="text-area-caption">
-                <b>{mainDisplayText}</b>
-                <div id="mainDisplay scrape-preview">
-                  {scrapedText}
-                  <FormControl sx={{ input: {color: 'white'} }}>
-                    {showAdditional && <TextField 
-                                          id="standard-basic" 
-                                          label="CBSA" 
-                                          variant="standard"
-                                          value={cbsa}
-                                          onChange={(event) => {
-                                            setCbsa(event.target.value);
-                                          }} />}
-                    {showAdditional && <TextField 
-                                          id="standard-basic" 
-                                          label="County FIPS" 
-                                          variant="standard"
-                                          value={countyFips}
-                                          onChange={(event) => {
-                                            setCountyFips(event.target.value);
-                                          }} />}
-                    {showAdditional && <TextField 
-                                          id="standard-basic" 
-                                          label="State FIPS" 
-                                          variant="standard"
-                                          value={stateFips}
-                                          onChange={(event) => {
-                                            setStateFips(event.target.value);
-                                          }} />}
-                    {showAdditional && <TextField 
-                                          id="standard-basic" 
-                                          label="Latitude" 
-                                          variant="standard"
-                                          value={latitude}
-                                          onChange={(event) => {
-                                            setLatitude(event.target.value);
-                                          }} />}
-                    {showAdditional && <TextField 
-                                          id="standard-basic" 
-                                          label="Longitude" 
-                                          variant="standard"
-                                          value={longitude}
-                                          onChange={(event) => {
-                                            setLongitude(event.target.value);
-                                          }} />}
-                  </FormControl>
-                </div>
-                </figcaption>
+        <div className="row">
+            <div className="selected-display col-11">
+              <div className="main-display-container">
+                  <figcaption className="text-area-caption">
+                  <b>{mainDisplayText}</b>
+                  <div id="mainDisplay scrape-preview">
+                    {scrapedText}
+                    <FormControl sx={{ input: {color: 'white'} }}>
+                      {showAdditional && <TextField 
+                                            id="standard-basic" 
+                                            label="CBSA" 
+                                            variant="standard"
+                                            value={cbsa}
+                                            onChange={(event) => {
+                                              setCbsa(event.target.value);
+                                            }} />}
+                      {showAdditional && <TextField 
+                                            id="standard-basic" 
+                                            label="County FIPS" 
+                                            variant="standard"
+                                            value={countyFips}
+                                            onChange={(event) => {
+                                              setCountyFips(event.target.value);
+                                            }} />}
+                      {showAdditional && <TextField 
+                                            id="standard-basic" 
+                                            label="State FIPS" 
+                                            variant="standard"
+                                            value={stateFips}
+                                            onChange={(event) => {
+                                              setStateFips(event.target.value);
+                                            }} />}
+                      {showAdditional && <TextField 
+                                            id="standard-basic" 
+                                            label="Latitude" 
+                                            variant="standard"
+                                            value={latitude}
+                                            onChange={(event) => {
+                                              setLatitude(event.target.value);
+                                            }} />}
+                      {showAdditional && <TextField 
+                                            id="standard-basic" 
+                                            label="Longitude" 
+                                            variant="standard"
+                                            value={longitude}
+                                            onChange={(event) => {
+                                              setLongitude(event.target.value);
+                                            }} />}
+                    </FormControl>
+                  </div>
+                  </figcaption>
+              </div>
             </div>
-          </div>
-          <div className="selected-btn-container col-1">
+            <div className="selected-btn-container col-1">
+              <div>
+            <IconButton sx={{ color: 'white' }} edge="end" title="Add" disabled={addBtnDisabled} onClick={() => addEventProperty()}>
+              <AddIcon />
+            </IconButton>
+            </div>
             <div>
-          <IconButton sx={{ color: 'white' }} edge="end" title="Add" disabled={addBtnDisabled} onClick={() => addEventProperty()}>
-            <AddIcon />
-          </IconButton>
-          </div>
-          <div>
-          <IconButton sx={{ color: 'white' }} edge="end" title="Clear" disabled={clearBtnDisabled} onClick={() => removeEventProperty()}>
-            <RemoveIcon />
-          </IconButton>
-          </div>
-          </div>
-      </div>
-      <div className="row">
-      <div className="col-4 scrape-select">
-        <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size" onClick={() => disableSelection()}>
-          Disable
-        </button>
+            <IconButton sx={{ color: 'white' }} edge="end" title="Clear" disabled={clearBtnDisabled} onClick={() => removeEventProperty()}>
+              <RemoveIcon />
+            </IconButton>
+            </div>
+            </div>
         </div>
-        <div className="col-3 scrape-select">
-        <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
-          Download Recent
-        </button>
-      </div>
-      </div>
-      <div className="row">
-          <div className="col-3 scrape-verify">
-          <button id="verify" type="button" className="btn btn-primary reg-button-size" onClick={() => verify()}>
-              Verify
-          </button>
-          <button disabled={submitDisabled} id="submitScrape" type="button" className="btn btn-success reg-button-size" onClick={() => submit()}>
-              Submit
-          </button>
-          <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
-              Clear
+        <div className="row">
+        <div className="col-4 scrape-select">
+          <button id="disableSelect" type="button" className="btn btn-primary btn-danger nav-button reg-button-size" onClick={() => disableSelection()}>
+            Disable
           </button>
           </div>
-          <div className="col-9">
-          <div className="list-contain">
-          <figcaption className="text-area-caption">
-              Currently Selected
-        </figcaption>
-              <List
-                sx={{
-                  width: '100%',
-                  maxWidth: 360,
-                  bgcolor: 'background.paper',
-                  position: 'relative',
-                  overflow: 'auto',
-                  maxHeight: 'fit-content',
-                  '& ul': { padding: 0 },
-                }} 
-                dense={true}>
-            {selectedEventList && selectedEventList.map(item => (
-              <ListItem
-                key={item.label}
-                secondaryAction={
-                  <IconButton edge="end" aria-label="delete" onClick={() => removeItem(item)}>
-                    <RemoveIcon />
-                  </IconButton>
-                }
-              >
-                <ListItemText
-                  primary={item.label}
-                />
-              </ListItem>
-            ))}
-          </List>
-          </div>
-          </div>
-      </div>
+          <div className="col-3 scrape-select">
+          <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
+            Download Recent
+          </button>
+        </div>
+        </div>
+        <div className="row">
+            <div className="col-3 scrape-verify">
+            <button id="verify" type="button" className="btn btn-primary reg-button-size" onClick={() => verify()}>
+                Verify
+            </button>
+            <button disabled={submitDisabled} id="submitScrape" type="button" className="btn btn-success reg-button-size" onClick={() => submit()}>
+                Submit
+            </button>
+            <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
+                Clear
+            </button>
+            </div>
+            <div className="col-9">
+            <div className="list-contain">
+            <figcaption className="text-area-caption">
+                Currently Selected
+          </figcaption>
+                <List
+                  sx={{
+                    width: '100%',
+                    maxWidth: 360,
+                    bgcolor: 'background.paper',
+                    position: 'relative',
+                    overflow: 'auto',
+                    maxHeight: 'fit-content',
+                    '& ul': { padding: 0 },
+                  }} 
+                  dense={true}>
+              {selectedEventList && selectedEventList.map(item => (
+                <ListItem
+                  key={item.label}
+                  secondaryAction={
+                    <IconButton edge="end" aria-label="delete" onClick={() => removeItem(item)}>
+                      <RemoveIcon />
+                    </IconButton>
+                  }
+                >
+                  <ListItemText
+                    primary={item.label}
+                  />
+                </ListItem>
+              ))}
+            </List>
+            </div>
+            </div>
+        </div>
       </form>
-  </div>
+    </div>
   );
 }
 

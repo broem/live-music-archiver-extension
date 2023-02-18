@@ -12,9 +12,12 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
@@ -53,6 +56,27 @@ function stableSort(array, comparator) {
   return stabilizedThis.map((el) => el[0]);
 }
 
+const scheduleOptions = [
+  {
+    label: "Just Once",
+  },
+  {
+    label: "Every Day",
+  },
+  {
+    label: "Every Other Day",
+  },
+  {
+    label: "Every Week",
+  },
+  {
+    label: "Every Other Week",
+  },
+  {
+    label: "Every Month",
+  },
+]
+
 const headCells = [
   {
     id: 'name',
@@ -85,11 +109,18 @@ const headCells = [
     label: 'Last Run',
   },
   {
+    id: 'save',
+    numeric: false,
+    disablePadding: false,
+    label: 'Save',
+  },
+  {
     id: 'download_recent',
     numeric: false,
     disablePadding: false,
     label: 'Download Recent',
   },
+  // need to pass back the id of the mapper
   {
     id: 'display_recent',
     numeric: false,
@@ -191,16 +222,18 @@ EnhancedTableToolbar.propTypes = {
 
 export default function EnhancedTable(props) {
   // set the state
+  // TODO fix this it errors
   const { email } = props;
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('calories');
+  const [orderBy, setOrderBy] = React.useState('lastRun');
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [rows, setRows] = React.useState([]);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [currentRow, setCurrentRow] = React.useState(null);
 
-
-
+  const open = Boolean(anchorEl);
   // on load, get the data
   useEffect(() => {
     // get email from props
@@ -215,6 +248,7 @@ export default function EnhancedTable(props) {
   }, []);
 
   const handleRequestSort = (event, property) => {
+    console.log('handle request sort')
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
@@ -229,25 +263,19 @@ export default function EnhancedTable(props) {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    // const selectedIndex = selected.indexOf(name);
-    // let newSelected = [];
-
-    // if (selectedIndex === -1) {
-    //   newSelected = newSelected.concat(selected, name);
-    // } else if (selectedIndex === 0) {
-    //   newSelected = newSelected.concat(selected.slice(1));
-    // } else if (selectedIndex === selected.length - 1) {
-    //   newSelected = newSelected.concat(selected.slice(0, -1));
-    // } else if (selectedIndex > 0) {
-    //   newSelected = newSelected.concat(
-    //     selected.slice(0, selectedIndex),
-    //     selected.slice(selectedIndex + 1),
-    //   );
-    // }
-
-    // setSelected(newSelected);
-  };
+  const saveClick = (row) => {
+    console.log('save click');
+    console.log(row);
+    // get the data from the row
+    // send it to the server
+    // scrape.adminUserMapsSave(email, row).then((data) => {
+    //   if(!!!data) {
+    //     return;
+    //   }
+    //   // set the rows to the data
+    //   setRows(data);
+    // });
+  }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -258,7 +286,23 @@ export default function EnhancedTable(props) {
     setPage(0);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const handleFrequencyClick = (event, row) => {
+    setCurrentRow(row);
+    setAnchorEl(event.currentTarget);
+  };
+
+  const setRowName = (event, row) => {
+    row.name = event.target.value;
+    setRows([...rows]);  
+  }
+
+  const handleMenuClose = (event, label) => {
+    if(label) {
+      currentRow.frequency = label;
+      setRows([...rows]);
+    }
+    setAnchorEl(null);
+  };
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -286,26 +330,70 @@ export default function EnhancedTable(props) {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(row.map_id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.map_id)}
                       role="checkbox"
-                      aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.map_id}
-                      selected={isItemSelected}
+                      key={row.mapID}
                     >
                       <TableCell padding="checkbox">
                       </TableCell>
-                      <TableCell className='table-cell' align="right">{row.name}</TableCell>
+                      <TableCell className='table-cell table-name' align="right">
+                      <TextField 
+                          id="standard-basic" 
+                          label="Name" 
+                          variant="standard"
+                          value={row.name}
+                          onChange={(event) => setRowName(event, row)}
+                          />
+                      </TableCell>
                       <TableCell className='table-cell' align="right">{row.url}</TableCell>
-                      <TableCell className='table-cell' align="right">{row.frequency}</TableCell>
-                      <TableCell className='table-cell' align="right">{row.enabled}</TableCell>
+                      <TableCell className='table-cell' align="right">
+                        <div className="dropdown">
+                          <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
+                              aria-controls={open ? 'basic-menu' : undefined}
+                              aria-haspopup="true"
+                              aria-expanded={open ? 'true' : undefined}
+                              onClick={(event) => { handleFrequencyClick(event, row) }}
+                              id="basic-button">
+                                {row.frequency}
+                          </button>
+                          <Menu
+                            id="basic-menu"
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={() => handleMenuClose(undefined, undefined)}
+                            MenuListProps={{
+                              'aria-labelledby': 'basic-button',
+                            }}
+                          >
+                            {scheduleOptions && scheduleOptions.map((item) => (
+                              <MenuItem key={item.label} value={item.label} onClick={(event) => handleMenuClose(event, item.label)} disableRipple>
+                                {item.label}
+                              </MenuItem>
+                            ))}
+                          </Menu>
+                        </div>
+                      </TableCell>
+                      <TableCell className='table-cell' align="right" padding='checkbox'>
+                        <Checkbox
+                          checked={row.enabled}
+                          inputProps={{ 'aria-labelledby': labelId }}
+                          onChange={(event) => {
+                            row.enabled = event.target.checked;
+                            setRows([...rows]);
+                          }}
+                        />
+                      </TableCell>
                       <TableCell className='table-cell' align="right">{row.lastRun}</TableCell>
+                      <TableCell className='table-cell' align="right">
+                        <Button onClick={() => saveClick(row)}>
+                          Save
+                        </Button>
+                      </TableCell>
                       <TableCell className='table-cell' align="right">
                         <Button>
                           Download Recent
@@ -318,7 +406,7 @@ export default function EnhancedTable(props) {
                       </TableCell>
                       <TableCell className='table-cell' padding='checkbox'>
                         <Button>
-                          Edit
+                          Edit Scraper
                         </Button>
                       </TableCell>
                     </TableRow>
