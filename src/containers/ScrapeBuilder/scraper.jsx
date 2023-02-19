@@ -20,6 +20,8 @@ import FormControl from "@mui/material/FormControl";
 import Typography from '@mui/material/Typography';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
 import { useEffect } from "react";
+import ScrapersPage from "../Scrapers/scrapers";
+import AdminPage from "../Admin/admin";
 
 const scheduleOptions = [
   {
@@ -246,10 +248,6 @@ const ScraperBuild = (props) => {
     chrome.runtime.sendMessage({
       disableSelect: "Disable select",
     });
-  }
-
-  const doAThing = () => {
-    setEventList([])
   }
 
   const addEventProperty = () => {
@@ -577,22 +575,8 @@ const ScraperBuild = (props) => {
   }
 }
 
-function generate(element) {
-  return [0, 1, 2, 3, 4, 5, 6, 7].map((value) =>
-    React.cloneElement(element, {
-      key: value,
-    }),
-  );
-}
-
 async function items(){
     var u = [];
-    // simulate a fetch
-    // wait 1 second
-    // then return the items
-    // this is just to show how to use the loading state
-    // you can remove this and just return the items
-    // directly
     await scrape.adminGetUsers().then((users) => {
         console.log("users returned from adminGetUsers");
         u = users;
@@ -603,98 +587,15 @@ async function items(){
     return u;
 }
 
-const AdminPage = (props) => {
-    const [users, setUsers] = useState([]);
-    const [usersReturned, setUsersReturned] = useState(false);
-    const [selectedUser, setSelectedUser] = useState("");
-    const { isActive } = props;
-
-
-
-
-    const setUserSelect = (user) => {
-      setSelectedUser(user);
-    }
-
-    useEffect(() => {
-      items().then((items) => {
-        console.log(items);
-        setUsersReturned(true);
-        setUsers(items);
-    }).catch((err) => {
-        console.log(err);
-    });
-    }, []);
-
-      if (isActive) {
-        if (!usersReturned) {
-            return (
-                <div>
-                    <div>Loading...</div>
-                </div>
-            )
-        }
-
-        return (
-            <div>
-                <CustomizedMenus items={users} selectOption={setUserSelect}/>
-                {selectedUser.length > 0 && <EnhancedTable email={selectedUser}/>}
-            </div>
-        )
-      } else {
-        return null;
-      }
-}
-
-const ScrapersPage = (props) => {
-  // get isActive from props
-  const { isActive } = props;
-
-    if(isActive) {
-    return (
-      <div className="container"> 
-        <div className="card" style={{width: "18rem"}}>
-         <div className="card-header">
-          My Event Scrapers
-            </div>
-            <ul className="list-group list-group-flush">
-            </ul>
-          </div>
-        </div>      
-    )
-  } else {
-    return null;
-    }
-}
-
-
 class Scraper extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            location: "scrapeBuilder",
-            admin : false,
-            scrapers: false,
-            scraperBuilder: true,
             activeIndex: 0,
         }
     }
 
-setScraperBuilder() {
-    this.setState({scraperBuilder: true, admin: false, scrapers: false});
-}
-
- setAdmin() {
-    this.setState({scraperBuilder: false, admin: true, scrapers: false});
-}
-
-setScrapersPage() {
-  this.setState({scraperBuilder: false, admin: false, scrapers: true})
-}
-
 setActiveIndex(index) {
-  console.log("setActiveIndex");
-  console.log(index);
   this.setState({activeIndex: index});
 }
 
