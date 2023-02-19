@@ -404,7 +404,7 @@ export default function EnhancedTable(props) {
                           Show Recent
                         </Button>
                       </TableCell>
-                      <TableCell className='table-cell' padding='checkbox'>
+                      <TableCell className='table-cell' padding='checkbox' onClick={() => props.setEvent(row)}>
                         <Button>
                           Edit Scraper
                         </Button>

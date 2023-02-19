@@ -6,9 +6,6 @@ import Navbar from 'react-bootstrap/Navbar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
-import EnhancedTable from "../Common/table";
-import NestedList from "../Common/nestedList";
-import CustomizedMenus from "../Common/menu";
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import List from '@mui/material/List';
@@ -73,10 +70,17 @@ const mainDisplayScheduleError = "Schedule Error";
 
 const ScraperBuild = (props) => {
   // get onShow and isActive from props
-  const { onShow, isActive } = props;
+  const { onShow, isActive, currentEvent } = props;
 
   // pull event options from props
   const [event, setEvent] = React.useState(props.event ?? null);
+
+  // if there is an event, set the event options
+  if (currentEvent !== null) {
+    console.log(currentEvent);
+  } else {
+    console.log("No event");
+  }
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [evtAnchorEl, setEvtAnchorEl] = React.useState(null);
@@ -121,20 +125,13 @@ const ScraperBuild = (props) => {
   useEffect(() => {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       if (request.scrapeThis === "Add to scrape builder") {
-        console.log("got you mboy");
-        console.log(eventOpt);
-        console.log(request);
-  
         // remove additonal new lines
         var textC = request.data.textC.replace(/(\r\n|\n|\r)/gm, "");
-    
         // if mainDisplayText is an IMG
         if (request.data.tagName === "IMG") {
           var img = document.createElement("img");
           img.src = request.data.src;
           img.classNameName = "img-fluid";
-        } else {
-          var text = document.createTextNode(textC);
         }
   
         // make the event thing
@@ -164,6 +161,11 @@ const ScraperBuild = (props) => {
       }
     });
   }, []);
+
+  // a function to pass to the child component to set the event
+  const setEventFromChild = (event) => {
+    setEvent(event);
+  }
 
   const handleEvtClick = (event) => {
     setEvtAnchorEl(event.currentTarget);
@@ -575,29 +577,22 @@ const ScraperBuild = (props) => {
   }
 }
 
-async function items(){
-    var u = [];
-    await scrape.adminGetUsers().then((users) => {
-        console.log("users returned from adminGetUsers");
-        u = users;
-    }).catch((err) => {
-        console.log(err);
-    });
+const Scraper = (props) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [currentEvent, setEvent] = useState(null);
 
-    return u;
-}
+  const setMyEvent = (event) => {
+    console.log("setEvent");
+    console.log(event);
+    setEvent(event);
+    setActiveIndex(0);
+  }
 
-class Scraper extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            activeIndex: 0,
-        }
-    }
-
-setActiveIndex(index) {
-  this.setState({activeIndex: index});
-}
+  // const setActiveIndex = (index) => {
+  //   console.log("setActiveIndex");
+  //   console.log(this.state)
+  //   this.setState({activeIndex: index});
+  // }
 
 
 //  scrapersClick(e) {
@@ -819,21 +814,20 @@ setActiveIndex(index) {
 //       }
 // }
 
-render() {
     return (
         <div>
             <Navbar bg="dark" variant="dark">
                 <Container>
                 <Navbar.Brand>Scrape Builder</Navbar.Brand>
                 <Nav className="me-auto">
-                    <Nav.Link href="#builder" onClick={() => this.setActiveIndex(0)}>
+                    <Nav.Link href="#builder" onClick={() => setActiveIndex(0)}>
                         Builder
                     </Nav.Link>
-                    <Nav.Link href="#scrapers" onClick={() => this.setActiveIndex(1)}>
+                    <Nav.Link href="#scrapers" onClick={() => setActiveIndex(1)}>
                         Scrapers
                     </Nav.Link>
-                    {this.props.user.is_admin &&
-                    <Nav.Link href="#admin" onClick={() => this.setActiveIndex(2)}>
+                    {props.user.is_admin &&
+                    <Nav.Link href="#admin" onClick={() => setActiveIndex(2)}>
                         Admin
                     </Nav.Link>
                     }
@@ -842,17 +836,18 @@ render() {
                 </Container>
             </Navbar>
             <ScraperBuild
-              isActive={this.state.activeIndex === 0}
+              isActive={activeIndex === 0}
+              currentEvent={currentEvent}
             />
             <ScrapersPage
-              isActive={this.state.activeIndex === 1}
+              isActive={activeIndex === 1}
             />
             <AdminPage
-              isActive={this.state.activeIndex === 2}
+              isActive={activeIndex === 2}
+              setEvent={setMyEvent}
             />
         </div>
     );
-}
 }
 
 export default Scraper;

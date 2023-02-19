@@ -1,4 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import EnhancedTable from "../Common/table";
+import NestedList from "../Common/nestedList";
+import CustomizedMenus from "../Common/menu";
+import * as scrape from "../../pages/Background/scrape-fetch.js";
+
+async function items(){
+    var u = [];
+    await scrape.adminGetUsers().then((users) => {
+        console.log("users returned from adminGetUsers");
+        u = users;
+    }).catch((err) => {
+        console.log(err);
+    });
+
+    return u;
+}
 
 const AdminPage = (props) => {
     const [users, setUsers] = useState([]);
@@ -11,7 +27,6 @@ const AdminPage = (props) => {
 
     useEffect(() => {
       items().then((items) => {
-        console.log(items);
         setUsersReturned(true);
         setUsers(items);
     }).catch((err) => {
@@ -31,7 +46,7 @@ const AdminPage = (props) => {
         return (
             <div>
                 <CustomizedMenus items={users} selectOption={setUserSelect}/>
-                {selectedUser.length > 0 && <EnhancedTable email={selectedUser}/>}
+                {selectedUser.length > 0 && <EnhancedTable email={selectedUser} setEvent={props.setEvent}/>}
             </div>
         )
       } else {
