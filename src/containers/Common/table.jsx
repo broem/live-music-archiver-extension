@@ -266,15 +266,12 @@ export default function EnhancedTable(props) {
   const saveClick = (row) => {
     console.log('save click');
     console.log(row);
-    // get the data from the row
-    // send it to the server
-    // scrape.adminUserMapsSave(email, row).then((data) => {
-    //   if(!!!data) {
-    //     return;
-    //   }
-    //   // set the rows to the data
-    //   setRows(data);
-    // });
+
+    scrape.updateScrape(row).then((data) => {
+      console.log('update scrape');
+      console.log(data);
+    });
+    
   }
 
   const handleChangePage = (event, newPage) => {

@@ -582,18 +582,9 @@ const Scraper = (props) => {
   const [currentEvent, setEvent] = useState(null);
 
   const setMyEvent = (event) => {
-    console.log("setEvent");
-    console.log(event);
     setEvent(event);
     setActiveIndex(0);
   }
-
-  // const setActiveIndex = (index) => {
-  //   console.log("setActiveIndex");
-  //   console.log(this.state)
-  //   this.setState({activeIndex: index});
-  // }
-
 
 //  scrapersClick(e) {
 //     console.log("scrapersClick");
