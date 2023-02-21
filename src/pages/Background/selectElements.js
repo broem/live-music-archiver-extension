@@ -544,10 +544,6 @@ if (window.contentScriptInjected !== true) {
         }
       }
 
-      // if (node = "verify" && area == "sync") {
-
-      // }
-
       if (node == "clearSelected" && area == "sync") {
         activeSelected.length = 0;
         prevSelected.length = 0;

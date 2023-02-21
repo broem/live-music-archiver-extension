@@ -144,6 +144,8 @@ const ScraperBuild = (props) => {
             "className": request.data.cName ?? "",
             "tagName": request.data.tagName ?? "",
             "url": request.data.url ?? "",
+            "label": request.data.label,
+            "value": request.data.value,
           },
           "label": request.data.label,
           "value": request.data.value,
