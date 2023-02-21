@@ -116,9 +116,7 @@ const ScraperBuild = (props) => {
       setName(currentEvent.name);
 
       // send message to background to open a new tab to the event url
-      chrome.runtime.sendMessage({message: "openTab", url: currentEvent.url}, function(response) {
-        console.log(response);
-      });
+      chrome.runtime.sendMessage({message: "openTab", url: currentEvent.url});
 
       // grab the builder from the backend
       scrape.getBuilder(currentEvent.mapId).then((data) => {
@@ -200,47 +198,45 @@ const ScraperBuild = (props) => {
       setName(currentEvent.name);
 
       // send message to background to open a new tab to the event url
-      chrome.runtime.sendMessage({msg: "openTab", url: currentEvent.url}, function(response) {
-        console.log(response);
-      });
+      chrome.runtime.sendMessage({msg: "openTab", url: currentEvent.url}).then((response) => {
+          console.log(response);
+            // grab the builder from the backend
+          scrape.getBuilder(currentEvent.mapID).then((data) => {
+            console.log(data);
+            setMainDisplay(mainDisplayDefault);
 
-      // grab the builder from the backend
-      scrape.getBuilder(currentEvent.mapID).then((data) => {
-        console.log(data);
-        setMainDisplay(mainDisplayDefault);
+            // set the selected event list, go through each property and add it to the list
+            let eventList = [];
+            for (let property in data) {
+              if (data.hasOwnProperty(property)) {
+                console.log(property);
+                console.log(data[property]);
+                // if there is a filled label, add it to the list
+                if(data[property].label && data[property].label !== "") {
+                  eventList.push({label: data[property].label, value: data[property]});
+                  // filter eventoptions to remove any that are not in the event list
+                  eventOptions = eventOptions.filter(x => x.label !== data[property].label)
+                }
 
-        // set the selected event list, go through each property and add it to the list
-        let eventList = [];
-        for (let property in data) {
-          if (data.hasOwnProperty(property)) {
-            console.log(property);
-            console.log(data[property]);
-            // if there is a filled label, add it to the list
-            if(data[property].label && data[property].label !== "") {
-              eventList.push({label: data[property].label, value: data[property]});
-              // filter eventoptions to remove any that are not in the event list
-              eventOptions = eventOptions.filter(x => x.label !== data[property].label)
-            }
-
-            // sort the event list so label === Event Area is first. this will make it easier. 
-            eventList.sort(function(a, b) {
-              if(a.label === "Event Area") {
-                return -1;
-              } else {
-                return 1;
+                // sort the event list so label === Event Area is first. this will make it easier. 
+                eventList.sort(function(a, b) {
+                  if(a.label === "Event Area") {
+                    return -1;
+                  } else {
+                    return 1;
+                  }
+                });
               }
-            });
-          }
-        }
-        // wait for 5 seconds to send the event list to the background
-        setTimeout(function() {
-          console.log("sending event list");
-        // send event list to background to highlight the elements
-        chrome.runtime.sendMessage({msg: "highlightElements", data: eventList}, function(response) {
-        })
-        }, 5000);
-        setEventList(eventList);
-      });
+            }
+            // wait for 5 seconds to send the event list to the background
+            setTimeout(function() {
+              console.log("sending event list");
+              // send event list to background to highlight the elements
+              chrome.runtime.sendMessage({msg: "highlightElements", data: eventList})
+            }, 5000);
+            setEventList(eventList);
+          });
+        });
     }
   }, [currentEvent]);
 
@@ -456,6 +452,13 @@ const ScraperBuild = (props) => {
       }
     });
   }
+
+  const temp = () => {
+    console.log("temp");
+
+    chrome.runtime.sendMessage({msg: "highlightElements", data: selectedEventList});
+  }
+
   
   if(isActive) {
     return (
@@ -607,7 +610,7 @@ const ScraperBuild = (props) => {
               </button>
               </div>
               <div className="col-3 scrape-select">
-              <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
+              <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size" onClick={() => temp()}>
                 Download Recent
               </button>
             </div>

@@ -527,6 +527,7 @@ if (window.contentScriptInjected !== true) {
         console.log('highlighting elements');
         let someval = JSON.parse(changes.highlightElements.newValue);
         console.log('parsed');
+        console.log(someval);
         // someVal.value.value is the field the user selected on the extension.
         // this is used to find the selected area on the page
         myField = someval.value.value;

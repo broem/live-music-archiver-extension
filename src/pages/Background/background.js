@@ -2,6 +2,7 @@ import * as scrape from './scrape-fetch.js';
 
 const BRING_BACK_POP_CTX = 'BRING_BACK_POP';
 let selectElementsIndex = 0;
+let highlightElementsIndex = 0;
 let selectAllIndex = 0;
 let submitScrape = 0;
 let verify = 0;
@@ -62,16 +63,18 @@ chrome.action.onClicked.addListener(() => {
     async function (tab) {
       console.log('tab created');
       // After the tab has been created, open a window to inject the tab
-      await chrome.windows.create({
-        tabId: tab.id,
-        type: 'popup',
-        focused: true,
-        height: 628,
-        width: 628,
-        // incognito, top, left, ...
-      }).then(() => {
-        popUpTabId = tab.id;
-      });
+      await chrome.windows
+        .create({
+          tabId: tab.id,
+          type: 'popup',
+          focused: true,
+          height: 628,
+          width: 628,
+          // incognito, top, left, ...
+        })
+        .then(() => {
+          popUpTabId = tab.id;
+        });
     }
   );
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -89,7 +92,8 @@ chrome.action.onClicked.addListener(() => {
           })
           .then(() => {
             console.log('selectElements.js injected');
-          }).catch(err => {
+          })
+          .catch((err) => {
             console.error(err);
           });
       }
@@ -136,8 +140,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   }
 });
 
-chrome.runtime.onInstalled.addListener(() => {
-});
+chrome.runtime.onInstalled.addListener(() => {});
 
 chrome.contextMenus.onClicked.addListener(bringBackPopContextExe);
 
@@ -164,7 +167,9 @@ function substringSearch(pattern, text) {
   return -1; // Not found
 }
 
-chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+chrome.storage.session.setAccessLevel({
+  accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS',
+});
 
 function CheckUser() {
   console.log('check user');
@@ -182,30 +187,39 @@ chrome.runtime.onMessage.addListener(async function (
     console.log('select elements');
     selectElementsIndex += 1;
     let payload = {
-      "field": request.field,
-      "label": request.label,
-      "updator": selectElementsIndex
-    }
-    chrome.storage.sync.set({ selectElements : JSON.stringify(payload) });
+      field: request.field,
+      label: request.label,
+      updator: selectElementsIndex,
+    };
+    chrome.storage.sync.set({ selectElements: JSON.stringify(payload) });
   }
 
-  if(request.msg === "removeElement") {
+  if (request.msg === 'removeElement') {
     selectElementsIndex += 1;
     let payload = {
-      "field": request.field,
-      "updator": selectElementsIndex
-    }
-    chrome.storage.sync.set({ removeElement : JSON.stringify(payload) });
-  } 
+      field: request.field,
+      updator: selectElementsIndex,
+    };
+    chrome.storage.sync.set({ removeElement: JSON.stringify(payload) });
+  }
 
   if (request.msg === 'openTab') {
-    chrome.tabs.create({ url: request.url });
+    chrome.tabs.create({ url: request.url }).then((tab) => {
+      console.log('tab created');
+      // inject selectElements.js
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['selectElements.js'],
+      });
+    });
   }
 
   if (request.msg === 'highlightElements') {
     console.log('highlight elements');
+    highlightElementsIndex += 1;
+    request.data.updator = highlightElementsIndex;
     chrome.storage.sync.set({
-      highlightElements: JSON.stringify(request.data),
+      highlightElements: highlightElementsIndex,
     });
   }
 
@@ -263,22 +277,16 @@ chrome.runtime.onMessage.addListener(async function (
   }
 
   if (request.msg === 'Bring back scrape builder') {
-    chrome.tabs.query(
-      {},
-      async function (tabs) {
-        var x = 0;
-        tabs.forEach((tab) => {
-          let findPopupMatch = substringSearch(
-            'scrapeBuilder',
-            tab.url
-          );
-          if (findPopupMatch != -1) {
-            chrome.windows.update(tabs[x].windowId, { focused: true });
-          }
-          x++;
-        });
-      }
-    );
+    chrome.tabs.query({}, async function (tabs) {
+      var x = 0;
+      tabs.forEach((tab) => {
+        let findPopupMatch = substringSearch('scrapeBuilder', tab.url);
+        if (findPopupMatch != -1) {
+          chrome.windows.update(tabs[x].windowId, { focused: true });
+        }
+        x++;
+      });
+    });
   }
 
   if (request.msg === 'Bring back popup') {
@@ -330,7 +338,6 @@ chrome.runtime.onMessage.addListener(async function (
       }
     );
   }
-
 
   if (request.scrapeIGProfile === 'Scrape ig profile') {
     captureEvent = new Object();
