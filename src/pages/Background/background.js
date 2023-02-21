@@ -198,22 +198,14 @@ chrome.runtime.onMessage.addListener(async function (
     chrome.storage.sync.set({ removeElement : JSON.stringify(payload) });
   } 
 
-  if (request.verify === 'Verify') {
-    verify += 1;
-    chrome.storage.sync.set({ verify });
-    // get user id and email from storage
-    chrome.storage.session.get(['userId', 'userEmail'], function (result) {
-      captureEvent.userId = result['userId'];
-      captureEvent.userEmail = result['userEmail'];
+  if (request.msg === 'openTab') {
+    chrome.tabs.create({ url: request.url });
+  }
 
-      captureEvent.frequency = request.data.frequency;
-      captureEvent.cbsa = request.data.cbsa;
-      captureEvent.stateFips = request.data.stateFips;
-      captureEvent.countyFips = request.data.countyFips;
-      captureEvent.latitude = request.data.latitude;
-      captureEvent.longitude = request.data.longitude;
-
-      scrape.scrapeBuilderPost(captureEvent);
+  if (request.msg === 'highlightElements') {
+    console.log('highlight elements');
+    chrome.storage.sync.set({
+      highlightElements: JSON.stringify(request.data),
     });
   }
 

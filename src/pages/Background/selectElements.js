@@ -523,6 +523,28 @@ if (window.contentScriptInjected !== true) {
         removeBordered(someval.field);
       }
 
+      if (node === 'highlightElements' && area === 'sync') {
+        console.log('highlighting elements');
+        let someval = JSON.parse(changes.highlightElements.newValue);
+        console.log('parsed');
+        // someVal.value.value is the field the user selected on the extension.
+        // this is used to find the selected area on the page
+        myField = someval.value.value;
+        myLabel = someval.value.label;
+        console.log(myField);
+        console.log(myLabel);
+
+        // query select the first element that matches the field
+        let x = document.querySelector(myField);
+        // if the element exists
+        if (x) {
+          // add the border
+          addBorderEvent(x);
+          // highlight the element
+          highlightElement(x);
+        }
+      }
+
       if (node === "selectElements" && area === "sync") {
         console.log("bout to parse")
         let someval = JSON.parse(changes.selectElements.newValue)

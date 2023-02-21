@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import Back from "../Common/back";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -73,15 +73,7 @@ const ScraperBuild = (props) => {
   const { onShow, isActive, currentEvent } = props;
 
   // pull event options from props
-  const [event, setEvent] = React.useState(props.event ?? null);
-
-  // if there is an event, set the event options
-  if (currentEvent !== null) {
-    console.log(currentEvent);
-  } else {
-    console.log("No event");
-  }
-
+  const [event, setEvent] = React.useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [evtAnchorEl, setEvtAnchorEl] = React.useState(null);
   const [submitDisabledEl, setSubmitDisabled] = React.useState(true);
@@ -117,7 +109,40 @@ const ScraperBuild = (props) => {
 
   // set event on load if props.event is not null
   onload = () => {
+    // if there is an event, set the event options
+    if (currentEvent !== null) {
+      console.log(currentEvent);
+      setSchedule(currentEvent.frequency);
+      setName(currentEvent.name);
+
+      // send message to background to open a new tab to the event url
+      chrome.runtime.sendMessage({message: "openTab", url: currentEvent.url}, function(response) {
+        console.log(response);
+      });
+
+      // grab the builder from the backend
+      scrape.getBuilder(currentEvent.mapId).then((data) => {
+        console.log(data);
+        setMainDisplay(mainDisplayDefault);
+
+        // set the selected event list, go through each property and add it to the list
+        let eventList = [];
+        for (let property in data) {
+          if (data.hasOwnProperty(property)) {
+            eventList.push({label: property, value: data[property]});
+          }
+        }
+        setEventList(eventList);
+      });
+
+
+    } else {
+      console.log("No event");
+    }
+
     if (props.event !== null) {
+      console.log("Setting event");
+      console.log(props.event);
       setEvent(props.event);
     }
   }
@@ -163,6 +188,61 @@ const ScraperBuild = (props) => {
       }
     });
   }, []);
+
+  // useEffect to set the event
+  useEffect(() => {
+      console.log("Setting event");
+      console.log(currentEvent);
+      if(currentEvent !== null) {
+        console.log("found event");
+      // setEvent(event);
+      setSchedule(currentEvent.frequency);
+      setName(currentEvent.name);
+
+      // send message to background to open a new tab to the event url
+      chrome.runtime.sendMessage({msg: "openTab", url: currentEvent.url}, function(response) {
+        console.log(response);
+      });
+
+      // grab the builder from the backend
+      scrape.getBuilder(currentEvent.mapID).then((data) => {
+        console.log(data);
+        setMainDisplay(mainDisplayDefault);
+
+        // set the selected event list, go through each property and add it to the list
+        let eventList = [];
+        for (let property in data) {
+          if (data.hasOwnProperty(property)) {
+            console.log(property);
+            console.log(data[property]);
+            // if there is a filled label, add it to the list
+            if(data[property].label && data[property].label !== "") {
+              eventList.push({label: data[property].label, value: data[property]});
+              // filter eventoptions to remove any that are not in the event list
+              eventOptions = eventOptions.filter(x => x.label !== data[property].label)
+            }
+
+            // sort the event list so label === Event Area is first. this will make it easier. 
+            eventList.sort(function(a, b) {
+              if(a.label === "Event Area") {
+                return -1;
+              } else {
+                return 1;
+              }
+            });
+          }
+        }
+        // wait for 5 seconds to send the event list to the background
+        setTimeout(function() {
+          console.log("sending event list");
+        // send event list to background to highlight the elements
+        chrome.runtime.sendMessage({msg: "highlightElements", data: eventList}, function(response) {
+        })
+        }, 5000);
+        setEventList(eventList);
+      });
+    }
+  }, [currentEvent]);
 
   // a function to pass to the child component to set the event
   const setEventFromChild = (event) => {
@@ -312,6 +392,7 @@ const ScraperBuild = (props) => {
       countyFips: countyFips,
       latitude: latitude,
       longitude: longitude,
+      name: name,
     };
 
     let eventData = hereWeGo();
@@ -328,18 +409,17 @@ const ScraperBuild = (props) => {
   }
 
   const submit = async () => {
-    setShowAdditional(false);
-
-    console.log(verifySuccessMessage);
-
+    // TODO handle error
     scrape.verified({
       mapId: verifySuccessMessage.mapId,
       enabled: true,
-    })
+    });
 
-    setMainDisplay(mainDisplayDefault);
-    setScrapedText("Your scrape has been submitted!");
+    clear();
+  }
 
+  const clear = () => {
+    setShowAdditional(false);
     // reset the eventOptions from the selectedEventList
     selectedEventList.forEach((item) => {
       eventOptions.push(item);
@@ -349,8 +429,15 @@ const ScraperBuild = (props) => {
       });
     });
 
+    setMainDisplay(mainDisplayDefault);
+    setScrapedText("");
+
     // remove all the selectedEventList
     setEventList([]);
+    setName("");
+
+    // reset the schedule
+    setSchedule("Schedule");
 
   }
 
@@ -379,6 +466,7 @@ const ScraperBuild = (props) => {
               id="standard-basic" 
               label="Scraper Name" 
               variant="standard"
+              value={name}
               onChange={(event) => setName(event.target.value)}
             />  
             </div>
@@ -532,7 +620,7 @@ const ScraperBuild = (props) => {
                 <button disabled={submitDisabled} id="submitScrape" type="button" className="btn btn-success reg-button-size" onClick={() => submit()}>
                     Submit
                 </button>
-                <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size">
+                <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size" onClick={() => clear()}>
                     Clear
                 </button>
                 </div>
