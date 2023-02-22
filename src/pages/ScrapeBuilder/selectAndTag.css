@@ -6,6 +6,13 @@
   border-radius: 9px !important;
 }
 
+.currentHighlight {
+  background: radial-gradient(circle,
+      rgba(167, 167, 122, 0.478) 0%,
+      rgba(194, 186, 76, 0.542) 100%);
+  border: 3px solid #a2a508 !important;
+  border-radius: 9px !important;
+}
 .activeBorderPrimary {
   background: radial-gradient(circle,
       rgba(245, 245, 245, 0.249) 0%,

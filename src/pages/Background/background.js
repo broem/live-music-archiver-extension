@@ -4,43 +4,7 @@ const BRING_BACK_POP_CTX = 'BRING_BACK_POP';
 let selectElementsIndex = 0;
 let highlightElementsIndex = 0;
 let selectAllIndex = 0;
-let submitScrape = 0;
-let verify = 0;
 let disableSelect = 0;
-let clearSelected = 0;
-
-let popUpTabId = 0;
-
-var captureEvent = new Object();
-
-captureEvent.event = {};
-captureEvent.venueName = {};
-captureEvent.venueAddress = {};
-captureEvent.venueContactInfo = {};
-captureEvent.eventTitle = {};
-captureEvent.eventDesc = {};
-captureEvent.images = {};
-captureEvent.startDate = {};
-captureEvent.endDate = {};
-captureEvent.doorTime = {};
-captureEvent.ticketCost = {};
-captureEvent.ticketURLS = {};
-captureEvent.otherPerformers = {};
-captureEvent.eventURLS = {};
-captureEvent.ageRequired = {};
-captureEvent.facebookURL = {};
-captureEvent.twitterURL = {};
-captureEvent.misc = {};
-captureEvent.userId = {};
-captureEvent.userEmail = {};
-captureEvent.frequency = {};
-captureEvent.cbsa = {};
-captureEvent.latitude = {};
-captureEvent.longitude = {};
-captureEvent.stateFips = {};
-captureEvent.countyFips = {};
-captureEvent.mapID = {};
-captureEvent.eventDescURL = {};
 
 // fetch json data from server
 fetch('./config.json')
@@ -216,10 +180,19 @@ chrome.runtime.onMessage.addListener(async function (
 
   if (request.msg === 'highlightElements') {
     console.log('highlight elements');
+    // get highlightElementsIndex from storage
+    chrome.storage.sync.get(['highlightElements'], function (result) {
+      elems = JSON.parse(result);
+      highlightElementsIndex = elems.updator;
+    });
+
     highlightElementsIndex += 1;
-    request.data.updator = highlightElementsIndex;
+    let payload = {
+      highlightElements: request.data,
+      updator: highlightElementsIndex,
+    };
     chrome.storage.sync.set({
-      highlightElements: highlightElementsIndex,
+      highlightElements: JSON.stringify(payload),
     });
   }
 
@@ -337,18 +310,6 @@ chrome.runtime.onMessage.addListener(async function (
         });
       }
     );
-  }
-
-  if (request.scrapeIGProfile === 'Scrape ig profile') {
-    captureEvent = new Object();
-    chrome.storage.session.get(['userId', 'userEmail'], function (result) {
-      captureEvent['user_id'] = result['userId'];
-      captureEvent['user_email'] = result['userEmail'];
-      captureEvent['ig_user_name'] = request.profile;
-      captureEvent['frequency'] = request.frequency;
-
-      scrape.scrapeInstagram(captureEvent);
-    });
   }
 });
 

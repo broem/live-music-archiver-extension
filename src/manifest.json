@@ -1,7 +1,7 @@
 {
   "name": "Live Music Archiver",
   "description": "A chrome extension to archive live music",
-  "version": "0.1",
+  "version": "2.0",
   "manifest_version": 3,
   "background": { "service_worker": "background.bundle.js" },
   "content_scripts": [

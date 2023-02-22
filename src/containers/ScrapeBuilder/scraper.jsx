@@ -127,7 +127,9 @@ const ScraperBuild = (props) => {
         let eventList = [];
         for (let property in data) {
           if (data.hasOwnProperty(property)) {
-            eventList.push({label: property, value: data[property]});
+            eventList.push({
+              label: property, 
+              value: data[property]});
           }
         }
         setEventList(eventList);
@@ -189,21 +191,27 @@ const ScraperBuild = (props) => {
 
   // useEffect to set the event
   useEffect(() => {
-      console.log("Setting event");
-      console.log(currentEvent);
       if(currentEvent !== null) {
-        console.log("found event");
       // setEvent(event);
       setSchedule(currentEvent.frequency);
       setName(currentEvent.name);
+      setCbsa(currentEvent.cbsa);
+      setCountyFips(currentEvent.countyFips);
+      setStateFips(currentEvent.stateFips);
+      setLongitude(currentEvent.longitude);
+      setLatitude(currentEvent.latitude);
 
       // send message to background to open a new tab to the event url
       chrome.runtime.sendMessage({msg: "openTab", url: currentEvent.url}).then((response) => {
-          console.log(response);
             // grab the builder from the backend
           scrape.getBuilder(currentEvent.mapID).then((data) => {
-            console.log(data);
             setMainDisplay(mainDisplayDefault);
+
+            setCbsa(data.cbsa);
+            setCountyFips(data.countyFips);
+            setStateFips(data.stateFips);
+            setLongitude(data.longitude);
+            setLatitude(data.latitude);
 
             // set the selected event list, go through each property and add it to the list
             let eventList = [];
@@ -213,7 +221,13 @@ const ScraperBuild = (props) => {
                 console.log(data[property]);
                 // if there is a filled label, add it to the list
                 if(data[property].label && data[property].label !== "") {
-                  eventList.push({label: data[property].label, value: data[property]});
+                  eventList.push({
+                    key: data[property].value,
+                    label: data[property].label, 
+                    value: data[property].value, 
+                    selectable: data[property],
+                    val: data[property]
+                  });
                   // filter eventoptions to remove any that are not in the event list
                   eventOptions = eventOptions.filter(x => x.label !== data[property].label)
                 }
@@ -228,12 +242,12 @@ const ScraperBuild = (props) => {
                 });
               }
             }
-            // wait for 5 seconds to send the event list to the background
+            // wait for 1 second to send the event list to the background
             setTimeout(function() {
               console.log("sending event list");
               // send event list to background to highlight the elements
               chrome.runtime.sendMessage({msg: "highlightElements", data: eventList})
-            }, 5000);
+            }, 1000);
             setEventList(eventList);
           });
         });
@@ -340,7 +354,7 @@ const ScraperBuild = (props) => {
       setEventList([
         ...selected,
         temp,
-        ])
+      ])
 
       console.log(selectedEventList);
 
