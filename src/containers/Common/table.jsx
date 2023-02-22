@@ -26,6 +26,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Button } from '@mui/material';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
+import AdminRecent from "../Admin/recent";
 import { useEffect } from "react";
 
 function descendingComparator(a, b, orderBy) {
@@ -271,7 +272,7 @@ export default function EnhancedTable(props) {
       console.log('update scrape');
       console.log(data);
     });
-    
+
   }
 
   const handleChangePage = (event, newPage) => {
@@ -300,6 +301,10 @@ export default function EnhancedTable(props) {
     }
     setAnchorEl(null);
   };
+
+  const displayRecent = (row) => {
+    // open a new window
+  }
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -396,7 +401,7 @@ export default function EnhancedTable(props) {
                           Download Recent
                         </Button>
                       </TableCell>
-                      <TableCell className='table-cell' align="right">
+                      <TableCell className='table-cell' align="right" onClick={() => displayRecent(row)}>
                         <Button>
                           Show Recent
                         </Button>

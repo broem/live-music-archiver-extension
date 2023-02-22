@@ -3,6 +3,7 @@ import React from 'react';
 function onBack() {
     // go back to home page
     window.location.href = '/popup.html';
+    window.resizeTo(628, 628);
 }
 
 const Back = () => {

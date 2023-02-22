@@ -192,17 +192,13 @@ const ScraperBuild = (props) => {
   // useEffect to set the event
   useEffect(() => {
       if(currentEvent !== null) {
-      // setEvent(event);
       setSchedule(currentEvent.frequency);
       setName(currentEvent.name);
-      setCbsa(currentEvent.cbsa);
-      setCountyFips(currentEvent.countyFips);
-      setStateFips(currentEvent.stateFips);
-      setLongitude(currentEvent.longitude);
-      setLatitude(currentEvent.latitude);
 
       // send message to background to open a new tab to the event url
       chrome.runtime.sendMessage({msg: "openTab", url: currentEvent.url}).then((response) => {
+        // resize the window
+        window.resizeTo(628, 628);
             // grab the builder from the backend
           scrape.getBuilder(currentEvent.mapID).then((data) => {
             setMainDisplay(mainDisplayDefault);
@@ -253,11 +249,6 @@ const ScraperBuild = (props) => {
         });
     }
   }, [currentEvent]);
-
-  // a function to pass to the child component to set the event
-  const setEventFromChild = (event) => {
-    setEvent(event);
-  }
 
   const handleEvtClick = (event) => {
     setEvtAnchorEl(event.currentTarget);
@@ -468,8 +459,6 @@ const ScraperBuild = (props) => {
   }
 
   const temp = () => {
-    console.log("temp");
-
     chrome.runtime.sendMessage({msg: "highlightElements", data: selectedEventList});
   }
 
@@ -623,11 +612,16 @@ const ScraperBuild = (props) => {
                 Disable
               </button>
               </div>
-              <div className="col-3 scrape-select">
+              <div className="col-4 scrape-select">
               <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size" onClick={() => temp()}>
                 Download Recent
               </button>
-            </div>
+              </div>
+              <div className="col-4 scrape-select">
+              <button id="repopulateBtn" type="button" className="btn btn-primary btn-warning nav-button reg-button-size" onClick={() => temp()}>
+                Repopulate Page
+              </button>
+              </div>
             </div>
             <div className="row">
                 <div className="col-3 scrape-verify">
@@ -912,20 +906,33 @@ const Scraper = (props) => {
 //       }
 // }
 
+    const setAdminActive = () => {
+      setActiveIndex(2);
+      // set window to full height and width
+      window.resizeTo(screen.availWidth, screen.availHeight);
+    }
+
+    const setNonAdminActive = (index) => {
+      setActiveIndex(index);
+      // set window to default size
+      window.resizeTo(628, 628);
+    }
+
+
     return (
         <div>
             <Navbar bg="dark" variant="dark">
                 <Container>
                 <Navbar.Brand>Scrape Builder</Navbar.Brand>
                 <Nav className="me-auto">
-                    <Nav.Link href="#builder" onClick={() => setActiveIndex(0)}>
+                    <Nav.Link href="#builder" onClick={() => setNonAdminActive(0)}>
                         Builder
                     </Nav.Link>
-                    <Nav.Link href="#scrapers" onClick={() => setActiveIndex(1)}>
+                    <Nav.Link href="#scrapers" onClick={() => setNonAdminActive(1)}>
                         Scrapers
                     </Nav.Link>
                     {props.user.is_admin &&
-                    <Nav.Link href="#admin" onClick={() => setActiveIndex(2)}>
+                    <Nav.Link href="#admin" onClick={() => setAdminActive()}>
                         Admin
                     </Nav.Link>
                     }
