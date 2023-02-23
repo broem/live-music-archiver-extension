@@ -27,6 +27,7 @@ import { visuallyHidden } from '@mui/utils';
 import { Button } from '@mui/material';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
 import AdminRecent from "../Admin/recent";
+import AdminDialog from './adminDialog.jsx';
 import { useEffect } from "react";
 
 function descendingComparator(a, b, orderBy) {
@@ -233,6 +234,7 @@ export default function EnhancedTable(props) {
   const [rows, setRows] = React.useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [currentRow, setCurrentRow] = React.useState(null);
+  const [openDialog, setOpenDialog] = React.useState(false);
 
   const open = Boolean(anchorEl);
   // on load, get the data
@@ -285,7 +287,6 @@ export default function EnhancedTable(props) {
   };
 
   const handleFrequencyClick = (event, row) => {
-    setCurrentRow(row);
     setAnchorEl(event.currentTarget);
   };
 
@@ -296,14 +297,19 @@ export default function EnhancedTable(props) {
 
   const handleMenuClose = (event, label) => {
     if(label) {
-      currentRow.frequency = label;
       setRows([...rows]);
     }
     setAnchorEl(null);
   };
 
   const displayRecent = (row) => {
-    // open a new window
+    setCurrentRow(row);
+    setOpenDialog(true);
+  }
+
+  const handleCloseDialog = () => {
+    setCurrentRow(null);
+    setOpenDialog(false);
   }
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -436,6 +442,7 @@ export default function EnhancedTable(props) {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      {openDialog ? <AdminDialog open={openDialog} setClose={handleCloseDialog} data={currentRow} /> : null}
     </Box>
   );
 }
