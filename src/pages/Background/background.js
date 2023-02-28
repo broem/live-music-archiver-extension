@@ -38,6 +38,8 @@ chrome.action.onClicked.addListener(() => {
         })
         .then(() => {
           popUpTabId = tab.id;
+        }).catch(err => {
+          console.log(err);
         });
     }
   );
