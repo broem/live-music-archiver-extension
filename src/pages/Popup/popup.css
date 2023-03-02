@@ -1,0 +1,296 @@
+.container {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.buttonHoverText {
+  font-family: "Cairo", sans-serif;
+}
+
+.button {
+  background-color: #04aa6d;
+  color: white;
+  padding: 10px 10px 10px 10px;
+  margin: 4px 0;
+  border: none;
+  cursor: pointer;
+  width: 50%;
+}
+
+html {
+  font-family: "Cairo", sans-serif;
+  background-color: #333333;
+}
+.previousBorderPrimary {
+  background: radial-gradient(circle,
+      rgba(166, 161, 161, 0.478) 0%,
+      rgba(71, 140, 140, 0.542) 100%);
+  border: 3px solid #088da5 !important;
+  border-radius: 9px !important;
+}
+
+.activeBorderPrimary {
+  background: radial-gradient(circle,
+      rgba(245, 245, 245, 0.249) 0%,
+      rgba(102, 204, 204, 0.423) 100%);
+  border: 3px solid #088da5 !important;
+  border-radius: 9px !important;
+}
+
+.activeBorderEvent {
+  background: radial-gradient(circle,
+      rgba(245, 245, 220, 0.336) 0%,
+      rgba(255, 255, 102, 0.63) 100%);
+  border: 3px solid #ccff00 !important;
+  border-radius: 9px !important;
+}
+
+.activeBorderArrows {
+  background-color: rgba(243, 11, 11, 0.4) !important;
+  border: 2px solid rgb(218, 96, 96) !important;
+  border-radius: 8px !important;
+}
+
+.activeBorderImage::after {
+  display: block;
+  position: relative;
+  background-image: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0) 0,
+      #fff 100%);
+  margin-top: -150px;
+  height: 150px;
+  width: 100%;
+  content: "";
+}
+
+.closeButton {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  z-index: 2147483647;
+}
+
+.closeButton::after {
+  display: inline-block;
+  content: "\00d7";
+}
+
+.popuptextTags {
+  position: absolute;
+  width: 80px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+}
+
+/* Popup arrow */
+.popuptextTags::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.myPopupMove {
+  position: absolute;
+  z-index: 80000;
+}
+
+.myPopup {
+  z-index: 83647;
+  cursor: move;
+  width: 80px;
+  height: 80px;
+  position: absolute;
+}
+
+.container {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.buttonHoverText {
+  font-family: "Cairo", sans-serif;
+}
+
+.button {
+  background-color: #04aa6d;
+  color: white;
+  padding: 10px 10px 10px 10px;
+  margin: 4px 0;
+  border: none;
+  cursor: pointer;
+  width: 50%;
+}
+
+html {
+  font-family: "Cairo", sans-serif;
+  background-color: #333333;
+}
+
+.navbar-custom {
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.collapse {
+  height: 300px;
+  width: 100%;
+  position: absolute;
+  top: 40;
+  left: 0;
+  z-index: 99;
+}
+
+.container {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: inherit;
+  height: auto;
+  margin-left: 8%;
+  margin-right: 8%;
+}
+
+.row {
+  width: 100%;
+}
+
+.drpMenuHeight {
+  width: auto;
+  max-height: 200px;
+  overflow-y: auto;
+  opacity: 0.9;
+}
+
+.selected-display {
+  padding-right: 0;
+}
+
+.selected-btn-container {
+  padding-left: 0;
+}
+
+.reg-button-size {
+  min-width: 120px;
+  max-width: 150px;
+  width: max-content;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  font-size: small;
+}
+
+.drp-button-size {
+  min-width: 120px;
+  font-size: small;
+}
+
+.list-contain {
+  height: 160px;
+  margin-top: 16px;
+  overflow-y: auto;
+  outline: thin solid #58acecc2;
+}
+
+.list-item-contain {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.list-label {
+  color: white;
+  font-family: "Cairo", sans-serif;
+}
+
+.main-display-container {
+  color: white;
+  font-family: "Cairo", sans-serif;
+  word-wrap: break-word;
+  height: 150px;
+  overflow-y: auto;
+  outline: thin solid #58acecc2;
+  margin-top: 12px;
+}
+
+.text-area-caption {
+  color: white;
+  font-family: "Cairo", sans-serif;
+}
+
+.input-size {
+  margin: 3px;
+  padding: 3px;
+  height: 18px;
+}
+
+.icon-size {
+  width: 20px;
+  height: 20px;
+}
+
+.scrape-back {
+  align-items: right;
+  justify-content: right;
+  text-align: right
+}
+
+.scrape-title {
+  font-size: 22px;
+  color: aliceblue;
+  font-family: 'Cairo', sans-serif;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.scrape-select {
+  margin-top: 10px;
+  align-items: left;
+  justify-content: left;
+  text-align: left;
+}
+
+.scrape-schedule {
+  margin-top: 10px;
+  align-items: left;
+  justify-content: left;
+  text-align: left;
+}
+
+.scrape-preview {
+  color: #e7eb13;
+  margin: 2px;
+  white-space: pre;
+}
+
+.scrape-verify {
+  margin-top: 12px;
+  align-items: left;
+  justify-content: left;
+  text-align: left;
+}
+
+.error {
+  color: white;
+  font-family: "Cairo", sans-serif;
+}
+.table-cell {
+  max-width: 200px;
+  overflow: auto;
+}
+.table-name {
+  min-width: 150px;
+}

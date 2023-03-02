@@ -20,6 +20,9 @@ if (window.contentScriptInjected !== true) {
     if (node.nodeName == "IMG") {
       node.classList.add("activeBorderImage");
       node.classList.add("activeBorderPrimary");
+    } else if (node.nodeName == "A") {
+      node.style.position = "relative";
+      node.classList.add("activeBorderPrimary");
     } else {
       node.classList.add("activeBorderPrimary");
     }
@@ -33,6 +36,11 @@ if (window.contentScriptInjected !== true) {
 
       if (node.nodeName == "IMG") {
         node.classList.add("activeBorderImage");
+        node.classList.add("activeBorderEvent");
+        if (prevNode != null) removeBorderEvent(prevNode);
+      } else if (node.nodeName == "A") {
+        // remove position relative
+        node.style.position = "relative";
         node.classList.add("activeBorderEvent");
         if (prevNode != null) removeBorderEvent(prevNode);
       } else {
@@ -66,6 +74,10 @@ if (window.contentScriptInjected !== true) {
     borderedItem.forEach((node) => {
       node.classList.remove("activeBorderPrimary");
       node.classList.remove("activeBorderImage");
+      // if node has position absolute, remove it
+      if (node.style.position == "absolute") {
+        node.style.position = "";
+      }
     });
   }
   function removeEventBorderAll() {
@@ -91,9 +103,10 @@ if (window.contentScriptInjected !== true) {
   function selectingElements() {
     //this function is ran at start of script, and managed via stopAll/freezeState/etc
     var x = document.querySelectorAll(
-      "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article"
+      "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article, iframe, html"
       //"span, th, td, button, input, a, textarea, p, li, ol, card, img, section, nav, footer, header, map, video, audio, embed, iframe, object, picture, portal, param, source, form, fieldset, datalist, label, legend, select, option, output, progress, meter, h1, h2, h3, h4, h5, h6, pre"
     );
+
     x.forEach((node) => {
       node.addEventListener("mouseenter", function addBorder() {
         if (!freezeState && stopMouseover && !stopAll) {
@@ -107,22 +120,13 @@ if (window.contentScriptInjected !== true) {
           removeBorderPrimary(node);
         }
       });
-      node.addEventListener("click", function addBorder(e) {
-        if (!stopAll) {
-          e.preventDefault();
-          e.stopPropagation();
-          collectBordered();
-          chrome.runtime.sendMessage({
-            msg: "Bring back scrape builder",
-          });
+      node.addEventListener("click", doClick);
 
-          freezeState = true;
-        }
-      });
       node.addEventListener("dblclick", function addBorder(e) {
         if (!stopAll) {
           e.preventDefault();
           e.stopPropagation();
+          console.log("bringing it back 2")
           chrome.runtime.sendMessage({
             msg: "Bring back scrape builder",
           });
@@ -130,65 +134,109 @@ if (window.contentScriptInjected !== true) {
       });
     });
   }
+  var doClick  = (e) => doathing(e);
+
+  function doathing(e) {
+    if (!stopAll) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      collectBordered();
+      chrome.runtime.sendMessage({
+        msg: 'Bring back scrape builder',
+      });
+
+      stopAll = true; // TODO
+      freezeState = true;
+    }
+  }
+
+  function addBorderClick(e) {
+    console.log(e);
+    if (!stopAll) {
+      e.preventDefault();
+      e.stopPropagation();
+      collectBordered();
+      chrome.runtime.sendMessage({
+        msg: 'Bring back scrape builder',
+      });
+
+      stopAll = true; // TODO
+      freezeState = true;
+
+      e.srcElement.removeEventListener('click', addBorderClick);
+    }
+  }
+
+  function removeBordered(field) {
+    var borderedItem = document.querySelector(
+      '.previousBorderPrimary.' + field
+    );
+
+    borderedItem.classList.remove('previousBorderPrimary', field);
+  }
 
   function collectBordered() {
+    console.log(activeSelected);
     activeSelected.length = 0;
-    var borderedItem = document.querySelectorAll(".activeBorderPrimary");
+    console.log('grabbing borderedItems');
+    var borderedItem = document.querySelectorAll('.activeBorderPrimary');
+    console.log('gottem');
 
     borderedItem.forEach((node) => {
       activeSelected.push(node);
     });
+    console.log('pushed nodes');
 
-    borderedInnerHTML = Array.from(activeSelected).map(
-      (anchor) => anchor.innerHTML
-    );
     if (activeSelected.length > 0) {
       if (
         activeSelected[activeSelected.length - 1].classList.contains(
-          "activeBorderPrimary" ||
-            activeSelected[0].classList.contains("activeBorderPrimary")
+          'activeBorderPrimary' ||
+            activeSelected[0].classList.contains('activeBorderPrimary')
         )
       ) {
         activeSelected[activeSelected.length - 1].classList.remove(
-          "activeBorderPrimary"
-        ) ?? activeSelected[0].classList.remove("activeBorderPrimary");
+          'activeBorderPrimary'
+        ) ?? activeSelected[0].classList.remove('activeBorderPrimary');
       }
       if (
         activeSelected[activeSelected.length - 1].classList.contains(
-          "activeBorderEvent" ||
-            activeSelected[0].classList.contains("activeBorderEvent")
+          'activeBorderEvent' ||
+            activeSelected[0].classList.contains('activeBorderEvent')
         )
       ) {
         activeSelected[activeSelected.length - 1].classList.remove(
-          "activeBorderEvent"
-        ) ?? activeSelected[0].classList.remove("activeBorderEvent");
+          'activeBorderEvent'
+        ) ?? activeSelected[0].classList.remove('activeBorderEvent');
       }
       if (
         activeSelected[activeSelected.length - 1].classList.contains(
-          "previousBorderPrimary" ||
-            activeSelected[0].classList.contains("previousBorderPrimary")
+          'previousBorderPrimary' ||
+            activeSelected[0].classList.contains('previousBorderPrimary')
         )
       ) {
         activeSelected[activeSelected.length - 1].classList.remove(
-          "previousBorderPrimary"
-        ) ?? activeSelected[0].classList.remove("previousBorderPrimary");
+          'previousBorderPrimary'
+        ) ?? activeSelected[0].classList.remove('previousBorderPrimary');
       }
       if (
         activeSelected[activeSelected.length - 1].classList.contains(
-          "activeBorderImage" ||
-            activeSelected[0].classList.contains("activeBorderImage")
+          'activeBorderImage' ||
+            activeSelected[0].classList.contains('activeBorderImage')
         )
       ) {
         activeSelected[activeSelected.length - 1].classList.remove(
-          "activeBorderImage"
-        ) ?? activeSelected[0].classList.remove("activeBorderImage");
+          'activeBorderImage'
+        ) ?? activeSelected[0].classList.remove('activeBorderImage');
       }
 
       prevSelected.push(activeSelected[activeSelected.length - 1]) ??
         prevSelected.push(activeSelected[0]);
 
+      console.log('send to bring back mboy');
+
       chrome.runtime.sendMessage({
-        scrapeThis: "Add to scrape builder",
+        scrapeThis: 'Add to scrape builder',
         data: {
           textC:
             activeSelected[activeSelected.length - 1].textContent ??
@@ -207,17 +255,21 @@ if (window.contentScriptInjected !== true) {
             activeSelected[0].tagName,
           url: window.location.href,
           src: activeSelected[0].src,
+          value: myField,
+          label: myLabel,
         },
       });
+      console.log('mboy sent the mssg');
       activeSelected[activeSelected.length - 1].classList.add(
-        "previousBorderPrimary"
-      ) ?? activeSelected[0].classList.add("previousBorderPrimary");
+        'previousBorderPrimary',
+        myField
+      ) ?? activeSelected[0].classList.add('previousBorderPrimary', myField);
     }
   }
 
   function collectBorderedEvent() {
     activeSelected.length = 0;
-    var borderedItem = document.querySelectorAll(".activeBorderEvent");
+    var borderedItem = document.querySelectorAll('.activeBorderEvent');
 
     borderedItem.forEach((node) => {
       removeBorderEvent(node);
@@ -225,11 +277,11 @@ if (window.contentScriptInjected !== true) {
     });
     setTimeout(() => {
       borderedItem.forEach((node) => {
-        if (node.nodeName == "IMG") {
-          node.classList.add("activeBorderImage");
-          node.classList.add("activeBorderEvent");
+        if (node.nodeName == 'IMG') {
+          node.classList.add('activeBorderImage');
+          node.classList.add('activeBorderEvent');
         } else {
-          node.classList.add("activeBorderEvent");
+          node.classList.add('activeBorderEvent');
         }
       });
     }, 400);
@@ -240,39 +292,39 @@ if (window.contentScriptInjected !== true) {
     if (activeSelected.length > 0) {
       if (
         activeSelected[activeSelected.length - 1].classList.contains(
-          "activeBorderPrimary" ||
-            activeSelected[0].classList.contains("activeBorderPrimary")
+          'activeBorderPrimary' ||
+            activeSelected[0].classList.contains('activeBorderPrimary')
         )
       ) {
         activeSelected[activeSelected.length - 1].classList.remove(
-          "activeBorderPrimary"
-        ) ?? activeSelected[0].classList.remove("activeBorderPrimary");
+          'activeBorderPrimary'
+        ) ?? activeSelected[0].classList.remove('activeBorderPrimary');
       }
       if (
         activeSelected[activeSelected.length - 1].classList.contains(
-          "activeBorderEvent" ||
-            activeSelected[0].classList.contains("activeBorderEvent")
+          'activeBorderEvent' ||
+            activeSelected[0].classList.contains('activeBorderEvent')
         )
       ) {
         activeSelected[activeSelected.length - 1].classList.remove(
-          "activeBorderEvent"
-        ) ?? activeSelected[0].classList.remove("activeBorderEvent");
+          'activeBorderEvent'
+        ) ?? activeSelected[0].classList.remove('activeBorderEvent');
       }
       if (
         activeSelected[activeSelected.length - 1].classList.contains(
-          "previousBorderPrimary" ||
-            activeSelected[0].classList.contains("previousBorderPrimary")
+          'previousBorderPrimary' ||
+            activeSelected[0].classList.contains('previousBorderPrimary')
         )
       ) {
         activeSelected[activeSelected.length - 1].classList.remove(
-          "previousBorderPrimary"
-        ) ?? activeSelected[0].classList.remove("previousBorderPrimary");
+          'previousBorderPrimary'
+        ) ?? activeSelected[0].classList.remove('previousBorderPrimary');
       }
       prevSelected.push(activeSelected[activeSelected.length - 1]) ??
         prevSelected.push(activeSelected[0]);
 
       chrome.runtime.sendMessage({
-        scrapeThis: "Add to scrape builder",
+        scrapeThis: 'Add to scrape builder',
         data: {
           textC:
             activeSelected[activeSelected.length - 1].textContent ??
@@ -291,11 +343,15 @@ if (window.contentScriptInjected !== true) {
             activeSelected[0].tagName,
           url: window.location.href,
           src: activeSelected[0].src,
+          value: myField,
+          label: myLabel,
         },
       });
+
+      // add to the end or to the first if nothing else there.
       activeSelected[activeSelected.length - 1].classList.add(
-        "previousBorderPrimary"
-      ) ?? activeSelected[0].classList.add("previousBorderPrimary");
+        'previousBorderPrimary'
+      ) ?? activeSelected[0].classList.add('previousBorderPrimary');
     }
   }
 
@@ -306,7 +362,7 @@ if (window.contentScriptInjected !== true) {
     var scrollPos =
       window.scrollY ||
       window.scrollTop ||
-      document.getElementsByTagName("html")[0].scrollTop;
+      document.getElementsByTagName('html')[0].scrollTop;
     const rect = el.getBoundingClientRect();
 
     if (locA.x <= locB.x && locA.y <= locB.y) {
@@ -349,7 +405,7 @@ if (window.contentScriptInjected !== true) {
   }
 
   function canvasProcess() {
-    var elementCanvas = document.createElement("DIV");
+    var elementCanvas = document.createElement('DIV');
     elementCanvas.innerHTML = `<canvas id="canvas" width="${bodyWidth}" height="${bodyHeight}" style="z-index: 2147483647; pointer-events: none; position: absolute; top: 0; left: 0"></canvas>`;
     document.body.appendChild(elementCanvas);
 
@@ -357,12 +413,12 @@ if (window.contentScriptInjected !== true) {
   }
 
   function canvasOperations() {
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
+    var canvas = document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
     var locA = null;
     var locB = null;
 
-    document.addEventListener("mousedown", function (e) {
+    document.addEventListener('mousedown', function (e) {
       if (!stopAll) {
         stopMouseover = false;
         if (!freezeState) {
@@ -375,39 +431,45 @@ if (window.contentScriptInjected !== true) {
       }
     });
 
-    document.addEventListener("mousemove", function (e) {
+    document.addEventListener('mousemove', function (e) {
       if (locA && stopMouseover == false && !freezeState && !stopAll) {
         locB = getMousePos(canvas, e);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "rgba(76, 144, 255, 0.3)";
-        ctx.shadowColor = "rgba(76, 144, 255)";
+        ctx.fillStyle = 'rgba(76, 144, 255, 0.3)';
+        ctx.shadowColor = 'rgba(76, 144, 255)';
         ctx.shadowBlur = 4;
-        ctx.lineJoin = "bevel";
+        ctx.lineJoin = 'bevel';
         ctx.lineWidth = 3;
-        ctx.strokeStyle = "rgb(123, 168, 252)";
+        ctx.strokeStyle = 'rgb(123, 168, 252)';
         ctx.strokeRect(locA.x, locA.y, locB.x - locA.x, locB.y - locA.y);
         ctx.fillRect(locA.x, locA.y, locB.x - locA.x, locB.y - locA.y);
       }
     });
 
-    document.addEventListener("mouseup", function (e) {
+    document.addEventListener('mouseup', function (e) {
       if (!stopAll) {
         if (!freezeState && locA && locB) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           locB = getMousePos(canvas, e);
-          ctx.fillStyle = "rgba(76, 144, 255, 0.3)";
-          ctx.shadowColor = "rgba(76, 144, 255)";
+          ctx.fillStyle = 'rgba(76, 144, 255, 0.3)';
+          ctx.shadowColor = 'rgba(76, 144, 255)';
           ctx.shadowBlur = 6;
-          ctx.lineJoin = "bevel";
+          ctx.lineJoin = 'bevel';
           ctx.lineWidth = 4;
-          ctx.strokeStyle = "rgb(123, 168, 252)";
+          ctx.strokeStyle = 'rgb(123, 168, 252)';
           ctx.strokeRect(locA.x, locA.y, locB.x - locA.x, locB.y - locA.y);
           ctx.fillRect(locA.x, locA.y, locB.x - locA.x, locB.y - locA.y);
+          console.log('COLLECTING...');
           var x = document.querySelectorAll(
-            "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article"
-            //"span, th, td, button, input, a, textarea, p, li, ol, card, img, section, nav, footer, header, map, video, audio, embed, iframe, object, picture, portal, param, source, form, fieldset, datalist, label, legend, select, option, output, progress, meter, h1, h2, h3, h4, h5, h6, pre"
+            // "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article, iframe, html"
+            'span, th, td, button, input, a, textarea, p, li, ol, card, img, section, nav, footer, header, map, video, audio, embed, iframe, object, picture, portal, param, source, form, fieldset, datalist, label, legend, select, option, output, progress, meter, h1, h2, h3, h4, h5, h6, pre'
           );
           x.forEach((node) => {
+            // remove position absolute
+            if (node.style.position === 'absolute') {
+              console.log('absolute');
+              node.style.position = 'relative';
+            }
             if (borderInRectCheck(node, locA, locB)) {
               addBorderEvent(node);
             }
@@ -418,7 +480,7 @@ if (window.contentScriptInjected !== true) {
           removeEventBorderAll();
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           chrome.runtime.sendMessage({
-            msg: "Bring back scrape builder",
+            msg: 'Bring back scrape builder',
           });
         }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -428,41 +490,87 @@ if (window.contentScriptInjected !== true) {
     });
   }
 
+  chrome.runtime.onMessage.addListener(async function (req, sender, resp) {
+    if (req.msg === 'selectElements') {
+      chrome.runtime.sendMessage({
+        msg: 'Bring up active tab',
+      });
+      stopAll = false;
+      freezeState = false;
+      if (runSelect == true) {
+        selectingElements();
+        runSelect = false;
+      }
+    }
+  });
+
+  var myField = '';
+  var myLabel = '';
+
+  // This is triggered by listening to storage changes
   function PopupButtonClickDetector(changes, area) {
     let changedItems = Object.keys(changes);
 
+    console.log(changes);
+
     for (let node of changedItems) {
-      if (node == "disableSelect" && area == "sync") {
+      if (node === 'disableSelect' && area === 'sync') {
         stopAll = true;
       }
 
-      if (node == "selectElementsIndex" && area == "sync") {
+      if (node === 'removeElement' && area === 'sync') {
+        let someval = JSON.parse(changes.removeElement.newValue);
+        removeBordered(someval.field);
+      }
+
+      if (node === 'highlightElements' && area === 'sync') {
+        console.log('highlighting elements');
+        let someval = JSON.parse(changes.highlightElements.newValue);
+        console.log('parsed');
+        console.log(someval);
+        // someVal.value.value is the field the user selected on the extension.
+        // this is used to find the selected area on the page
+
+        // foreach someval to get the field and label
+        someval.highlightElements.forEach((element) => {
+          mySelector = element.selectable.selector;
+          myField = element.selectable.value;
+          myLabel = element.selectable.label;
+          // query select the first element that matches the field
+          let x = document.querySelector(mySelector);
+          // if the element exists
+          if (x) {
+            x.classList.add('previousBorderPrimary', myField);
+          }
+        });
+
         chrome.runtime.sendMessage({
-          msg: "Bring up active tab",
+          msg: 'Bring back scrape builder',
+        });
+      }
+
+      if (node === 'selectElements' && area === 'sync') {
+        console.log('bout to parse');
+        let someval = JSON.parse(changes.selectElements.newValue);
+        console.log('parsed');
+        // someVal.field is the field the user selected on the extension.
+        // this is used to find the selected area on the page
+        myField = someval.field;
+        myLabel = someval.label;
+        console.log('bout to send bring up tab');
+        chrome.runtime.sendMessage({
+          msg: 'Bring up active tab',
         });
         stopAll = false;
         freezeState = false;
         if (runSelect == true) {
+          console.log('running select');
           selectingElements();
           runSelect = false;
         }
       }
 
-      // if (node = "verify" && area == "sync") {
-
-      // }
-
-      if (node == "clearSelected" && area == "sync") {
-        activeSelected.length = 0;
-        prevSelected.length = 0;
-        filtManualSelected.length = 0;
-        borderedInnerHTML.length = 0;
-        prevNode = null;
-        stopMouseover = true;
-        stopAll = true;
-        removeBorderAll();
-      }
-      if (node == "submitScrape" && area == "sync") {
+      if (node == 'clearSelected' && area == 'sync') {
         activeSelected.length = 0;
         prevSelected.length = 0;
         filtManualSelected.length = 0;

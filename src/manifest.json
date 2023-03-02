@@ -1,9 +1,9 @@
 {
   "name": "Live Music Archiver",
   "description": "A chrome extension to archive live music",
-  "version": "0.1",
+  "version": "2.0",
   "manifest_version": 3,
-  "background": { "service_worker": "background.js", "type": "module" },
+  "background": { "service_worker": "background.bundle.js" },
   "content_scripts": [
     {
       "matches": ["*://*/*"],
@@ -14,14 +14,14 @@
   "host_permissions": ["*://*/*"],
   "action": {
     "default_icon": {
-      "48": "/assets/images/archive48.png",
-      "64": "/assets/images/archive64.png",
-      "128": "/assets/images/archive128.png"
+      "48": "archive48.png",
+      "64": "archive64.png",
+      "128": "archive128.png"
     }
   },
   "icons": {
-    "48": "/assets/images/archive48.png",
-    "64": "/assets/images/archive64.png",
-    "128": "/assets/images/archive128.png"
+    "48": "archive48.png",
+    "64": "archive64.png",
+    "128": "archive128.png"
   }
 }
