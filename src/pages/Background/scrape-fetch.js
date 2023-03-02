@@ -461,6 +461,37 @@ async function adminUserMaps(data) {
   }
 }
 
+async function adminRecentEvents(data) {
+  let info = await getStorageInfo();
+  var config = info['config'];
+  var url = `http://${config['remote-address']}/api/admin/getEventsRecent/${data}`;
+  try {
+    const blob = await fetch(url, {
+      method: 'GET', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        Authorization: `Bearer ${currRaw}`,
+        userId: info['userId'],
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer',
+    });
+
+    if (blob.status == 200) {
+      const resp = await blob.json();
+      return resp;
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
 async function adminGetUsers() {
   // chrome.storage.session.get(['config'], async function (result) {
   //   var config = result['config'];
@@ -573,4 +604,5 @@ export {
   adminGetUsers,
   adminUserMaps,
   getBuilder,
+  adminRecentEvents,
 };
