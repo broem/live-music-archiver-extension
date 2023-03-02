@@ -493,11 +493,9 @@ async function adminRecentEvents(data) {
 }
 
 async function adminGetUsers() {
-  // chrome.storage.session.get(['config'], async function (result) {
-  //   var config = result['config'];
-  // var url = 'http://' + config['remote-address'] + '/api/admin/getUsers';
-  // TODO: fix this
-  var url = 'http://' + 'localhost:3424' + '/api/admin/getUsers';
+  let info = await getStorageInfo();
+  var config = info['config'];
+  var url = `http://${config['remote-address']}/api/admin/getUsers`;
   return await fetch(url, {
     method: 'GET', // *GET, POST, PUT, DELETE, etc.
     mode: 'cors', // no-cors, *cors, same-origin
