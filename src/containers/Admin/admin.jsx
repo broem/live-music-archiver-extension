@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import EnhancedTable from "../Common/table";
-import NestedList from "../Common/nestedList";
 import CustomizedMenus from "../Common/menu";
 import * as scrape from "../../pages/Background/scrape-fetch.js";
 
 async function items(){
     var u = [];
     await scrape.adminGetUsers().then((users) => {
-        console.log("users returned from adminGetUsers");
         u = users;
     }).catch((err) => {
         console.log(err);

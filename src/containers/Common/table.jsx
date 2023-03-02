@@ -19,14 +19,10 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Button } from '@mui/material';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
-import AdminRecent from "../Admin/recent";
 import AdminDialog from './adminDialog.jsx';
 import { useEffect } from "react";
 
