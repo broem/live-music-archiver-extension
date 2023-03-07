@@ -23,8 +23,10 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Button } from '@mui/material';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
+import * as constants from "../constants.js";
 import AdminDialog from './adminDialog.jsx';
 import { useEffect } from "react";
+import ScheduleDropdown from './scheduleDropdown.jsx';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -53,27 +55,6 @@ function stableSort(array, comparator) {
   });
   return stabilizedThis.map((el) => el[0]);
 }
-
-const scheduleOptions = [
-  {
-    label: "Just Once",
-  },
-  {
-    label: "Every Day",
-  },
-  {
-    label: "Every Other Day",
-  },
-  {
-    label: "Every Week",
-  },
-  {
-    label: "Every Other Week",
-  },
-  {
-    label: "Every Month",
-  },
-]
 
 const headCells = [
   {
@@ -239,15 +220,16 @@ export default function EnhancedTable(props) {
     // get the data from scrape
     scrape.adminUserMaps(email).then((data) => {
       if(!!!data) {
+        // clear the rows
+        setRows([]);
         return;
       }
       // set the rows to the data
       setRows(data);
     });
-  }, []);
+  }, [email]);
 
   const handleRequestSort = (event, property) => {
-    console.log('handle request sort')
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
@@ -263,12 +245,8 @@ export default function EnhancedTable(props) {
   };
 
   const saveClick = (row) => {
-    console.log('save click');
-    console.log(row);
 
     scrape.updateScrape(row).then((data) => {
-      console.log('update scrape');
-      console.log(data);
     });
 
   }
@@ -283,6 +261,7 @@ export default function EnhancedTable(props) {
   };
 
   const handleFrequencyClick = (event, row) => {
+    console.log('handleFrequencyClick');
     setAnchorEl(event.currentTarget);
   };
 
@@ -292,6 +271,9 @@ export default function EnhancedTable(props) {
   }
 
   const handleMenuClose = (event, label) => {
+    console.log('handleMenuClose');
+    console.log(label);
+    console.log(currentRow);
     if(label) {
       setRows([...rows]);
     }
@@ -356,31 +338,13 @@ export default function EnhancedTable(props) {
                       </TableCell>
                       <TableCell className='table-cell' align="right">{row.url}</TableCell>
                       <TableCell className='table-cell' align="right">
-                        <div className="dropdown">
-                          <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
-                              aria-controls={open ? 'basic-menu' : undefined}
-                              aria-haspopup="true"
-                              aria-expanded={open ? 'true' : undefined}
-                              onClick={(event) => { handleFrequencyClick(event, row) }}
-                              id="basic-button">
-                                {row.frequency}
-                          </button>
-                          <Menu
-                            id="basic-menu"
-                            anchorEl={anchorEl}
-                            open={open}
-                            onClose={() => handleMenuClose(undefined, undefined)}
-                            MenuListProps={{
-                              'aria-labelledby': 'basic-button',
-                            }}
-                          >
-                            {scheduleOptions && scheduleOptions.map((item) => (
-                              <MenuItem key={item.label} value={item.label} onClick={(event) => handleMenuClose(event, item.label)} disableRipple>
-                                {item.label}
-                              </MenuItem>
-                            ))}
-                          </Menu>
-                        </div>
+                        <ScheduleDropdown
+                          scheduleText={row.frequency}
+                          anchorEl={anchorEl}
+                          open={open}
+                          handleClick={handleFrequencyClick}
+                          handleClose={handleMenuClose}
+                          />
                       </TableCell>
                       <TableCell className='table-cell' align="right" padding='checkbox'>
                         <Checkbox

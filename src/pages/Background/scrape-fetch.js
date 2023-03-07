@@ -175,14 +175,18 @@ async function deleteIGScrape(data) {
 }
 
 // downloadRecent downloads recent events from the server.
-async function downloadRecent() {
-  // get the current userId from storage
-  chrome.storage.session.get(['userId', 'config'], async function (result) {
-    await fetch(
-      'http://' +
-        result['config']['remote-address'] +
-        '/api/myScrapes/' +
-        result['userId'],
+async function downloadRecent(data) {
+  let info = await getStorageInfo();
+  let config = info['config'];
+  let userId = info['userId'];
+
+  if (data) {
+    userId = data.userId;
+  }
+
+  try {
+    let blob = await fetch(
+      'http://' + config['remote-address'] + '/api/myScrapes/' + userId,
       {
         method: 'GET',
         mode: 'cors',
@@ -195,62 +199,54 @@ async function downloadRecent() {
         redirect: 'follow',
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       }
-    )
-      .then((blob) => blob.text())
-      .then((resp) => {
-        chrome.tabs.query(
-          {
-            active: true,
-            lastFocusedWindow: true,
-          },
-          function (tabs) {
-            // and use that tab to fill in out title and url
-            var tab = tabs[0];
-            chrome.tabs.sendMessage(tab.id, {
-              msg: 'Recent scrapes',
-              data: resp,
-            });
-          }
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
+    );
+
+    if (blob.status == 200) {
+      return await blob.blob();
+    } else {
+      console.log('bad status');
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 }
 
 async function getCurrentScrapeEvents() {
-  // get the current userId from storage
-  chrome.storage.session.get(['userId', 'config'], async function (result) {
-    var config = result['config'];
-
-    await fetch(
-      'http://' +
-        config['remote-address'] +
-        '/api/getCurrentScrapeEvents/' +
-        result['userId'],
-      {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'same-origin',
-        headers: {
-          Authorization: `Bearer ${currRaw}`,
-          'Content-Type': 'application/json',
-        },
-        redirect: 'follow',
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    // get the current userId from storage
+    let info = await getStorageInfo();
+    let config = info['config'];
+    let userId = info['userId'];
+  
+    try {
+      const blob = await fetch(
+        'http://' + config['remote-address'] + '/api/getCurrentScrapeEvents/' + userId,
+        {
+          method: 'GET',
+          mode: 'cors',
+          cache: 'no-cache',
+          credentials: 'same-origin',
+          headers: {
+            Authorization: `Bearer ${currRaw}`,
+  
+            'Content-Type': 'application/json',
+          },
+          redirect: 'follow',
+          referrerPolicy: 'no-referrer',
+        }
+      );
+  
+      if (blob.status == 200) {
+        return await blob.json();
+      } else {
+        console.log('bad status');
+        return null;
       }
-    )
-      .then((blob) => blob.json())
-      .then((resp) => {
-        // save to local session storage
-        chrome.storage.session.set({ scrapeEvents: resp });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
 }
 
 async function updateScrape(data) {
@@ -311,42 +307,45 @@ async function deleteScrape(data) {
 
 async function getUser() {
   console.log('Getting user');
-  chrome.storage.session.get(['userEmail', 'config', 'userId'], async function (result) {
-    var config = result['config'];
-    var userEmail = result['userEmail'];
-    var userId = result['userId'];
-    var data = {
-      "user_id" : userId,
-      "email": userEmail
-    }
-    console.log(userEmail);
-    var url = 'http://' + config['remote-address'] + '/api/user';
-    console.log(url);
-    await fetch(url, {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, *cors, same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        Authorization: `Bearer ${currRaw}`,
+  chrome.storage.session.get(
+    ['userEmail', 'config', 'userId'],
+    async function (result) {
+      var config = result['config'];
+      var userEmail = result['userEmail'];
+      var userId = result['userId'];
+      var data = {
+        user_id: userId,
+        email: userEmail,
+      };
+      console.log(userEmail);
+      var url = 'http://' + config['remote-address'] + '/api/user';
+      console.log(url);
+      await fetch(url, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+          Authorization: `Bearer ${currRaw}`,
 
-        'Content-Type': 'application/json',
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrerPolicy: 'no-referrer',
-      body: JSON.stringify(data),
-    })
-      .then((blob) => blob.json())
-      .then((resp) => {
-        console.log(resp);
-        chrome.storage.session.set({
-          user: JSON.stringify(resp),
-        });
+          'Content-Type': 'application/json',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(data),
       })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
+        .then((blob) => blob.json())
+        .then((resp) => {
+          console.log(resp);
+          chrome.storage.session.set({
+            user: JSON.stringify(resp),
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  );
 }
 
 function getStorageInfo() {
@@ -377,15 +376,9 @@ function getStorageInfo() {
 }
 
 async function scrapeBuilderPost(data) {
-  let config = null;
-  let userId = null;
-  let userEmail = null;
   // get the current userId from storage
-
   let info = await getStorageInfo();
-  console.log('Getting storage info');
-  console.log(info);
-  config = info['config'];
+  let config = info['config'];
   data.userId = info['userId'];
   data.userEmail = info['userEmail'];
 
@@ -464,7 +457,7 @@ async function adminUserMaps(data) {
 async function adminRecentEvents(data) {
   let info = await getStorageInfo();
   var config = info['config'];
-  var url = `http://${config['remote-address']}/api/admin/getEventsRecent/${data}`;
+  var url = `http://${config['remote-address']}/api/admin/getEventsRecent/${data.id}`;
   try {
     const blob = await fetch(url, {
       method: 'GET', // *GET, POST, PUT, DELETE, etc.
@@ -473,7 +466,7 @@ async function adminRecentEvents(data) {
       credentials: 'same-origin', // include, *same-origin, omit
       headers: {
         Authorization: `Bearer ${currRaw}`,
-        userId: info['userId'],
+        userId: `${data.user}`,
         'Content-Type': 'application/json',
       },
       redirect: 'follow', // manual, *follow, error

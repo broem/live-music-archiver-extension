@@ -27,8 +27,12 @@ const AdminDialog = (props) => {
       // set the open to the props
       setBodyText("Loading...");
 
-    scrape.adminRecentEvents(props.data.mapID).then((data) => {
+    scrape.adminRecentEvents({
+      id: props.data.mapID,
+      user: props.data.userID,
+    }).then((data) => {
       if(!!!data) {
+        setBodyText("No Events!");
         return;
       }
 

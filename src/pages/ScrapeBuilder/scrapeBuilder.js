@@ -573,13 +573,6 @@ disableSelect.addEventListener("click", async () => {
   });
 });
 
-clearSelected.addEventListener("click", async () => {
-  chrome.runtime.sendMessage({
-    clearSelected: "Clear selected",
-  });
-  window.location.reload(true);
-});
-
 submitScrape.addEventListener("click", async () => {
   chrome.runtime.sendMessage({
     submitScrape: "Submit scrape",

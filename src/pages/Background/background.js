@@ -223,10 +223,7 @@ chrome.runtime.onMessage.addListener(async function (
     // delete scrape
     await scrape.deleteIGScrape(request.data);
   }
-
-  if (request.msg === 'GetCurrentScrapes') {
-    await scrape.getCurrentScrapeEvents();
-  }
+  
   // downloadRecent handler
   if (request.msg === 'Download recent') {
     // download recent

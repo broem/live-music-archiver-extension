@@ -16,30 +16,10 @@ import TextField from '@mui/material/TextField';
 import FormControl from "@mui/material/FormControl";
 import Typography from '@mui/material/Typography';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
+import * as constants from "../constants.js";
 import { useEffect } from "react";
 import ScrapersPage from "../Scrapers/scrapers";
 import AdminPage from "../Admin/admin";
-
-const scheduleOptions = [
-  {
-    label: "Just Once",
-  },
-  {
-    label: "Every Day",
-  },
-  {
-    label: "Every Other Day",
-  },
-  {
-    label: "Every Week",
-  },
-  {
-    label: "Every Other Week",
-  },
-  {
-    label: "Every Month",
-  },
-]
 
 let eventOptions = [
   {"label":"Event Area" ,"value":"event"},
@@ -442,6 +422,21 @@ const ScraperBuild = (props) => {
 
   }
 
+  const downloadRecent = () => {
+    scrape.downloadRecent().then( (res) => {
+      if(res) {
+        var blob = new Blob([res], { type: "text/csv" });
+        var resultURL = window.URL.createObjectURL(blob);
+        // create download link
+        var downloadLink = document.createElement("a");
+        downloadLink.href = resultURL;
+        downloadLink.download = "recent.csv";
+        // click download link
+        downloadLink.click();
+      }
+    });
+  }
+
   const getScrapeBuilderData = async (combined) => {
     scrape.scrapeBuilderPost(combined).then( (res) => {
       if(res) {
@@ -480,29 +475,29 @@ const ScraperBuild = (props) => {
           <div className="row">
             <div className="col-4 scrape-schedule">
                 <div className="dropdown">
-                <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
-                    aria-controls={open ? 'basic-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                    onClick={handleClick}
-                    id="basic-button">
-                      {scheduleText}
-                </button>
-                <Menu
-                  id="basic-menu"
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={() => handleClose(undefined)}
-                  MenuListProps={{
-                    'aria-labelledby': 'basic-button',
-                  }}
-                >
-                  {scheduleOptions && scheduleOptions.map((item) => (
-                    <MenuItem key={item.label} value={item.label} onClick={() => handleClose(item.label)} disableRipple>
-                      {item.label}
-                    </MenuItem>
-                  ))}
-                </Menu>
+                  <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
+                      aria-controls={open ? 'basic-menu' : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={open ? 'true' : undefined}
+                      onClick={handleClick}
+                      id="basic-button">
+                        {scheduleText}
+                  </button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={() => handleClose(undefined)}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    {constants.scheduleOptions && constants.scheduleOptions.map((item) => (
+                      <MenuItem key={item.label} value={item.label} onClick={() => handleClose(item.label)} disableRipple>
+                        {item.label}
+                      </MenuItem>
+                    ))}
+                  </Menu>
                 </div>
             </div>
             <div className="col-4 scrape-schedule">
@@ -613,7 +608,7 @@ const ScraperBuild = (props) => {
               </button>
               </div>
               <div className="col-4 scrape-select">
-              <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size" onClick={() => temp()}>
+              <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size" onClick={() => downloadRecent()}>
                 Download Recent
               </button>
               </div>
@@ -631,7 +626,7 @@ const ScraperBuild = (props) => {
                 <button disabled={submitDisabled} id="submitScrape" type="button" className="btn btn-success reg-button-size" onClick={() => submit()}>
                     Submit
                 </button>
-                <button id="clearSelected" type="button submit" className="btn btn-primary reg-button-size" onClick={() => clear()}>
+                <button id="btnCleared" type="button" className="btn btn-primary reg-button-size" onClick={() => clear()}>
                     Clear
                 </button>
                 </div>
