@@ -25,10 +25,10 @@ const ScrapersPage = (props) => {
     setScrapers(newScrapers);
   }
 
-  const removeScraper = (scraper) => {
+  const removeScraper = (incoming) => {
     let newScrapers = scrapers;
     newScrapers.forEach((scraper, index) => {
-      if(scraper.mapID === scraper.mapID) {
+      if(incoming.mapID === scraper.mapID) {
         newScrapers.splice(index, 1);
       }
     });

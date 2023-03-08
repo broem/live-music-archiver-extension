@@ -208,22 +208,6 @@ chrome.runtime.onMessage.addListener(async function (
     chrome.storage.sync.set({ disableSelect });
   }
 
-  if (request.msg === 'GetIGScrapes') {
-    await scrape.getCurrentIGScrapeEvents();
-  }
-
-  // updateIGScrape handler
-  if (request.msg === 'updateIGScrape') {
-    // update scrape
-    await scrape.updateIGScrape(request.data);
-  }
-
-  // deleteIGScrape handler
-  if (request.msg === 'deleteIGScrape') {
-    // delete scrape
-    await scrape.deleteIGScrape(request.data);
-  }
-
   if (request.msg === 'Bring back scrape builder') {
     chrome.tabs.query({}, async function (tabs) {
       var x = 0;

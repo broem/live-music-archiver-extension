@@ -1,60 +1,37 @@
 import React from "react";
 import Back from "../Common/back";
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import Setup from "./setup";
+import Profiles from "./profiles";
 
 const Instagram = () => {
-    return (
-      <div>
-  <nav className="navbar navbar-dark bg-dark navbar-custom">
-    <div className="row">
-      <Back />
-      <div className="col-4">
-        <span>IG Scraper</span>
-      </div>
-      <div className="col-5">
-        <ul className="nav nav-tabs">
-          <li className="nav-item">
-            <a id="setup" className="nav-link active" aria-current="page" href="#">Setup</a>
-          </li>
-          <li className="nav-item">
-            <a id="profiles" className="nav-link" href="#">Profiles</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+  const [activeIndex, setActiveIndex] = React.useState(0);
 
-  <div className="container" id="mainContainer">
-    <div className="row">
-      <div className="col">
-        <div className="input-group mb-3">
-          <input id="profileText" type="text" className="form-control" placeholder="Instagram Profile"
-            aria-label="ig-profile" aria-describedby="button-addon1" />
-        </div>
-      </div>
-    </div>
-    <div className="row">
-      <div className="col">
-        <select className="form-select" id="frequency">
-          <option >Schedule</option>
-          <option value="Every Day">Every Day</option>
-          <option value="Every Other Day">Every Other Day</option>
-          <option value="Every Other Week">Every Other Week</option>
-          <option value="Every Month">Every Month</option>
-        </select>
-      </div>
-    </div>
-    <div className="row">
-      <div className="col">
-        <button className="btn btn-primary nav-button reg-button-size" type="button" id="scrape">
-          Scrape
-        </button>
-        <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size">
-          Download Recent
-        </button>
-      </div>
-    </div>
-  </div>
-  </div>
+    return (
+  <div>
+  <Navbar bg="dark" variant="dark">
+      <Container>
+      <Navbar.Brand>IG Scraper</Navbar.Brand>
+      <Nav className="me-auto">
+          <Nav.Link href="#setup" onClick={() => setActiveIndex(0)}>
+              Setup
+          </Nav.Link>
+          <Nav.Link href="#profiles" onClick={() => setActiveIndex(1)}>
+              Profiles
+          </Nav.Link>
+      </Nav>
+      <Back />
+      </Container>
+  </Navbar>
+  <Setup
+    isActive={activeIndex === 0}
+  />
+  <Profiles
+    isActive={activeIndex === 1}
+  />
+</div>
     );
   }
 

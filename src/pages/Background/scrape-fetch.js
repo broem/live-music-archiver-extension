@@ -1,9 +1,22 @@
 let currRaw = null;
 
-async function scrapeInstagram(IgMapper) {
-  chrome.storage.session.get(['userId', 'config'], async function (result) {
-    var config = result['config'];
-    const response = await fetch(
+async function saveIGProfile(igMapper) {
+  let info = await getStorageInfo();
+  let config = info['config'];
+  let userId = info['userId'];
+  let email = info['userEmail'];
+
+  let data = {
+    user_id: userId,
+    user_email: email,
+    ig_user_name: igMapper.profile,
+    frequency: igMapper.frequency,
+  };
+
+  console.log(data);
+
+  try {
+    const blob = await fetch(
       'http://' + config['remote-address'] + '/api/scrapeInstagram',
       {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -17,79 +30,66 @@ async function scrapeInstagram(IgMapper) {
         },
         redirect: 'follow', // manual, *follow, error
         referrerPolicy: 'no-referrer',
-        body: JSON.stringify(IgMapper),
+        body: JSON.stringify(data),
       }
-    )
-      .then((blob) => blob.json())
-      .then((resp) => {
-        if (resp === true) {
-          chrome.runtime.sendMessage({
-            msg: 'scrapeIgSetup',
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
+    );
+
+    if(blob.status === 200) {
+      return await blob.json();
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 // downloadIGRecent
 async function downloadIGRecent(data) {
-  chrome.storage.session.get(['userId', 'config'], async function (result) {
-    var config = result['config'];
-    const response = await fetch(
+  let info = await getStorageInfo();
+  let config = info['config'];
+
+  try {
+    const blob = await fetch(
       'http://' +
-        config['remote-address'] +
-        '/api/myIgScrapes/' +
-        result['userId'],
-      {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-          Authorization: `Bearer ${currRaw}`,
-          'Content-Type': 'application/json',
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify(data),
-      }
-    )
-      .then((blob) => blob.text())
-      .then((resp) => {
-        chrome.tabs.query(
-          {
-            active: true,
-            lastFocusedWindow: true,
-          },
-          function (tabs) {
-            // and use that tab to fill in out title and url
-            var tab = tabs[0];
-            chrome.tabs.sendMessage(tab.id, {
-              msg: 'recentIGScrapes',
-              data: resp,
-            });
-          }
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
+      config['remote-address'] +
+      '/api/myIgScrapes/' +
+      data.mapID,
+    {
+      method: 'GET', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        Authorization: `Bearer ${currRaw}`,
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer',
+    }
+  );
+
+    if(blob.status === 200) {
+      return await blob.text();
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 async function getCurrentIGScrapeEvents() {
-  // get the current userId from storage
-  chrome.storage.session.get(['userId', 'config'], async function (result) {
-    var config = result['config'];
+  let info = await getStorageInfo();
+  let config = info['config'];
+  let userId = info['userId'];
 
-    await fetch(
+  try {
+    const blob = await fetch(
       'http://' +
         config['remote-address'] +
         '/api/getCurrentIGScrapeEvents/' +
-        result['userId'],
+        userId,
       {
         method: 'GET',
         mode: 'cors',
@@ -102,19 +102,20 @@ async function getCurrentIGScrapeEvents() {
         redirect: 'follow',
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       }
-    )
-      .then((blob) => blob.json())
-      .then((resp) => {
-        // save to local session storage
-        chrome.storage.session.set({ scrapeIGEvents: resp });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
+    );
+
+    if(blob.status === 200) {
+      return await blob.json();
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
 }
 
-async function updateIGScrape(data) {
+async function updateIGScraper(data) {
   chrome.storage.session.get('config', async function (result) {
     const config = result['config'];
 
@@ -137,9 +138,6 @@ async function updateIGScrape(data) {
     )
       .then((blob) => blob.json())
       .then((resp) => {
-        // chrome.runtime.sendMessage({
-        //   reloadScrapeBuilder: "Reload scrape builder",
-        // });
       })
       .catch((err) => {
         console.log(err);
@@ -562,7 +560,7 @@ async function getBuilder(data) {
 }
 
 export {
-  scrapeInstagram,
+  saveIGProfile,
   downloadRecent,
   scrapeBuilderPost,
   verified,
@@ -570,7 +568,7 @@ export {
   updateScrape,
   deleteScrape,
   getCurrentIGScrapeEvents,
-  updateIGScrape,
+  updateIGScraper,
   deleteIGScrape,
   downloadIGRecent,
   getUser,
