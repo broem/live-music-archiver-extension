@@ -56,22 +56,30 @@ const ScraperCard = (props) => {
     };
 
     const handleSetName = (event) => {
+        currentScraper.name = event.target.value;
         setName(event.target.value);
+        setCurrentScraper(currentScraper);
         setUpdateDisabled(false);
+    };
+
+    const handleUpdate = () => {
+        scrape.updateScrape(currentScraper).then((data) => {
+            setUpdateDisabled(true);
+        });
     };
 
     return (
         <Card variant="outlined" className='scraperCard'>
             <CardContent>
-                <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                    <TextField 
-                        id="standard-basic" 
-                        label="Scraper Name" 
-                        variant="standard"
-                        value={name}
-                        onChange={(event) => handleSetName(event)}
-                    />
-            </Typography>
+                <div style={{marginBottom: '0.5em'}}>
+                <TextField 
+                    id="standard-basic" 
+                    label="Scraper Name" 
+                    variant="standard"
+                    value={name}
+                    onChange={(event) => handleSetName(event)}
+                />
+                </div>
             <div className="row">
                 <Typography className='col-2' sx={{ mb: 1.5 }} color="text.secondary">
                 Frequency:
@@ -103,7 +111,7 @@ const ScraperCard = (props) => {
             </Typography>
             </CardContent>
             <CardActions>
-            <Button disabled={updateDisabled} size="small">Update</Button>
+            <Button disabled={updateDisabled} size="small" onClick={() => handleUpdate(currentScraper)}>Update</Button>
             <Button size="small" onClick={() => props.setEvent(currentScraper)}>Rebuild</Button>
             <Button size="small" onClick={() => downloadRecent(currentScraper)}>Download Recent</Button>
             <Button 

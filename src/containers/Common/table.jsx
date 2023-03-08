@@ -209,6 +209,7 @@ export default function EnhancedTable(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [currentRow, setCurrentRow] = React.useState(null);
   const [openDialog, setOpenDialog] = React.useState(false);
+  const [saveDisabled, setSaveDisabled] = React.useState(true);
 
   const open = Boolean(anchorEl);
   // on load, get the data
@@ -242,10 +243,10 @@ export default function EnhancedTable(props) {
   };
 
   const saveClick = (row) => {
-
     scrape.updateScrape(row).then((data) => {
     });
 
+    setSaveDisabled(true);
   }
 
   const handleChangePage = (event, newPage) => {
@@ -264,13 +265,15 @@ export default function EnhancedTable(props) {
 
   const setRowName = (event, row) => {
     row.name = event.target.value;
-    setRows([...rows]);  
+    setRows([...rows]);
+    setSaveDisabled(false);
   }
 
   const handleMenuClose = (row, label) => {
     if(label) {
       row.frequency = label;
       setRows([...rows]);
+      setSaveDisabled(false);
     }
     setAnchorEl(null);
   };
@@ -337,7 +340,7 @@ export default function EnhancedTable(props) {
                     >
                       <TableCell padding="checkbox">
                       </TableCell>
-                      <TableCell className='table-cell table-name' align="right">
+                      <TableCell className='table-cell table-name' align="left">
                       <TextField 
                           id="standard-basic" 
                           label="Name" 
@@ -346,8 +349,8 @@ export default function EnhancedTable(props) {
                           onChange={(event) => setRowName(event, row)}
                           />
                       </TableCell>
-                      <TableCell className='table-cell' align="right">{row.url}</TableCell>
-                      <TableCell className='table-cell' align="right">
+                      <TableCell className='table-cell' align="left">{row.url}</TableCell>
+                      <TableCell className='table-cell' align="left">
                         <ScheduleDropdown
                           row={row}
                           scheduleText={row.frequency}
@@ -357,28 +360,29 @@ export default function EnhancedTable(props) {
                           handleClose={handleMenuClose}
                           />
                       </TableCell>
-                      <TableCell className='table-cell' align="right" padding='checkbox'>
+                      <TableCell className='table-cell' align="left" padding='checkbox'>
                         <Checkbox
                           checked={row.enabled}
                           inputProps={{ 'aria-labelledby': labelId }}
                           onChange={(event) => {
                             row.enabled = event.target.checked;
+                            setSaveDisabled(false);
                             setRows([...rows]);
                           }}
                         />
                       </TableCell>
-                      <TableCell className='table-cell' align="right">{row.lastRun}</TableCell>
-                      <TableCell className='table-cell' align="right">
+                      <TableCell className='table-cell' align="left">{row.lastRun}</TableCell>
+                      <TableCell className='table-cell' align="left">
                         <Button onClick={() => saveClick(row)}>
                           Save
                         </Button>
                       </TableCell>
-                      <TableCell className='table-cell' align="right">
+                      <TableCell className='table-cell' align="left">
                         <Button onClick={() => downloadRecent(row)}>
                           Download Recent
                         </Button>
                       </TableCell>
-                      <TableCell className='table-cell' align="right" onClick={() => displayRecent(row)}>
+                      <TableCell className='table-cell' align="left" onClick={() => displayRecent(row)}>
                         <Button>
                           Show Recent
                         </Button>

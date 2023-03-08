@@ -268,17 +268,17 @@ async function updateScrape(data) {
     )
       .then((blob) => blob.json())
       .then((resp) => {
-        // chrome.runtime.sendMessage({
-        //   reloadScrapeBuilder: "Reload scrape builder",
-        // });
       });
   });
 }
 
 async function deleteScrape(data) {
-  chrome.storage.session.get('config', async function (result) {
-    const config = result['config'];
-    const response = await fetch(
+  let info = await getStorageInfo();
+  let config = info['config'];
+  data.userID = info['userId'];
+
+  try {
+    const blob = await fetch(
       'http://' + config['remote-address'] + '/api/deleteScrape',
       {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -293,11 +293,16 @@ async function deleteScrape(data) {
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(data),
       }
-    )
-      .then((blob) => blob.json())
-      .then((resp) => {
-      });
-  });
+    );
+    if (blob.status == 200) {
+      return await blob.json();
+    } else {
+      console.log('bad status' + blob.status);
+      return null;
+    }
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 async function getUser() {

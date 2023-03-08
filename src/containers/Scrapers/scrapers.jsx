@@ -42,13 +42,9 @@ const ScrapersPage = (props) => {
 
   const handleAlertConfirm = () => {
     setDeleteRequest(false);
-        // scrape.deleteScrape(scraper.mapID).then((data) => {
-    //   console.log(data);
-    //   if(!!!data) {
-    //     return;
-    //   }
-      removeScraper(currentScraper);
-    // });
+    scrape.deleteScrape({mapID: currentScraper.mapID}).then((data) => {
+    });
+    removeScraper(currentScraper);
   };
 
   const handleAlertClose = () => {

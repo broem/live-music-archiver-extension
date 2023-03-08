@@ -45,7 +45,7 @@ let eventOptions = [
 ]
 
 const mainDisplayDefault = "Is This What You Selected?";
-const mainDisplayAdditional = "Additional Inputs";
+const mainDisplayAdditional = "Additional Venue Inputs";
 const mainDisplayLoading = "Loading...";
 const mainDisplayVerifyError = "Unable to Verify";
 const mainDisplayScheduleError = "Schedule Error";
