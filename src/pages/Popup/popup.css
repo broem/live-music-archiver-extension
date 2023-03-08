@@ -303,7 +303,11 @@ html {
   color: #fff;
 }
 
-.scraperCard {
+.scraperContainer {
   padding: 0.5em;
+  margin: 0.5em;
+}
+
+.scraperCard {
   margin: 0.5em;
 }

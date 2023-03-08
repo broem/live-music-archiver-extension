@@ -178,15 +178,11 @@ async function deleteIGScrape(data) {
 async function downloadRecent(data) {
   let info = await getStorageInfo();
   let config = info['config'];
-  let userId = info['userId'];
-
-  if (data) {
-    userId = data.userId;
-  }
+  let mapId = data.mapID;
 
   try {
     let blob = await fetch(
-      'http://' + config['remote-address'] + '/api/myScrapes/' + userId,
+      'http://' + config['remote-address'] + '/api/myScrapes/' + mapId,
       {
         method: 'GET',
         mode: 'cors',
@@ -204,7 +200,7 @@ async function downloadRecent(data) {
     if (blob.status == 200) {
       return await blob.blob();
     } else {
-      console.log('bad status');
+      console.log('bad status' + blob.status);
       return null;
     }
   } catch (err) {
@@ -240,7 +236,7 @@ async function getCurrentScrapeEvents() {
       if (blob.status == 200) {
         return await blob.json();
       } else {
-        console.log('bad status');
+        console.log('bad status' + blob.status);
         return null;
       }
     } catch (err) {
@@ -300,13 +296,11 @@ async function deleteScrape(data) {
     )
       .then((blob) => blob.json())
       .then((resp) => {
-        console.log(resp);
       });
   });
 }
 
 async function getUser() {
-  console.log('Getting user');
   chrome.storage.session.get(
     ['userEmail', 'config', 'userId'],
     async function (result) {
@@ -317,9 +311,7 @@ async function getUser() {
         user_id: userId,
         email: userEmail,
       };
-      console.log(userEmail);
       var url = 'http://' + config['remote-address'] + '/api/user';
-      console.log(url);
       await fetch(url, {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
@@ -336,7 +328,6 @@ async function getUser() {
       })
         .then((blob) => blob.json())
         .then((resp) => {
-          console.log(resp);
           chrome.storage.session.set({
             user: JSON.stringify(resp),
           });
@@ -358,8 +349,6 @@ function getStorageInfo() {
     chrome.storage.session.get(
       ['config', 'userId', 'userEmail'],
       (response) => {
-        console.log('RESPONSE');
-        console.log(response);
         config = response['config'];
         userId = response['userId'];
         userEmail = response['userEmail'];
@@ -403,11 +392,9 @@ async function scrapeBuilderPost(data) {
 
     if (blob.status == 200) {
       const resp = await blob.json();
-      console.log('good to go');
-      console.log(resp);
       return resp;
     } else {
-      console.log('bad status');
+      console.log('bad status' + blob.status);
       return null;
     }
   } catch (err) {
@@ -439,11 +426,9 @@ async function adminUserMaps(data) {
 
     if (blob.status == 200) {
       const resp = await blob.json();
-      console.log('good to go');
-      console.log(resp);
       return resp;
     } else {
-      console.log('bad status');
+      console.log('bad status' + blob.status);
       return null;
     }
   } catch (err) {
@@ -499,7 +484,6 @@ async function adminGetUsers() {
   })
     .then((blob) => blob.json())
     .then((resp) => {
-      console.log(resp);
       // map the users to a list
       let users = resp.map((user) => {
         return {
@@ -507,14 +491,11 @@ async function adminGetUsers() {
         };
       });
 
-      console.log(users);
-
       return users;
     })
     .catch((err) => {
       console.log(err);
     });
-  // });
 }
 
 async function verified(data) {
@@ -564,16 +545,12 @@ async function getBuilder(data) {
 
     if (blob.status == 200) {
       const resp = await blob.json();
-      console.log('good to go');
-      console.log(resp);
       return resp;
     } else {
-      console.log('bad status');
+      console.log('bad status' + blob.status);
       return null;
     }
   } catch (err) {
-    // let verifyItem = null;
-    // chrome.storage.sync.set({ verifyItem });
     console.log(err);
     return null;
   }

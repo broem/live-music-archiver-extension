@@ -16,14 +16,11 @@ import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Button } from '@mui/material';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
-import * as constants from "../constants.js";
 import AdminDialog from './adminDialog.jsx';
 import { useEffect } from "react";
 import ScheduleDropdown from './scheduleDropdown.jsx';
@@ -183,7 +180,7 @@ function EnhancedTableToolbar(props) {
           id="tableTitle"
           component="div"
         >
-          User Mappers for {email}
+          Scrapers for {email}
         </Typography>
 
         <Tooltip title="Filter list">
@@ -270,11 +267,9 @@ export default function EnhancedTable(props) {
     setRows([...rows]);  
   }
 
-  const handleMenuClose = (event, label) => {
-    console.log('handleMenuClose');
-    console.log(label);
-    console.log(currentRow);
+  const handleMenuClose = (row, label) => {
     if(label) {
+      row.frequency = label;
       setRows([...rows]);
     }
     setAnchorEl(null);
@@ -288,6 +283,21 @@ export default function EnhancedTable(props) {
   const handleCloseDialog = () => {
     setCurrentRow(null);
     setOpenDialog(false);
+  }
+
+  const downloadRecent = (row) => {
+    scrape.downloadRecent(row).then( (res) => {
+      if(res) {
+        var blob = new Blob([res], { type: "text/csv" });
+        var resultURL = window.URL.createObjectURL(blob);
+        // create download link
+        var downloadLink = document.createElement("a");
+        downloadLink.href = resultURL;
+        downloadLink.download = "recent.csv";
+        // click download link
+        downloadLink.click();
+      }
+    });
   }
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -339,6 +349,7 @@ export default function EnhancedTable(props) {
                       <TableCell className='table-cell' align="right">{row.url}</TableCell>
                       <TableCell className='table-cell' align="right">
                         <ScheduleDropdown
+                          row={row}
                           scheduleText={row.frequency}
                           anchorEl={anchorEl}
                           open={open}
@@ -363,7 +374,7 @@ export default function EnhancedTable(props) {
                         </Button>
                       </TableCell>
                       <TableCell className='table-cell' align="right">
-                        <Button>
+                        <Button onClick={() => downloadRecent(row)}>
                           Download Recent
                         </Button>
                       </TableCell>

@@ -5,6 +5,14 @@ import * as constants from '../constants.js';
 
 // props: scheduleText, anchorEl, open, handleClick, handleClose
 const ScheduleDropdown = (props) => {
+    const [scheduleText, setScheduleText] = React.useState(props.scheduleText);
+
+    // handleClose
+    const handleClose = (value) => {
+        setScheduleText(value);
+        props.handleClose(props.row, value);
+    };
+
     return (
         <div className="dropdown">
         <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
@@ -25,7 +33,7 @@ const ScheduleDropdown = (props) => {
           }}
         >
           {constants.scheduleOptions && constants.scheduleOptions.map((item) => (
-            <MenuItem key={item.label} value={item.label} onClick={() => props.handleClose(item.label)} disableRipple>
+            <MenuItem key={item.label} value={item.label} onClick={() => handleClose(item.label)} disableRipple>
               {item.label}
             </MenuItem>
           ))}

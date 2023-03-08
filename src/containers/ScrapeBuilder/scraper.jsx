@@ -20,6 +20,8 @@ import * as constants from "../constants.js";
 import { useEffect } from "react";
 import ScrapersPage from "../Scrapers/scrapers";
 import AdminPage from "../Admin/admin";
+import ScheduleDropdown from "../Common/scheduleDropdown";
+import { alpha, styled } from '@mui/material/styles';
 
 let eventOptions = [
   {"label":"Event Area" ,"value":"event"},
@@ -48,11 +50,51 @@ const mainDisplayLoading = "Loading...";
 const mainDisplayVerifyError = "Unable to Verify";
 const mainDisplayScheduleError = "Schedule Error";
 
+const ScraperTextField = styled(TextField)(({ theme }) => ({
+  '& label.Mui-focused': {
+    color: 'white',
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: 'white',
+  },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: 'white',
+    },
+    '&:hover fieldset': {
+      borderColor: 'white',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: 'white',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: 'white',
+    '&.Mui-focused': {
+      color: 'white',
+    },
+  }, 
+  marginBottom: '1.5em',
+  input: {
+    color: 'white',
+  },
+  '& .MuiInput-underline:after': {
+    borderBottomColor: 'white',
+  },
+  '& .MuiInput-underline:before': {
+    borderBottomColor: 'white',
+  },
+  '& .MuiInput-underline:hover': {
+    borderBottomColor: 'white',
+  },
+}));
+
 const ScraperBuild = (props) => {
   // get onShow and isActive from props
   const { onShow, isActive, currentEvent } = props;
 
   // pull event options from props
+  // const [currentEvent, setCurrentEvent] = React.useState(props.currentEvent);
   const [event, setEvent] = React.useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [evtAnchorEl, setEvtAnchorEl] = React.useState(null);
@@ -70,6 +112,7 @@ const ScraperBuild = (props) => {
   const [mainDisplayText, setMainDisplay] = React.useState(mainDisplayDefault);
   const [scrapedText, setScrapedText] = React.useState();
   const [showAdditionalEl, setShowAdditional] = React.useState();
+  const [facebookURL, setFacebookURL] = React.useState("");
   const [cbsa, setCbsa] = React.useState("");
   const [countyFips, setCountyFips] = React.useState("");
   const [stateFips, setStateFips] = React.useState("");
@@ -86,46 +129,6 @@ const ScraperBuild = (props) => {
   const addBtnDisabled = Boolean(addBtn);
   const clearBtnDisabled = Boolean(clearBtn);
   const showAdditional = Boolean(showAdditionalEl);
-
-  // set event on load if props.event is not null
-  onload = () => {
-    // if there is an event, set the event options
-    if (currentEvent !== null) {
-      console.log(currentEvent);
-      setSchedule(currentEvent.frequency);
-      setName(currentEvent.name);
-
-      // send message to background to open a new tab to the event url
-      chrome.runtime.sendMessage({message: "openTab", url: currentEvent.url});
-
-      // grab the builder from the backend
-      scrape.getBuilder(currentEvent.mapId).then((data) => {
-        console.log(data);
-        setMainDisplay(mainDisplayDefault);
-
-        // set the selected event list, go through each property and add it to the list
-        let eventList = [];
-        for (let property in data) {
-          if (data.hasOwnProperty(property)) {
-            eventList.push({
-              label: property, 
-              value: data[property]});
-          }
-        }
-        setEventList(eventList);
-      });
-
-
-    } else {
-      console.log("No event");
-    }
-
-    if (props.event !== null) {
-      console.log("Setting event");
-      console.log(props.event);
-      setEvent(props.event);
-    }
-  }
 
   useEffect(() => {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -172,61 +175,62 @@ const ScraperBuild = (props) => {
   // useEffect to set the event
   useEffect(() => {
       if(currentEvent !== null) {
-      setSchedule(currentEvent.frequency);
-      setName(currentEvent.name);
+        console.log("Setting my cool event");
+        setSchedule(currentEvent.frequency);
+        setName(currentEvent.name);
 
-      // send message to background to open a new tab to the event url
-      chrome.runtime.sendMessage({msg: "openTab", url: currentEvent.url}).then((response) => {
-        // resize the window
-        window.resizeTo(628, 628);
-            // grab the builder from the backend
-          scrape.getBuilder(currentEvent.mapID).then((data) => {
-            setMainDisplay(mainDisplayDefault);
+        // send message to background to open a new tab to the event url
+        chrome.runtime.sendMessage({msg: "openTab", url: currentEvent.url}).then((response) => {
+          // resize the window
+          window.resizeTo(628, 628);
+              // grab the builder from the backend
+            scrape.getBuilder(currentEvent.mapID).then((data) => {
+              setMainDisplay(mainDisplayDefault);
 
-            setCbsa(data.cbsa);
-            setCountyFips(data.countyFips);
-            setStateFips(data.stateFips);
-            setLongitude(data.longitude);
-            setLatitude(data.latitude);
+              setCbsa(data.cbsa);
+              setCountyFips(data.countyFips);
+              setStateFips(data.stateFips);
+              setLongitude(data.longitude);
+              setLatitude(data.latitude);
 
-            // set the selected event list, go through each property and add it to the list
-            let eventList = [];
-            for (let property in data) {
-              if (data.hasOwnProperty(property)) {
-                console.log(property);
-                console.log(data[property]);
-                // if there is a filled label, add it to the list
-                if(data[property].label && data[property].label !== "") {
-                  eventList.push({
-                    key: data[property].value,
-                    label: data[property].label, 
-                    value: data[property].value, 
-                    selectable: data[property],
-                    val: data[property]
-                  });
-                  // filter eventoptions to remove any that are not in the event list
-                  eventOptions = eventOptions.filter(x => x.label !== data[property].label)
-                }
-
-                // sort the event list so label === Event Area is first. this will make it easier. 
-                eventList.sort(function(a, b) {
-                  if(a.label === "Event Area") {
-                    return -1;
-                  } else {
-                    return 1;
+              // set the selected event list, go through each property and add it to the list
+              let eventList = [];
+              for (let property in data) {
+                if (data.hasOwnProperty(property)) {
+                  console.log(property);
+                  console.log(data[property]);
+                  // if there is a filled label, add it to the list
+                  if(data[property].label && data[property].label !== "") {
+                    eventList.push({
+                      key: data[property].value,
+                      label: data[property].label, 
+                      value: data[property].value, 
+                      selectable: data[property],
+                      val: data[property]
+                    });
+                    // filter eventoptions to remove any that are not in the event list
+                    eventOptions = eventOptions.filter(x => x.label !== data[property].label)
                   }
-                });
+
+                  // sort the event list so label === Event Area is first. this will make it easier. 
+                  eventList.sort(function(a, b) {
+                    if(a.label === "Event Area") {
+                      return -1;
+                    } else {
+                      return 1;
+                    }
+                  });
+                }
               }
-            }
-            // wait for 1 second to send the event list to the background
-            setTimeout(function() {
-              console.log("sending event list");
-              // send event list to background to highlight the elements
-              chrome.runtime.sendMessage({msg: "highlightElements", data: eventList})
-            }, 1000);
-            setEventList(eventList);
+              // wait for 1 second to send the event list to the background
+              setTimeout(function() {
+                console.log("sending event list");
+                // send event list to background to highlight the elements
+                chrome.runtime.sendMessage({msg: "highlightElements", data: eventList})
+              }, 1000);
+              setEventList(eventList);
+            });
           });
-        });
     }
   }, [currentEvent]);
 
@@ -257,7 +261,7 @@ const ScraperBuild = (props) => {
     setShowAdditional(false);
   };
 
-  const handleClose = (label) => {
+  const handleClose = (row, label) => {
     if(label) {
       setSchedule(label);
     }
@@ -367,6 +371,7 @@ const ScraperBuild = (props) => {
 
     setShowAdditional(false);
     let metaData = {
+      venueFacebookURL: facebookURL,
       frequency: scheduleText,
       cbsa: cbsa,
       stateFips: stateFips,
@@ -415,26 +420,18 @@ const ScraperBuild = (props) => {
 
     // remove all the selectedEventList
     setEventList([]);
+    setFacebookURL("");
     setName("");
+    setLatitude("");
+    setLongitude("");
+    setCountyFips("");
+    setStateFips("");
+    setCbsa("");
+
 
     // reset the schedule
-    setSchedule("Schedule");
+    handleClose("Schedule");
 
-  }
-
-  const downloadRecent = () => {
-    scrape.downloadRecent().then( (res) => {
-      if(res) {
-        var blob = new Blob([res], { type: "text/csv" });
-        var resultURL = window.URL.createObjectURL(blob);
-        // create download link
-        var downloadLink = document.createElement("a");
-        downloadLink.href = resultURL;
-        downloadLink.download = "recent.csv";
-        // click download link
-        downloadLink.click();
-      }
-    });
   }
 
   const getScrapeBuilderData = async (combined) => {
@@ -463,7 +460,7 @@ const ScraperBuild = (props) => {
       <div className="container" id="mainContainer">
           <div className="row">
             <div className="col-6 scrape-schedule">
-            <TextField 
+            <ScraperTextField
               id="standard-basic" 
               label="Scraper Name" 
               variant="standard"
@@ -475,29 +472,13 @@ const ScraperBuild = (props) => {
           <div className="row">
             <div className="col-4 scrape-schedule">
                 <div className="dropdown">
-                  <button className="btn btn-secondary dropdown-toggle drp-button-size" type="button"
-                      aria-controls={open ? 'basic-menu' : undefined}
-                      aria-haspopup="true"
-                      aria-expanded={open ? 'true' : undefined}
-                      onClick={handleClick}
-                      id="basic-button">
-                        {scheduleText}
-                  </button>
-                  <Menu
-                    id="basic-menu"
+                  <ScheduleDropdown
+                    scheduleText={scheduleText}
                     anchorEl={anchorEl}
                     open={open}
-                    onClose={() => handleClose(undefined)}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                    }}
-                  >
-                    {constants.scheduleOptions && constants.scheduleOptions.map((item) => (
-                      <MenuItem key={item.label} value={item.label} onClick={() => handleClose(item.label)} disableRipple>
-                        {item.label}
-                      </MenuItem>
-                    ))}
-                  </Menu>
+                    handleClick={handleClick}
+                    handleClose={handleClose}
+                  />
                 </div>
             </div>
             <div className="col-4 scrape-schedule">
@@ -543,7 +524,15 @@ const ScraperBuild = (props) => {
                       <div id="mainDisplay scrape-preview">
                         {scrapedText}
                         <FormControl sx={{ input: {color: 'white'} }}>
-                          {showAdditional && <TextField 
+                        {showAdditional && <ScraperTextField 
+                                                id="standard-basic" 
+                                                label="Facebook URL" 
+                                                variant="standard"
+                                                value={facebookURL}
+                                                onChange={(event) => {
+                                                  setFacebookURL(event.target.value);
+                                                }} />}
+                          {showAdditional && <ScraperTextField 
                                                 id="standard-basic" 
                                                 label="CBSA" 
                                                 variant="standard"
@@ -551,7 +540,7 @@ const ScraperBuild = (props) => {
                                                 onChange={(event) => {
                                                   setCbsa(event.target.value);
                                                 }} />}
-                          {showAdditional && <TextField 
+                          {showAdditional && <ScraperTextField 
                                                 id="standard-basic" 
                                                 label="County FIPS" 
                                                 variant="standard"
@@ -559,7 +548,7 @@ const ScraperBuild = (props) => {
                                                 onChange={(event) => {
                                                   setCountyFips(event.target.value);
                                                 }} />}
-                          {showAdditional && <TextField 
+                          {showAdditional && <ScraperTextField 
                                                 id="standard-basic" 
                                                 label="State FIPS" 
                                                 variant="standard"
@@ -567,7 +556,7 @@ const ScraperBuild = (props) => {
                                                 onChange={(event) => {
                                                   setStateFips(event.target.value);
                                                 }} />}
-                          {showAdditional && <TextField 
+                          {showAdditional && <ScraperTextField 
                                                 id="standard-basic" 
                                                 label="Latitude" 
                                                 variant="standard"
@@ -575,7 +564,7 @@ const ScraperBuild = (props) => {
                                                 onChange={(event) => {
                                                   setLatitude(event.target.value);
                                                 }} />}
-                          {showAdditional && <TextField 
+                          {showAdditional && <ScraperTextField 
                                                 id="standard-basic" 
                                                 label="Longitude" 
                                                 variant="standard"
@@ -608,9 +597,6 @@ const ScraperBuild = (props) => {
               </button>
               </div>
               <div className="col-4 scrape-select">
-              <button id="downloadRecent" type="button" className="btn btn-primary btn-warning nav-button reg-button-size" onClick={() => downloadRecent()}>
-                Download Recent
-              </button>
               </div>
               <div className="col-4 scrape-select">
               <button id="repopulateBtn" type="button" className="btn btn-primary btn-warning nav-button reg-button-size" onClick={() => temp()}>
@@ -682,236 +668,17 @@ const Scraper = (props) => {
     setActiveIndex(0);
   }
 
-//  scrapersClick(e) {
-//     console.log("scrapersClick");
-//     if (!document.getElementById("scrapers").classNameList.contains("active")) {
-//         e.preventDefault();
-//         document.getElementById("scrapers").classNameList.add("active");
-//         sb.classNameList.remove("active");
-//         orginalSb = document.getElementById("mainContainer");
-//         var tempSb = document.getElementById("mainContainer");
-//         tempSb.remove();
-    
-//         var scrapersPage = document.createElement("DIV");
-//         scrapersPage.id = "scrapersPage";
-    
-//         scrapersPage.innerHTML = `<div className="container"> 
-//         <div className="card" style="width: 18rem;">
-//          <div className="card-header">
-//           My Event Scrapers
-//             </div>
-//             <ul className="list-group list-group-flush">
-//             </ul>
-//           </div>
-//         </div>`;
-    
-//         document.body.appendChild(scrapersPage);
-    
-//         // find list-group-flush
-//         var listGroup = document.querySelector(".list-group-flush");
-    
-//         // grab scrapeEvents from local session storage
-//         chrome.storage.session.get("scrapeEvents", function (result) {
-//           var scrapeEvents = result.scrapeEvents;
-//           var hadItem = false;
-    
-//           if (scrapeEvents) {
-//             // loop through scrapeEvents
-//             for (var i = 0; i < scrapeEvents.length; i++) {
-//               hadItem = true;
-//               // create list item
-//               var listItems = document.createElement("LI");
-//               listItems.classNameList.add("list-group-item");
-//               // make freuency dropdown menu
-//               var frequencyDropdown = document.createElement("SELECT");
-//               frequencyDropdown.classNameList.add("form-select");
-//               frequencyDropdown.classNameList.add("frequencyDropdown");
-//               // make option for once
-//               var once = document.createElement("OPTION");
-//               once.value = "once";
-//               once.textContent = "Just Once";
-//               // make option for every day
-//               var everyDayOption = document.createElement("OPTION");
-//               everyDayOption.value = "Every Day";
-//               everyDayOption.textContent = "Every Day";
-//               // make option for every other day
-//               var everyOtherDayOption = document.createElement("OPTION");
-//               everyOtherDayOption.value = "Every Other Day";
-//               everyOtherDayOption.textContent = "Every Other Day";
-//               // make option for every week
-//               var everyWeekOption = document.createElement("OPTION");
-//               everyWeekOption.value = "Every Week";
-//               everyWeekOption.textContent = "Every Week";
-//               // make option for every other week
-//               var everyOtherWeekOption = document.createElement("OPTION");
-//               everyOtherWeekOption.value = "Every Other Week";
-//               everyOtherWeekOption.textContent = "Every Other Week";
-//               // make option for every month
-//               var everyMonthOption = document.createElement("OPTION");
-//               everyMonthOption.value = "Every Month";
-//               everyMonthOption.textContent = "Every Month";
-//               // append options to dropdown
-//               frequencyDropdown.appendChild(once);
-//               frequencyDropdown.appendChild(everyDayOption);
-//               frequencyDropdown.appendChild(everyOtherDayOption);
-//               frequencyDropdown.appendChild(everyWeekOption);
-//               frequencyDropdown.appendChild(everyOtherWeekOption);
-//               frequencyDropdown.appendChild(everyMonthOption);
-    
-//               // create unique id for each dropdown
-//               frequencyDropdown.id = "frequencyDropdown" + i;
-    
-//               // set frequency dropdown to correct value
-//               if (scrapeEvents[i].frequency === "Every Day") {
-//                 frequencyDropdown.value = "Every Day";
-//               } else if (scrapeEvents[i].frequency === "Every Other Day") {
-//                 frequencyDropdown.value = "Every Other Day";
-//               } else if (scrapeEvents[i].frequency === "Every Week") {
-//                 frequencyDropdown.value = "Every Week";
-//               } else if (scrapeEvents[i].frequency === "Every Other Week") {
-//                 frequencyDropdown.value = "Every Other Week";
-//               } else if (scrapeEvents[i].frequency === "Every Month") {
-//                 frequencyDropdown.value = "Every Month";
-//               }
-    
-//               // make deep copy of scrapeEvent
-//               var scrapeEventCopy = JSON.parse(JSON.stringify(scrapeEvents[i]));
-//               // console.log(scrapeEventCopy);
-//               frequencyDropdown.scrapeEvent = scrapeEventCopy;
-    
-//               // add event listener to frequency dropdown
-//               frequencyDropdown.addEventListener("change", function (event) {
-//                 console.log("frequencyDropdown change event");
-//                 console.log(event);
-//                 console.log(event.target.scrapeEvent);
-//                 // get value of dropdown
-//                 var frequency = event.target.value;
-    
-//                 // update scrapeEvent
-//                 event.target.scrapeEvent.frequency = frequency;
-//                 console.log(event.target.scrapeEvent);
-//                 event.preventDefault();
-    
-//                 // update through scrape-fetch.js
-//                 chrome.runtime.sendMessage({
-//                   msg: "updateScrape",
-//                   data: event.target.scrapeEvent,
-//                 });
-//               });
-    
-//               listItems.innerHTML =
-//                 "<div><b>URL:</b> " +
-//                 scrapeEvents[i].url +
-//                 "</div>" +
-//                 '<div><b className="freq' +
-//                 i +
-//                 '"">Frequency:</b> ' +
-//                 "</div>" +
-//                 '<div><b className="enabledDisplay' +
-//                 [i] +
-//                 '">Enabled: ' +
-//                 scrapeEvents[i].enabled +
-//                 "</b> " +
-//                 "</div>";
-    
-//               // add frequency dropdown to className=freq+i
-//               listItems.querySelector(".freq" + i).appendChild(frequencyDropdown);
-    
-//               // add button to list item
-//               var button = document.createElement("BUTTON");
-//               button.classNameList.add("btn", "btn-primary");
-    
-//               // add unique id to button
-//               button.id = "button" + i;
-//               // text for button enabled or disabled
-//               var buttonText = "";
-//               if (scrapeEvents[i].enabled == true) {
-//                 button.style.backgroundColor = "red";
-//                 buttonText = "Disable";
-//               } else {
-//                 button.style.backgroundColor = "blue";
-//                 buttonText = "Enable";
-//               }
-//               button.textContent = buttonText;
-    
-//               // add scrapeEvent to button
-//               button.scrapeEvent = scrapeEventCopy;
-//               button.specialID = i;
-    
-//               button.addEventListener("click", function (event) {
-//                 console.log(event);
-//                 event.target.scrapeEvent.enabled =
-//                   !event.target.scrapeEvent.enabled;
-    
-//                 // find enabledDisplay
-//                 var enabledDisplay = document.querySelector(
-//                   ".enabledDisplay" + event.target.specialID
-//                 );
-//                 // change button text
-//                 if (button.textContent === "Enable") {
-//                   enabledDisplay.textContent = "Enabled: true";
-//                   event.target.style.backgroundColor = "red";
-//                   event.target.textContent = "Disable";
-//                 } else {
-//                   enabledDisplay.textContent = "Enabled: false";
-//                   event.target.style.backgroundColor = "blue";
-//                   event.target.textContent = "Enable";
-//                 }
-//                 event.preventDefault();
-    
-//                 // update through scrape-fetch.js
-//                 chrome.runtime.sendMessage({
-//                   msg: "updateScrape",
-//                   data: event.target.scrapeEvent,
-//                 });
-//               });
-//               // add button to list item
-//               listItems.appendChild(button);
-    
-//               // make delete button
-//               var deleteButton = document.createElement("BUTTON");
-//               deleteButton.classNameList.add("btn", "btn-danger");
-//               deleteButton.textContent = "Delete";
-//               deleteButton.scrapeEvent = scrapeEvents[i];
-    
-//               deleteButton.addEventListener("click", function (event) {
-//                 // delete scrapeEvent
-//                 chrome.runtime.sendMessage({
-//                   msg: "deleteScrape",
-//                   data: event.target.scrapeEvent,
-//                 });
-//                 // remove list item
-//                 event.target.parentElement.remove();
-//                 event.preventDefault();
-//               });
-    
-//               // add delete button to list item
-//               listItems.appendChild(deleteButton);
-//               listGroup.appendChild(listItems);
-//             }
-//           }
-    
-//           if (hadItem == false) {
-//             var listItems = document.createElement("LI");
-//             listItems.classNameList.add("list-group-item");
-//             listItems.textContent = "No items";
-//             listGroup.appendChild(listItems);
-//           }
-//         });
-//       }
-// }
+  const setAdminActive = () => {
+    setActiveIndex(2);
+    // set window to full height and width
+    window.resizeTo(screen.availWidth, screen.availHeight);
+  }
 
-    const setAdminActive = () => {
-      setActiveIndex(2);
-      // set window to full height and width
-      window.resizeTo(screen.availWidth, screen.availHeight);
-    }
-
-    const setNonAdminActive = (index) => {
-      setActiveIndex(index);
-      // set window to default size
-      window.resizeTo(628, 628);
-    }
+  const setNonAdminActive = (index) => {
+    setActiveIndex(index);
+    // set window to default size
+    window.resizeTo(628, 628);
+  }
 
 
     return (
@@ -941,6 +708,7 @@ const Scraper = (props) => {
             />
             <ScrapersPage
               isActive={activeIndex === 1}
+              setEvent={setMyEvent}
             />
             <AdminPage
               isActive={activeIndex === 2}

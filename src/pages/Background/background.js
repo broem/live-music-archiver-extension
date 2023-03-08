@@ -223,30 +223,6 @@ chrome.runtime.onMessage.addListener(async function (
     // delete scrape
     await scrape.deleteIGScrape(request.data);
   }
-  
-  // downloadRecent handler
-  if (request.msg === 'Download recent') {
-    // download recent
-    await scrape.downloadRecent().then((recent) => {});
-  }
-
-  // downloadIGRecent handler
-  if (request.msg === 'downloadIGRecent') {
-    // download recent
-    await scrape.downloadIGRecent().then((recent) => {});
-  }
-
-  // updateScrape handler
-  if (request.msg === 'updateScrape') {
-    // update scrape
-    await scrape.updateScrape(request.data);
-  }
-
-  // deleteScrape handler
-  if (request.msg === 'deleteScrape') {
-    // delete scrape
-    await scrape.deleteScrape(request.data);
-  }
 
   if (request.msg === 'Bring back scrape builder') {
     chrome.tabs.query({}, async function (tabs) {
