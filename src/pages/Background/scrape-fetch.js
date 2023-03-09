@@ -1,5 +1,30 @@
 let currRaw = null;
 
+async function eventOptions() {
+  let info = await getStorageInfo();
+  var config = info['config'];
+  var url = `http://${config['remote-address']}/api/eventOptions`;
+
+  try {
+    let blob = await fetch(url, {
+      method: 'GET', // *GET, POST, PUT, DELETE, etc.
+    mode: 'cors', // no-cors, *cors, same-origin
+    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: 'same-origin', // include, *same-origin, omit
+    redirect: 'follow', // manual, *follow, error
+    referrerPolicy: 'no-referrer',
+  });
+
+    if (blob.status === 200) {
+      return await blob.json();
+    } else {
+      return null;
+    }
+  } catch (err) {
+    console.log(err); 
+  }
+}
+
 async function saveIGProfile(igMapper) {
   let info = await getStorageInfo();
   let config = info['config'];
@@ -369,10 +394,9 @@ function getStorageInfo() {
 
 async function scrapeBuilderPost(data) {
   // get the current userId from storage
+  console.log(data);
   let info = await getStorageInfo();
   let config = info['config'];
-  data.userId = info['userId'];
-  data.userEmail = info['userEmail'];
 
   try {
     const blob = await fetch(
@@ -560,6 +584,7 @@ async function getBuilder(data) {
 }
 
 export {
+  eventOptions,
   saveIGProfile,
   downloadRecent,
   scrapeBuilderPost,

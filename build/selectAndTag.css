@@ -262,3 +262,8 @@
 .scraperCard {
   margin-bottom: 0.5em;
 }
+
+.lightHightLight {
+  fill: rgb(236, 231, 212); 
+  fill-opacity: 0.77;
+}

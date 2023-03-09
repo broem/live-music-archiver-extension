@@ -108,8 +108,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 chrome.runtime.onInstalled.addListener(() => {});
 
-chrome.contextMenus.onClicked.addListener(bringBackPopContextExe);
-
 function substringSearch(pattern, text) {
   if (pattern.length == 0) {
     return 0; // Immediate match

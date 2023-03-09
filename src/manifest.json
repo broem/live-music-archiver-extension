@@ -10,7 +10,7 @@
       "css": ["selectAndTag.css"]
     }
   ],
-  "permissions": ["downloads", "storage", "scripting", "activeTab", "contextMenus", "tabs", "identity", "identity.email"],
+  "permissions": ["downloads", "storage", "scripting", "activeTab", "tabs", "identity", "identity.email"],
   "host_permissions": ["*://*/*"],
   "action": {
     "default_icon": {

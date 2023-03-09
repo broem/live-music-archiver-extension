@@ -12,9 +12,21 @@ const Home = () => {
   let downloadRecent = useRef();
   let futureUse2 = useRef();
   let futureUse3 = useRef();
+  let futureButton = useRef();
+  let futureButtonBlue = useRef();
+  let futureButtonInner = useRef();
+  let knob1Button1 = useRef();
+  let knob1Button2 = useRef();
+  let knob1Button3 = useRef();
   let leftButton = useRef();
   let leftButtonBlue = useRef();
   let leftButtonInner = useRef();
+  let removeButton = useRef();
+  let removeButtonBlue = useRef();
+  let removeButtonInner = useRef();
+  let rightButton = useRef();
+  let rightButtonBlue = useRef();
+  let rightButtonInner = useRef();
   let radioLight = useRef();
   let radioLight1 = useRef();
   let radioLight2 = useRef();
@@ -30,6 +42,9 @@ const Home = () => {
   let scrapeBuilder = useRef();
   let scrapeInstagram = useRef();
   let selectAllTaggedElements = useRef();
+  let selectAllButton = useRef();
+  let selectAllButtonBlue = useRef();
+  let selectAllButtonInner = useRef();
   let selectButton = useRef();
   let selectButtonBlue = useRef();
   let selectButtonInner = useRef();
@@ -38,31 +53,43 @@ const Home = () => {
 
   var textIsClicked = false;
 
-  function mouseEnter(e) {
+  function selectButtonMouseEnter(e) {
     selectButton.current.style = "fill:rgba(23, 218, 234, 1)";
     selectButtonBlue.current.style = "fill:rgba(23, 218, 234, 1)";
     selectButtonInner.current.style= "fill:rgb(252, 249, 154)";
-
-    if (e.target.id === "selectButton") {
-      buttonHoverText.current.textContent = "Scrape Builder";
-    }
-    if (e.target.id === "knob1Button3") {
-      buttonHoverText.current.textContent = "Scrape Instagram";
-    }
+    buttonHoverText.current.textContent = "Scrape Builder";
 
     radioLightOn();
   }
 
-  function mouseLeave(e) {
+  function selectButtonMouseLeave(e) {
     selectButton.current.style = "fill:rgb(58, 71, 71)";
     selectButtonBlue.current.style ="fill:rgb(91, 170, 179)";
     selectButtonInner.current.style = "fill:rgb(45, 54, 54)";
-
     buttonHoverText.current.textContent = "";
+
     radioLightOff();
   }
 
-  function futureMouseEnter(e) {
+  function instaButtonMouseEnter(e) {
+    knob1Button3.current.style = "fill:rgba(23, 218, 234, 1)";
+    knob1Button2.current.style = "fill:rgba(23, 218, 234, 1)";
+    knob1Button1.current.style = "fill:rgb(252, 249, 154)";
+    buttonHoverText.current.textContent = "Scrape Instagram";
+
+    radioLightOn();
+  }
+
+  function instaButtonMouseLeave(e) {
+    knob1Button3.current.style = "fill:rgb(58, 71, 71)";
+    knob1Button2.current.style = "fill:rgb(91, 170, 179)";
+    knob1Button1.current.style = "fill:rgb(45, 54, 54)";
+    buttonHoverText.current.textContent = "";
+
+    radioLightOff();
+  }
+
+  function leftButtonMouseEnter(e) {
     leftButton.current.style = "fill:rgb(102, 252, 76)";
     leftButtonBlue.current.style = "fill:rgb(102, 252, 76)";
     leftButtonInner.current.style = "fill:rgb(252, 249, 154)";
@@ -71,10 +98,100 @@ const Home = () => {
     radioLightOn();
   }
 
-  function futureMouseLeave(e) {
+  function leftButtonMouseLeave(e) {
     leftButton.current.style = "fill:rgb(45, 54, 54)";
     leftButtonBlue.current.style = "fill:rgb(91, 170, 179)";
     leftButtonInner.current.style = "fill:rgb(45, 54, 54)";
+    buttonHoverText.current.textContent = "";
+
+    radioLightOff();
+  }
+
+  function rightButtonMouseEnter(e) {
+    rightButton.current.style = "fill:rgb(102, 252, 76)";
+    rightButtonBlue.current.style = "fill:rgb(102, 252, 76)";
+    rightButtonInner.current.style = "fill:rgb(252, 249, 154)";
+    buttonHoverText.current.textContent = "Future Use";
+
+    radioLightOn();
+  }
+
+  function rightButtonMouseLeave(e) {
+    rightButton.current.style = "fill:rgb(45, 54, 54)";
+    rightButtonBlue.current.style = "fill:rgb(91, 170, 179)";
+    rightButtonInner.current.style = "fill:rgb(45, 54, 54)";
+    buttonHoverText.current.textContent = "";
+
+    radioLightOff();
+  }
+
+  function selectAllButtonMouseEnter(e) {
+    selectAllButton.current.style = "fill:rgb(102, 252, 76)";
+    selectAllButtonBlue.current.style = "fill:rgb(102, 252, 76)";
+    selectAllButtonInner.current.style = "fill:rgb(252, 249, 154)";
+    buttonHoverText.current.textContent = "Future Use";
+
+    radioLightOn();
+  }
+
+  function selectAllButtonMouseLeave(e) {
+    selectAllButton.current.style = "fill:rgb(45, 54, 54)";
+    selectAllButtonBlue.current.style = "fill:rgb(91, 170, 179)";
+    selectAllButtonInner.current.style = "fill:rgb(45, 54, 54)";
+    buttonHoverText.current.textContent = "";
+
+    radioLightOff();
+  }
+
+  function collectButtonMouseEnter(e) {
+    collectButton.current.style = "fill:rgb(102, 252, 76)";
+    collectButtonBlue.current.style = "fill:rgb(102, 252, 76)";
+    collectButtonInner.current.style = "fill:rgb(252, 249, 154)";
+    buttonHoverText.current.textContent = "Future Use";
+
+    radioLightOn();
+  }
+
+  function collectButtonMouseLeave(e) {
+    collectButton.current.style = "fill:rgb(45, 54, 54)";
+    collectButtonBlue.current.style = "fill:rgb(91, 170, 179)";
+    collectButtonInner.current.style = "fill:rgb(45, 54, 54)";
+    buttonHoverText.current.textContent = "";
+
+    radioLightOff();
+  }
+
+  function removeButtonMouseEnter(e) {
+    removeButton.current.style = "fill:rgb(102, 252, 76)";
+    removeButtonBlue.current.style = "fill:rgb(102, 252, 76)";
+    removeButtonInner.current.style = "fill:rgb(252, 249, 154)";
+    buttonHoverText.current.textContent = "Future Use";
+
+    radioLightOn();
+  }
+
+  function removeButtonMouseLeave(e) {
+    removeButton.current.style = "fill:rgb(45, 54, 54)";
+    removeButtonBlue.current.style = "fill:rgb(91, 170, 179)";
+    removeButtonInner.current.style = "fill:rgb(45, 54, 54)";
+    buttonHoverText.current.textContent = "";
+
+    radioLightOff();
+  }
+
+  function futureButtonMouseEnter(e) {
+    futureButton.current.style = "fill:rgb(102, 252, 76)";
+    futureButtonBlue.current.style = "fill:rgb(102, 252, 76)";
+    futureButtonInner.current.style = "fill:rgb(252, 249, 154)";
+    buttonHoverText.current.textContent = "Future Use";
+
+    radioLightOn();
+  }
+
+  function futureButtonMouseLeave(e) {
+    futureButton.current.style = "fill:rgb(45, 54, 54)";
+    futureButtonBlue.current.style = "fill:rgb(91, 170, 179)";
+    futureButtonInner.current.style = "fill:rgb(45, 54, 54)";
     buttonHoverText.current.textContent = "";
 
     radioLightOff();
@@ -91,22 +208,12 @@ const Home = () => {
   }
 
   function scrapeInstagramClick(e) {
-    console.log("scrape instagram click");
-
-    // display the instagram scrape builder
-     // prevent full page reload
      e.preventDefault();
-     // update url
      window.history.pushState({}, "", "/instagram");
  
      // communicate to Routes that URL has changed
      const navEvent = new PopStateEvent('popstate');
      window.dispatchEvent(navEvent);
-
-
-    // chrome.runtime.sendMessage({
-    //   msg: "Scrape instagram",
-    // });
   }
   
   document.addEventListener("DOMContentLoaded", function () {
@@ -312,10 +419,10 @@ const Home = () => {
               </g>
               <rect x="505.366" y="345.357" width="6.519" height="189.337" style={{fill: "rgb(141, 43, 100)"}} />
               <rect x="875.851" y="345.357" width="7.615" height="192.88" style={{fill: "rgb(141, 43, 100)"}} />
-              <g transform="matrix(2.1544,0,0,0.74191,-1056.69,92.9092)">
+              <g transform="matrix(2.1544,0,0,0.74191,-1056.69,92.9092)" style={{fill: "rgb(236, 231, 212); fill-opacity: 0.77"}}>
                 <path
-                  d="M909.638,367.783C909.638,363.48 908.435,359.987 906.953,359.987L785.179,359.987C783.697,359.987 782.494,363.48 782.494,367.783L782.494,383.375C782.494,387.678 783.697,391.171 785.179,391.171L906.953,391.171C908.435,391.171 909.638,387.678 909.638,383.375L909.638,367.783Z"
-                  style={{fill: "rgb(236, 231, 212); fill-opacity: 0.77"}} />
+                  className="lightHighLight"
+                  d="M909.638,367.783C909.638,363.48 908.435,359.987 906.953,359.987L785.179,359.987C783.697,359.987 782.494,363.48 782.494,367.783L782.494,383.375C782.494,387.678 783.697,391.171 785.179,391.171L906.953,391.171C908.435,391.171 909.638,387.678 909.638,383.375L909.638,367.783Z"/>
               </g>
               <g transform="matrix(1.6197,0,0,0.425811,-592.584,237.063)">
                 <path
@@ -337,7 +444,7 @@ const Home = () => {
               <g transform="matrix(1.06952,0,0,1.422,-34.8868,-99.5121)">
                 <rect x="263.159" y="114.068" width="1007.88" height="93.421" style={{fill: "rgb(234, 201, 57)"}} />
               </g>
-              <a href="#" ref={radioLight} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="radioLight">
+              <a href="#" ref={radioLight} id="radioLight">
                 <g transform="matrix(1.21529,0,0,1.89034,-63.0527,-189.799)">
                   <path ref={radioLightOuter3} id="radioLightOuter3"
                     d="M1124.76,153.015C1124.76,144.275 1113.72,137.179 1100.12,137.179L295.126,137.179C281.531,137.179 270.494,144.275 270.494,153.015L270.494,184.687C270.494,193.427 281.531,200.523 295.126,200.523L1100.12,200.523C1113.72,200.523 1124.76,193.427 1124.76,184.687L1124.76,153.015Z"
@@ -550,19 +657,19 @@ const Home = () => {
               <g transform="matrix(1.23054,0,0,1.26874,-99.923,-80.8446)">
                 <rect x="435.06" y="240.815" width="421.131" height="59.49" style={{fill: "rgb(45, 54, 54)"}} />
               </g>
-              <a href="#" ref={scrapeInstagram} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave} onClick={scrapeInstagramClick} id="scrapeInstagram">
+              <a href="#" ref={scrapeInstagram} onMouseEnter={instaButtonMouseEnter} onMouseLeave={instaButtonMouseLeave} onClick={scrapeInstagramClick} id="scrapeInstagram">
                 <g transform="matrix(0.742699,0,0,0.742699,446.645,146.449)">
-                  <ellipse id="knob1Button3" cx="136.61" cy="156.157" rx="61.573" ry="60.299"
+                  <ellipse ref={knob1Button3} id="knob1Button3" cx="136.61" cy="156.157" rx="61.573" ry="60.299"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
                 <g transform="matrix(1.07685,0,0,1.07685,389.284,102.162)">
-                  <circle id="knob1Button2" cx="147.486" cy="149.283" r="37.397" style={{fill: "rgb(91, 170, 179)"}} />
+                  <circle ref={knob1Button2} id="knob1Button2" cx="147.486" cy="149.283" r="37.397" style={{fill: "rgb(91, 170, 179)"}} />
                 </g>
                 <g transform="matrix(0.880836,0,0,0.880836,415.045,124.743)">
-                  <circle id="knob1Button1" cx="151.061" cy="157.098" r="40.039" style={{fill: "rgb(45, 54, 54)"}} />
+                  <circle ref={knob1Button1} id="knob1Button1" cx="151.061" cy="157.098" r="40.039" style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
               </a>
-              <a href="#" ref={futureUse3} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="futureUse3">
+              <a href="#" ref={futureUse3} id="futureUse3">
                 <g transform="matrix(0.742699,0,0,0.742699,593.084,146.449)">
                   <ellipse id="knob2Button3" cx="136.61" cy="156.157" rx="61.573" ry="60.299"
                     style={{fill: "rgb(45, 54, 54)"}} />
@@ -574,7 +681,7 @@ const Home = () => {
                   <circle id="knob2Button1" cx="151.061" cy="157.098" r="40.039" style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
               </a>
-              <a href="#" ref={futureUse2} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="futureUse2">
+              <a href="#" ref={futureUse2} id="futureUse2">
                 <g transform="matrix(0.742699,0,0,0.742699,746.774,146.449)">
                   <ellipse id="knob3Button3" cx="136.61" cy="156.157" rx="61.573" ry="60.299"
                     style={{fill: "rgb(45, 54, 54)"}} />
@@ -587,7 +694,7 @@ const Home = () => {
                 </g>
               </a>
 
-              <a href="#" ref={scrapeBuilder} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave} onClick={scrapeBuilderClick} id="scrapeBuilder">
+              <a href="#" ref={scrapeBuilder} onMouseEnter={selectButtonMouseEnter} onMouseLeave={selectButtonMouseLeave} onClick={scrapeBuilderClick} id="scrapeBuilder">
                 <g transform="matrix(0.87124,0,0,1.40318,16.9214,-83.0399)">
                   <path ref={selectButton} id="selectButton"
                     d="M521.494,463.302C521.494,456.695 512.854,451.33 502.212,451.33L463.649,451.33C453.007,451.33 444.367,456.695 444.367,463.302L444.367,550.598C444.367,557.206 453.007,562.57 463.649,562.57L502.212,562.57C512.854,562.57 521.494,557.206 521.494,550.598L521.494,463.302Z"
@@ -604,7 +711,7 @@ const Home = () => {
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
               </a>
-              <a href="#" ref={downloadRecent} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="downloadRecent">
+              <a href="#" ref={downloadRecent} onMouseEnter={leftButtonMouseEnter} onMouseLeave={leftButtonMouseLeave} id="downloadRecent">
                 <g transform="matrix(0.87124,0,0,1.40318,104.662,-83.0399)">
                   <path ref={leftButton} id="leftButton"
                     d="M521.494,463.302C521.494,456.695 512.854,451.33 502.212,451.33L463.649,451.33C453.007,451.33 444.367,456.695 444.367,463.302L444.367,550.598C444.367,557.206 453.007,562.57 463.649,562.57L502.212,562.57C512.854,562.57 521.494,557.206 521.494,550.598L521.494,463.302Z"
@@ -621,41 +728,41 @@ const Home = () => {
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
               </a>
-              <a href="#" ref={selectRight} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="selectRight">
+              <a href="#" ref={selectRight} onMouseEnter={rightButtonMouseEnter} onMouseLeave={rightButtonMouseLeave} id="selectRight">
                 <g transform="matrix(0.87124,0,0,1.40318,192.664,-83.0399)">
-                  <path id="rightButton"
+                  <path ref={rightButton} id="rightButton"
                     d="M521.494,463.302C521.494,456.695 512.854,451.33 502.212,451.33L463.649,451.33C453.007,451.33 444.367,456.695 444.367,463.302L444.367,550.598C444.367,557.206 453.007,562.57 463.649,562.57L502.212,562.57C512.854,562.57 521.494,557.206 521.494,550.598L521.494,463.302Z"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
                 <g id="rightButtonBlue" transform="matrix(1.15666,0,0,1.24008,-494.976,-157.694)">
-                  <path id="rightButtonBlue"
+                  <path ref={rightButtonBlue} id="rightButtonBlue"
                     d="M980.403,588.858C980.403,583.159 975.443,578.533 969.334,578.533L947.195,578.533C941.086,578.533 936.126,583.159 936.126,588.858L936.126,678.794C936.126,684.492 941.086,689.118 947.195,689.118L969.334,689.118C975.443,689.118 980.403,684.492 980.403,678.794L980.403,588.858Z"
                     style={{fill: "rgb(91, 170, 179)"}} />
                 </g>
                 <g transform="matrix(1,0,0,1.01152,175.572,-6.67314)">
-                  <path id="rightButtonInner"
+                  <path ref={rightButtonInner} id="rightButtonInner"
                     d="M457.119,576.198C457.119,570.938 452.799,566.668 447.479,566.668L428.2,566.668C422.88,566.668 418.56,570.938 418.56,576.198L418.56,679.287C418.56,684.547 422.88,688.817 428.2,688.817L447.479,688.817C452.799,688.817 457.119,684.547 457.119,679.287L457.119,576.198Z"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
               </a>
-              <a href="#" ref={selectAllTaggedElements} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="selectAllTaggedElements">
+              <a href="#" ref={selectAllTaggedElements} onMouseEnter={selectAllButtonMouseEnter} onMouseLeave={selectAllButtonMouseLeave} id="selectAllTaggedElements">
                 <g transform="matrix(0.87124,0,0,1.4133,274.59,-88.7324)">
-                  <path id="selectAllButton"
+                  <path ref={selectAllButton} id="selectAllButton"
                     d="M521.494,463.217C521.494,456.656 512.854,451.33 502.212,451.33L463.649,451.33C453.007,451.33 444.367,456.656 444.367,463.217L444.367,550.684C444.367,557.244 453.007,562.57 463.649,562.57L502.212,562.57C512.854,562.57 521.494,557.244 521.494,550.684L521.494,463.217Z"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
                 <g transform="matrix(1.15666,0,0,1.24008,-413.05,-157.694)">
-                  <path id="selectAllButtonBlue"
+                  <path ref={selectAllButtonBlue} id="selectAllButtonBlue"
                     d="M980.403,588.858C980.403,583.159 975.443,578.533 969.334,578.533L947.195,578.533C941.086,578.533 936.126,583.159 936.126,588.858L936.126,678.794C936.126,684.492 941.086,689.118 947.195,689.118L969.334,689.118C975.443,689.118 980.403,684.492 980.403,678.794L980.403,588.858Z"
                     style={{fill: "rgb(91, 170, 179)"}} />
                 </g>
                 <g transform="matrix(1,0,0,1.01152,257.498,-6.67314)">
-                  <path id="selectAllButtonInner"
+                  <path ref={selectAllButtonInner} id="selectAllButtonInner"
                     d="M457.119,576.198C457.119,570.938 452.799,566.668 447.479,566.668L428.2,566.668C422.88,566.668 418.56,570.938 418.56,576.198L418.56,679.287C418.56,684.547 422.88,688.817 428.2,688.817L447.479,688.817C452.799,688.817 457.119,684.547 457.119,679.287L457.119,576.198Z"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
               </a>
-              <a href="#" ref={collectSelected} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="collectSelected">
+              <a href="#" ref={collectSelected} onMouseEnter={collectButtonMouseEnter} onMouseLeave={collectButtonMouseLeave} id="collectSelected">
                 <g transform="matrix(0.87124,0,0,1.40318,356.776,-83.0399)">
                   <path ref={collectButton} id="collectButton"
                     d="M521.494,463.302C521.494,456.695 512.854,451.33 502.212,451.33L463.649,451.33C453.007,451.33 444.367,456.695 444.367,463.302L444.367,550.598C444.367,557.206 453.007,562.57 463.649,562.57L502.212,562.57C512.854,562.57 521.494,557.206 521.494,550.598L521.494,463.302Z"
@@ -672,36 +779,36 @@ const Home = () => {
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
               </a>
-              <a href="#" ref={deselectElements} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="deselectElements">
+              <a href="#" ref={deselectElements} onMouseEnter={removeButtonMouseEnter} onMouseLeave={removeButtonMouseLeave} id="deselectElements">
                 <g transform="matrix(0.87124,0,0,1.40318,444.517,-83.0399)">
-                  <path id="removeButton"
+                  <path ref={removeButton} id="removeButton"
                     d="M521.494,463.302C521.494,456.695 512.854,451.33 502.212,451.33L463.649,451.33C453.007,451.33 444.367,456.695 444.367,463.302L444.367,550.598C444.367,557.206 453.007,562.57 463.649,562.57L502.212,562.57C512.854,562.57 521.494,557.206 521.494,550.598L521.494,463.302Z"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
                 <g transform="matrix(1.15666,0,0,1.24008,-243.123,-157.694)">
-                  <path id="removeButtonBlue"
+                  <path ref={removeButtonBlue} id="removeButtonBlue"
                     d="M980.403,588.858C980.403,583.159 975.443,578.533 969.334,578.533L947.195,578.533C941.086,578.533 936.126,583.159 936.126,588.858L936.126,678.794C936.126,684.492 941.086,689.118 947.195,689.118L969.334,689.118C975.443,689.118 980.403,684.492 980.403,678.794L980.403,588.858Z"
                     style={{fill: "rgb(91, 170, 179)"}} />
                 </g>
                 <g transform="matrix(1,0,0,1.01152,427.425,-6.67314)">
-                  <path id="removeButtonInner"
+                  <path ref={removeButtonInner} id="removeButtonInner"
                     d="M457.119,576.198C457.119,570.938 452.799,566.668 447.479,566.668L428.2,566.668C422.88,566.668 418.56,570.938 418.56,576.198L418.56,679.287C418.56,684.547 422.88,688.817 428.2,688.817L447.479,688.817C452.799,688.817 457.119,684.547 457.119,679.287L457.119,576.198Z"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
               </a>
-              <a href="#" ref={clearSelected} onMouseEnter={futureMouseEnter} onMouseLeave={futureMouseLeave} id="clearSelected">
+              <a href="#" ref={clearSelected} onMouseEnter={futureButtonMouseEnter} onMouseLeave={futureButtonMouseLeave} id="clearSelected">
                 <g transform="matrix(0.87124,0,0,1.40318,535.102,-83.0399)">
-                  <path id="futureButton"
+                  <path ref={futureButton} id="futureButton"
                     d="M521.494,463.302C521.494,456.695 512.854,451.33 502.212,451.33L463.649,451.33C453.007,451.33 444.367,456.695 444.367,463.302L444.367,550.598C444.367,557.206 453.007,562.57 463.649,562.57L502.212,562.57C512.854,562.57 521.494,557.206 521.494,550.598L521.494,463.302Z"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>
                 <g transform="matrix(1.15666,0,0,1.24008,-152.537,-157.694)">
-                  <path id="futureButtonBlue"
+                  <path ref={futureButtonBlue} id="futureButtonBlue"
                     d="M980.403,588.858C980.403,583.159 975.443,578.533 969.334,578.533L947.195,578.533C941.086,578.533 936.126,583.159 936.126,588.858L936.126,678.794C936.126,684.492 941.086,689.118 947.195,689.118L969.334,689.118C975.443,689.118 980.403,684.492 980.403,678.794L980.403,588.858Z"
                     style={{fill: "rgb(91, 170, 179)"}} />
                 </g>
                 <g transform="matrix(1,0,0,1.01152,518.011,-6.67314)">
-                  <path id="futureButtonInner"
+                  <path ref={futureButtonInner} id="futureButtonInner"
                     d="M457.119,576.198C457.119,570.938 452.799,566.668 447.479,566.668L428.2,566.668C422.88,566.668 418.56,570.938 418.56,576.198L418.56,679.287C418.56,684.547 422.88,688.817 428.2,688.817L447.479,688.817C452.799,688.817 457.119,684.547 457.119,679.287L457.119,576.198Z"
                     style={{fill: "rgb(45, 54, 54)"}} />
                 </g>

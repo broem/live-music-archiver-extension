@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import Back from "../Common/back";
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -14,35 +14,12 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import TextField from '@mui/material/TextField';
 import FormControl from "@mui/material/FormControl";
-import Typography from '@mui/material/Typography';
 import * as scrape from "../../pages/Background/scrape-fetch.js";
-import * as constants from "../constants.js";
 import { useEffect } from "react";
 import ScrapersPage from "../Scrapers/scrapers";
 import AdminPage from "../Admin/admin";
 import ScheduleDropdown from "../Common/scheduleDropdown";
-import { alpha, styled } from '@mui/material/styles';
-
-let eventOptions = [
-  {"label":"Event Area" ,"value":"event"},
-  {"label":"Venue Name" ,"value":"venueName"},
-  {"label":"Venue Address" ,"value":"venueAddress"},
-  {"label":"Venue Contact Info" ,"value":"venueContactInfo"},
-  {"label":"Event Title" ,"value":"eventTitle"},
-  {"label":"Event Description" ,"value":"eventDesc"},
-  {"label":"Images" ,"value":"images"},
-  {"label":"Start Date" ,"value":"startDate"},
-  {"label":"End Date" ,"value":"endDate"},
-  {"label":"Door Time" ,"value":"doorTime"},
-  {"label":"Ticket Cost" ,"value":"ticketCost"},
-  {"label":"Ticket URL" ,"value":"ticketURLS"},
-  {"label":"Other Performers" ,"value":"otherPerformers"},
-  {"label":"Event Desc URL" ,"value":"eventDescURL"},
-  {"label":"Age Required" ,"value":"ageRequired"},
-  {"label":"Facebook URL" ,"value":"facebookURL"},
-  {"label":"Twitter URL" ,"value":"twitterURL"},
-  {"label":"Misc" ,"value":"misc"}
-]
+import { styled } from '@mui/material/styles';
 
 const mainDisplayDefault = "Is This What You Selected?";
 const mainDisplayAdditional = "Additional Venue Inputs";
@@ -92,6 +69,8 @@ const ScraperTextField = styled(TextField)(({ theme }) => ({
 const ScraperBuild = (props) => {
   // get onShow and isActive from props
   const { onShow, isActive, currentEvent } = props;
+
+  const [eventOptions, setEventOptions] = React.useState([]);
 
   // pull event options from props
   // const [currentEvent, setCurrentEvent] = React.useState(props.currentEvent);
@@ -172,12 +151,20 @@ const ScraperBuild = (props) => {
     });
   }, []);
 
+  useEffect(() => {
+    // pull event options from server
+    scrape.eventOptions().then((response) => {
+      // reset the event options
+      setEventOptions(response);
+    });
+  }, []);
+
   // useEffect to set the event
   useEffect(() => {
       if(currentEvent !== null) {
-        console.log("Setting my cool event");
         setSchedule(currentEvent.frequency);
         setName(currentEvent.name);
+        setEvent(currentEvent);
 
         // send message to background to open a new tab to the event url
         chrome.runtime.sendMessage({msg: "openTab", url: currentEvent.url}).then((response) => {
@@ -197,8 +184,6 @@ const ScraperBuild = (props) => {
               let eventList = [];
               for (let property in data) {
                 if (data.hasOwnProperty(property)) {
-                  console.log(property);
-                  console.log(data[property]);
                   // if there is a filled label, add it to the list
                   if(data[property].label && data[property].label !== "") {
                     eventList.push({
@@ -208,8 +193,10 @@ const ScraperBuild = (props) => {
                       selectable: data[property],
                       val: data[property]
                     });
+                    
                     // filter eventoptions to remove any that are not in the event list
-                    eventOptions = eventOptions.filter(x => x.label !== data[property].label)
+                    let newEventOptions = eventOptions.filter(x => x.label === data[property].label);
+                    setEventOptions(newEventOptions);
                   }
 
                   // sort the event list so label === Event Area is first. this will make it easier. 
@@ -224,7 +211,6 @@ const ScraperBuild = (props) => {
               }
               // wait for 1 second to send the event list to the background
               setTimeout(function() {
-                console.log("sending event list");
                 // send event list to background to highlight the elements
                 chrome.runtime.sendMessage({msg: "highlightElements", data: eventList})
               }, 1000);
@@ -379,6 +365,8 @@ const ScraperBuild = (props) => {
       latitude: latitude,
       longitude: longitude,
       name: name,
+      userId: currentEvent.userID,
+      mapId: currentEvent.mapID,
     };
 
     let eventData = hereWeGo();
@@ -431,7 +419,6 @@ const ScraperBuild = (props) => {
 
     // reset the schedule
     handleClose("Schedule");
-
   }
 
   const getScrapeBuilderData = async (combined) => {
@@ -501,7 +488,7 @@ const ScraperBuild = (props) => {
                 'aria-labelledby': 'event-button',
               }}
             >
-              {eventOptions && eventOptions.map((item) => (
+              {eventOptions && eventOptions.length > 0 && eventOptions.map((item) => (
                 <MenuItem key={item.label} onClick={() => handleEvtClose(item)} disableRipple>
                   {item.label}
                 </MenuItem>
@@ -679,7 +666,6 @@ const Scraper = (props) => {
     // set window to default size
     window.resizeTo(628, 628);
   }
-
 
     return (
         <div>
