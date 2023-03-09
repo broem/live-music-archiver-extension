@@ -397,6 +397,12 @@ async function scrapeBuilderPost(data) {
   console.log(data);
   let info = await getStorageInfo();
   let config = info['config'];
+  if(data.userId == null){
+    data.userId = info['userId'];
+  }
+  if(data.userEmail == null) {
+    data.userEmail = info['userEmail'];
+  }
 
   try {
     const blob = await fetch(

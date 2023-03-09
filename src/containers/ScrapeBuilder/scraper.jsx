@@ -27,6 +27,27 @@ const mainDisplayLoading = "Loading...";
 const mainDisplayVerifyError = "Unable to Verify";
 const mainDisplayScheduleError = "Schedule Error";
 
+let eventOptions = [
+  {"label":"Event Area" ,"value":"event"},
+  {"label":"Venue Name" ,"value":"venueName"},
+  {"label":"Venue Address" ,"value":"venueAddress"},
+  {"label":"Venue Contact Info" ,"value":"venueContactInfo"},
+  {"label":"Event Title" ,"value":"eventTitle"},
+  {"label":"Event Description" ,"value":"eventDesc"},
+  {"label":"Images" ,"value":"images"},
+  {"label":"Start Date" ,"value":"startDate"},
+  {"label":"End Date" ,"value":"endDate"},
+  {"label":"Door Time" ,"value":"doorTime"},
+  {"label":"Ticket Cost" ,"value":"ticketCost"},
+  {"label":"Ticket URL" ,"value":"ticketURLS"},
+  {"label":"Other Performers" ,"value":"otherPerformers"},
+  {"label":"Event Desc URL" ,"value":"eventDescURL"},
+  {"label":"Age Required" ,"value":"ageRequired"},
+  {"label":"Facebook URL" ,"value":"facebookURL"},
+  {"label":"Twitter URL" ,"value":"twitterURL"},
+  {"label":"Misc" ,"value":"misc"}
+]
+
 const ScraperTextField = styled(TextField)(({ theme }) => ({
   '& label.Mui-focused': {
     color: 'white',
@@ -69,8 +90,6 @@ const ScraperTextField = styled(TextField)(({ theme }) => ({
 const ScraperBuild = (props) => {
   // get onShow and isActive from props
   const { onShow, isActive, currentEvent } = props;
-
-  const [eventOptions, setEventOptions] = React.useState([]);
 
   // pull event options from props
   // const [currentEvent, setCurrentEvent] = React.useState(props.currentEvent);
@@ -151,13 +170,14 @@ const ScraperBuild = (props) => {
     });
   }, []);
 
-  useEffect(() => {
-    // pull event options from server
-    scrape.eventOptions().then((response) => {
-      // reset the event options
-      setEventOptions(response);
-    });
-  }, []);
+  // TODO: fix this stuff
+  // useEffect(() => {
+  //   // pull event options from server
+  //   scrape.eventOptions().then((response) => {
+  //     // reset the event options
+  //     setEventOptions(response);
+  //   });
+  // }, []);
 
   // useEffect to set the event
   useEffect(() => {
@@ -179,6 +199,7 @@ const ScraperBuild = (props) => {
               setStateFips(data.stateFips);
               setLongitude(data.longitude);
               setLatitude(data.latitude);
+              setFacebookURL(data.venueFacebookURL);
 
               // set the selected event list, go through each property and add it to the list
               let eventList = [];
@@ -194,9 +215,10 @@ const ScraperBuild = (props) => {
                       val: data[property]
                     });
                     
-                    // filter eventoptions to remove any that are not in the event list
-                    let newEventOptions = eventOptions.filter(x => x.label === data[property].label);
-                    setEventOptions(newEventOptions);
+                    // set the event options to remove the selected event
+                    eventOptions = eventOptions.filter(function(item) {
+                      return item.value !== data[property].value;
+                    });
                   }
 
                   // sort the event list so label === Event Area is first. this will make it easier. 
@@ -255,8 +277,11 @@ const ScraperBuild = (props) => {
   };
 
   const removeItem = (item) => {
-    // add it from the event selected list
-    eventOptions.push(item);
+    // add it back to the event options
+    eventOptions.push({
+      label: item.label,
+      value: item.value,
+    });
 
     chrome.runtime.sendMessage({
       msg: "removeElement",
@@ -285,7 +310,7 @@ const ScraperBuild = (props) => {
       setScrapedText("");
 
       // add it from the event selected list
-      eventOptions.push( {
+      eventOptions.push({
         label: tempEventScrape.label,
         value: tempEventScrape.value,
       });
@@ -331,7 +356,9 @@ const ScraperBuild = (props) => {
       setClearBtn(true);
 
       // remove it from the event selected list
-      eventOptions = eventOptions.filter(x => x.label !== tempEventScrape.label)
+      eventOptions = eventOptions.filter(function(item) {
+        return item.value !== tempEventScrape.value;
+      });
     }
   }
 
@@ -365,8 +392,9 @@ const ScraperBuild = (props) => {
       latitude: latitude,
       longitude: longitude,
       name: name,
-      userId: currentEvent.userID,
-      mapId: currentEvent.mapID,
+      userId: currentEvent ? currentEvent.userID : null,
+      mapId: currentEvent ? currentEvent.mapID : null,
+      userEmail: currentEvent ? currentEvent.userEmail : null,
     };
 
     let eventData = hereWeGo();
@@ -396,7 +424,11 @@ const ScraperBuild = (props) => {
     setShowAdditional(false);
     // reset the eventOptions from the selectedEventList
     selectedEventList.forEach((item) => {
-      eventOptions.push(item);
+      eventOptions.push({
+        label: item.label,
+        value: item.value,
+      });
+
       chrome.runtime.sendMessage({
         msg: "removeElement",
         field: item.value,
@@ -419,6 +451,8 @@ const ScraperBuild = (props) => {
 
     // reset the schedule
     handleClose("Schedule");
+
+    currentEvent = null;
   }
 
   const getScrapeBuilderData = async (combined) => {
