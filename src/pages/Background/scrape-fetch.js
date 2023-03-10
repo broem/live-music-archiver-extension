@@ -394,13 +394,12 @@ function getStorageInfo() {
 
 async function scrapeBuilderPost(data) {
   // get the current userId from storage
-  console.log(data);
   let info = await getStorageInfo();
   let config = info['config'];
-  if(data.userId == null){
+  if (data.userId == null) {
     data.userId = info['userId'];
   }
-  if(data.userEmail == null) {
+  if (data.userEmail == null) {
     data.userEmail = info['userEmail'];
   }
 

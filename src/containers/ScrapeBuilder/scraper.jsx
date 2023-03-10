@@ -447,12 +447,11 @@ const ScraperBuild = (props) => {
     setCountyFips("");
     setStateFips("");
     setCbsa("");
+    setSubmitDisabled(true);
 
 
     // reset the schedule
     handleClose("Schedule");
-
-    currentEvent = null;
   }
 
   const getScrapeBuilderData = async (combined) => {
