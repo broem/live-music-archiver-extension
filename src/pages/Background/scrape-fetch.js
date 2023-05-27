@@ -144,26 +144,22 @@ async function updateIGScraper(data) {
   chrome.storage.session.get('config', async function (result) {
     const config = result['config'];
 
-    const response = await fetch(
-      'http://' + config['remote-address'] + '/api/updateIGScrape',
-      {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-          Authorization: `Bearer ${currRaw}`,
+    await fetch('http://' + config['remote-address'] + '/api/updateIGScrape', {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        Authorization: `Bearer ${currRaw}`,
 
-          'Content-Type': 'application/json',
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify(data),
-      }
-    )
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer',
+      body: JSON.stringify(data),
+    })
       .then((blob) => blob.json())
-      .then((resp) => {
-      })
+      .then((resp) => {})
       .catch((err) => {
         console.log(err);
       });
@@ -173,22 +169,19 @@ async function updateIGScraper(data) {
 async function deleteIGScrape(data) {
   chrome.storage.session.get('config', async function (result) {
     const config = result['config'];
-    const response = await fetch(
-      'http://' + config['remote-address'] + '/api/deleteIGScrape',
-      {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-          Authorization: `Bearer ${currRaw}`,
-          'Content-Type': 'application/json',
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify(data),
-      }
-    )
+    await fetch('http://' + config['remote-address'] + '/api/deleteIGScrape', {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        Authorization: `Bearer ${currRaw}`,
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer',
+      body: JSON.stringify(data),
+    })
       .then((blob) => blob.json())
       .then((resp) => {})
       .catch((err) => {
@@ -220,7 +213,7 @@ async function downloadRecent(data) {
       }
     );
 
-    if (blob.status == 200) {
+    if (blob.status === 200) {
       return await blob.blob();
     } else {
       console.log('bad status' + blob.status);
@@ -233,65 +226,64 @@ async function downloadRecent(data) {
 }
 
 async function getCurrentScrapeEvents() {
-    // get the current userId from storage
-    let info = await getStorageInfo();
-    let config = info['config'];
-    let userId = info['userId'];
-  
-    try {
-      const blob = await fetch(
-        'http://' + config['remote-address'] + '/api/getCurrentScrapeEvents/' + userId,
-        {
-          method: 'GET',
-          mode: 'cors',
-          cache: 'no-cache',
-          credentials: 'same-origin',
-          headers: {
-            Authorization: `Bearer ${currRaw}`,
-  
-            'Content-Type': 'application/json',
-          },
-          redirect: 'follow',
-          referrerPolicy: 'no-referrer',
-        }
-      );
-  
-      if (blob.status == 200) {
-        return await blob.json();
-      } else {
-        console.log('bad status' + blob.status);
-        return null;
+  // get the current userId from storage
+  let info = await getStorageInfo();
+  let config = info['config'];
+  let userId = info['userId'];
+
+  try {
+    const blob = await fetch(
+      'http://' +
+        config['remote-address'] +
+        '/api/getCurrentScrapeEvents/' +
+        userId,
+      {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+          Authorization: `Bearer ${currRaw}`,
+
+          'Content-Type': 'application/json',
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
       }
-    } catch (err) {
-      console.log(err);
+    );
+
+    if (blob.status === 200) {
+      return await blob.json();
+    } else {
+      console.log('bad status' + blob.status);
       return null;
     }
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 }
 
 async function updateScrape(data) {
   chrome.storage.session.get('config', async function (result) {
     const config = result['config'];
 
-    const response = await fetch(
-      'http://' + config['remote-address'] + '/api/updateScrape',
-      {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-          Authorization: `Bearer ${currRaw}`,
+    await fetch('http://' + config['remote-address'] + '/api/updateScrape', {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        Authorization: `Bearer ${currRaw}`,
 
-          'Content-Type': 'application/json',
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify(data),
-      }
-    )
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer',
+      body: JSON.stringify(data),
+    })
       .then((blob) => blob.json())
-      .then((resp) => {
-      });
+      .then((resp) => {});
   });
 }
 
@@ -317,7 +309,7 @@ async function deleteScrape(data) {
         body: JSON.stringify(data),
       }
     );
-    if (blob.status == 200) {
+    if (blob.status === 200) {
       return await blob.json();
     } else {
       console.log('bad status' + blob.status);
@@ -422,7 +414,7 @@ async function scrapeBuilderPost(data) {
       }
     );
 
-    if (blob.status == 200) {
+    if (blob.status === 200) {
       const resp = await blob.json();
       return resp;
     } else {
@@ -456,7 +448,7 @@ async function adminUserMaps(data) {
       referrerPolicy: 'no-referrer',
     });
 
-    if (blob.status == 200) {
+    if (blob.status === 200) {
       const resp = await blob.json();
       return resp;
     } else {
@@ -490,7 +482,7 @@ async function adminRecentEvents(data) {
       referrerPolicy: 'no-referrer',
     });
 
-    if (blob.status == 200) {
+    if (blob.status === 200) {
       const resp = await blob.json();
       return resp;
     } else {
@@ -535,23 +527,20 @@ async function verified(data) {
     const config = result['config'];
     const userId = result['userId'];
     data['userId'] = userId;
-    const response = await fetch(
-      'http://' + config['remote-address'] + '/api/verified',
-      {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-          Authorization: `Bearer ${currRaw}`,
+    await fetch('http://' + config['remote-address'] + '/api/verified', {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        Authorization: `Bearer ${currRaw}`,
 
-          'Content-Type': 'application/json',
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer',
-        body: JSON.stringify(data),
-      }
-    )
+        'Content-Type': 'application/json',
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrerPolicy: 'no-referrer',
+      body: JSON.stringify(data),
+    })
       .then((blob) => blob.json())
       .then((resp) => {});
   });
@@ -575,7 +564,7 @@ async function getBuilder(data) {
       referrerPolicy: 'no-referrer',
     });
 
-    if (blob.status == 200) {
+    if (blob.status === 200) {
       const resp = await blob.json();
       return resp;
     } else {

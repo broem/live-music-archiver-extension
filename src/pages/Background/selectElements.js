@@ -17,14 +17,14 @@ if (window.contentScriptInjected !== true) {
   var rectArea = 0;
 
   function addBorderPrimary(node) {
-    if (node.nodeName == "IMG") {
-      node.classList.add("activeBorderImage");
-      node.classList.add("activeBorderPrimary");
-    } else if (node.nodeName == "A") {
-      node.style.position = "relative";
-      node.classList.add("activeBorderPrimary");
+    if (node.nodeName === 'IMG') {
+      node.classList.add('activeBorderImage');
+      node.classList.add('activeBorderPrimary');
+    } else if (node.nodeName === 'A') {
+      node.style.position = 'relative';
+      node.classList.add('activeBorderPrimary');
     } else {
-      node.classList.add("activeBorderPrimary");
+      node.classList.add('activeBorderPrimary');
     }
   }
 
@@ -34,17 +34,17 @@ if (window.contentScriptInjected !== true) {
     if (element.width * element.height >= rectArea) {
       rectArea = element.width * element.height;
 
-      if (node.nodeName == "IMG") {
-        node.classList.add("activeBorderImage");
-        node.classList.add("activeBorderEvent");
+      if (node.nodeName === 'IMG') {
+        node.classList.add('activeBorderImage');
+        node.classList.add('activeBorderEvent');
         if (prevNode != null) removeBorderEvent(prevNode);
-      } else if (node.nodeName == "A") {
+      } else if (node.nodeName === 'A') {
         // remove position relative
-        node.style.position = "relative";
-        node.classList.add("activeBorderEvent");
+        node.style.position = 'relative';
+        node.classList.add('activeBorderEvent');
         if (prevNode != null) removeBorderEvent(prevNode);
       } else {
-        node.classList.add("activeBorderEvent");
+        node.classList.add('activeBorderEvent');
         if (prevNode != null) removeBorderEvent(prevNode);
       }
 
@@ -53,88 +53,88 @@ if (window.contentScriptInjected !== true) {
   }
 
   function removeBorderPrimary(node) {
-    if (node.nodeName == "IMG") {
-      node.classList.remove("activeBorderImage");
-      node.classList.remove("activeBorderPrimary");
+    if (node.nodeName === 'IMG') {
+      node.classList.remove('activeBorderImage');
+      node.classList.remove('activeBorderPrimary');
     }
   }
 
   function removeBorderEvent(node) {
-    if (node.nodeName == "IMG") {
-      node.classList.remove("activeBorderImage");
-      node.classList.remove("activeBorderEvent");
+    if (node.nodeName === 'IMG') {
+      node.classList.remove('activeBorderImage');
+      node.classList.remove('activeBorderEvent');
     } else {
-      node.classList.remove("activeBorderEvent");
+      node.classList.remove('activeBorderEvent');
     }
   }
 
   function removePrimaryBorderAll() {
-    var borderedItem = document.querySelectorAll(".activeBorderPrimary");
+    var borderedItem = document.querySelectorAll('.activeBorderPrimary');
 
     borderedItem.forEach((node) => {
-      node.classList.remove("activeBorderPrimary");
-      node.classList.remove("activeBorderImage");
+      node.classList.remove('activeBorderPrimary');
+      node.classList.remove('activeBorderImage');
       // if node has position absolute, remove it
-      if (node.style.position == "absolute") {
-        node.style.position = "";
+      if (node.style.position === 'absolute') {
+        node.style.position = '';
       }
     });
   }
   function removeEventBorderAll() {
-    var borderedItem = document.querySelectorAll(".activeBorderEvent");
+    var borderedItem = document.querySelectorAll('.activeBorderEvent');
 
     borderedItem.forEach((node) => {
-      node.classList.remove("activeBorderEvent");
-      node.classList.remove("activeBorderImage");
+      node.classList.remove('activeBorderEvent');
+      node.classList.remove('activeBorderImage');
     });
   }
   function removeBorderAll() {
     var borderedItem = document.querySelectorAll(
-      ".activeBorderPrimary, .activeBorderEvent, .previousBorderPrimary"
+      '.activeBorderPrimary, .activeBorderEvent, .previousBorderPrimary'
     );
     borderedItem.forEach((node) => {
-      node.classList.remove("activeBorderPrimary");
-      node.classList.remove("activeBorderImage");
-      node.classList.remove("activeBorderEvent");
-      node.classList.remove("previousBorderPrimary");
+      node.classList.remove('activeBorderPrimary');
+      node.classList.remove('activeBorderImage');
+      node.classList.remove('activeBorderEvent');
+      node.classList.remove('previousBorderPrimary');
     });
   }
 
   function selectingElements() {
     //this function is ran at start of script, and managed via stopAll/freezeState/etc
     var x = document.querySelectorAll(
-      "div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article, iframe, html"
+      'div, span, li, button, input, textarea, p, img, h1, h2, h3, h4, h5, a, ol, article, iframe, html, main'
       //"span, th, td, button, input, a, textarea, p, li, ol, card, img, section, nav, footer, header, map, video, audio, embed, iframe, object, picture, portal, param, source, form, fieldset, datalist, label, legend, select, option, output, progress, meter, h1, h2, h3, h4, h5, h6, pre"
     );
 
     x.forEach((node) => {
-      node.addEventListener("mouseenter", function addBorder() {
+      node.addEventListener('mouseenter', function addBorder() {
         if (!freezeState && stopMouseover && !stopAll) {
           removePrimaryBorderAll();
-          if (!node.classList.contains("activeBorderEvent"))
+          if (!node.classList.contains('activeBorderEvent'))
             addBorderPrimary(node);
         }
       });
-      node.addEventListener("mouseleave", function addBorder() {
+      node.addEventListener('mouseleave', function addBorder() {
         if (!freezeState && stopMouseover && !stopAll) {
           removeBorderPrimary(node);
         }
       });
-      node.addEventListener("click", doClick);
+      node.addEventListener('click', doClick);
 
-      node.addEventListener("dblclick", function addBorder(e) {
+      node.addEventListener('dblclick', function addBorder(e) {
         if (!stopAll) {
           e.preventDefault();
           e.stopPropagation();
-          console.log("bringing it back 2")
+          console.log('bringing it back 2');
           chrome.runtime.sendMessage({
-            msg: "Bring back scrape builder",
+            msg: 'Bring back scrape builder',
           });
         }
       });
     });
   }
-  var doClick  = (e) => doathing(e);
+  var doClick = (e) => doathing(e);
 
   function doathing(e) {
     if (!stopAll) {
@@ -146,25 +146,8 @@ if (window.contentScriptInjected !== true) {
         msg: 'Bring back scrape builder',
       });
 
-      stopAll = true; // TODO
+      stopAll = true;
       freezeState = true;
-    }
-  }
-
-  function addBorderClick(e) {
-    console.log(e);
-    if (!stopAll) {
-      e.preventDefault();
-      e.stopPropagation();
-      collectBordered();
-      chrome.runtime.sendMessage({
-        msg: 'Bring back scrape builder',
-      });
-
-      stopAll = true; // TODO
-      freezeState = true;
-
-      e.srcElement.removeEventListener('click', addBorderClick);
     }
   }
 
@@ -177,16 +160,12 @@ if (window.contentScriptInjected !== true) {
   }
 
   function collectBordered() {
-    console.log(activeSelected);
     activeSelected.length = 0;
-    console.log('grabbing borderedItems');
     var borderedItem = document.querySelectorAll('.activeBorderPrimary');
-    console.log('gottem');
 
     borderedItem.forEach((node) => {
       activeSelected.push(node);
     });
-    console.log('pushed nodes');
 
     if (activeSelected.length > 0) {
       if (
@@ -277,7 +256,7 @@ if (window.contentScriptInjected !== true) {
     });
     setTimeout(() => {
       borderedItem.forEach((node) => {
-        if (node.nodeName == 'IMG') {
+        if (node.nodeName === 'IMG') {
           node.classList.add('activeBorderImage');
           node.classList.add('activeBorderEvent');
         } else {
@@ -432,7 +411,7 @@ if (window.contentScriptInjected !== true) {
     });
 
     document.addEventListener('mousemove', function (e) {
-      if (locA && stopMouseover == false && !freezeState && !stopAll) {
+      if (locA && stopMouseover === false && !freezeState && !stopAll) {
         locB = getMousePos(canvas, e);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'rgba(76, 144, 255, 0.3)';
@@ -497,7 +476,7 @@ if (window.contentScriptInjected !== true) {
       });
       stopAll = false;
       freezeState = false;
-      if (runSelect == true) {
+      if (runSelect === true) {
         selectingElements();
         runSelect = false;
       }
@@ -533,9 +512,8 @@ if (window.contentScriptInjected !== true) {
 
         // foreach someval to get the field and label
         someval.highlightElements.forEach((element) => {
-          mySelector = element.selectable.selector;
-          myField = element.selectable.value;
-          myLabel = element.selectable.label;
+          var mySelector = element.selectable.selector;
+          var myField = element.selectable.value;
           // query select the first element that matches the field
           let x = document.querySelector(mySelector);
           // if the element exists
@@ -563,14 +541,14 @@ if (window.contentScriptInjected !== true) {
         });
         stopAll = false;
         freezeState = false;
-        if (runSelect == true) {
+        if (runSelect === true) {
           console.log('running select');
           selectingElements();
           runSelect = false;
         }
       }
 
-      if (node == 'clearSelected' && area == 'sync') {
+      if (node === 'clearSelected' && area === 'sync') {
         activeSelected.length = 0;
         prevSelected.length = 0;
         filtManualSelected.length = 0;

@@ -1,6 +1,5 @@
 import * as scrape from './scrape-fetch.js';
 
-const BRING_BACK_POP_CTX = 'BRING_BACK_POP';
 let selectElementsIndex = 0;
 let highlightElementsIndex = 0;
 let selectAllIndex = 0;
@@ -37,8 +36,9 @@ chrome.action.onClicked.addListener(() => {
           // incognito, top, left, ...
         })
         .then(() => {
-          popUpTabId = tab.id;
-        }).catch(err => {
+          console.log('window created');
+        })
+        .catch((err) => {
           console.log(err);
         });
     }
@@ -47,14 +47,14 @@ chrome.action.onClicked.addListener(() => {
     tabs.forEach((tab) => {
       if (
         tab.url != null &&
-        tab.url != undefined &&
+        tab.url !== undefined &&
         tab.url.length > 0 &&
-        substringSearch('chrome', tab.url) == -1
+        substringSearch('chrome', tab.url) === -1
       ) {
         chrome.scripting
           .executeScript({
             target: { tabId: tab.id },
-            files: ['./selectElements.js'], //, "tagElements.js"
+            files: ['./selectElements.js'],
           })
           .then(() => {
             console.log('selectElements.js injected');
@@ -68,20 +68,17 @@ chrome.action.onClicked.addListener(() => {
   chrome.identity.getProfileUserInfo(
     { accountStatus: 'ANY' },
     function (userInfo) {
-      console.log('checking user info');
       // set user id and email
       chrome.storage.session.set({ userId: userInfo.id });
       chrome.storage.session.set({ userEmail: userInfo.email });
 
       // check if user exists in database
-      console.log('getting user');
       checkUser();
     }
   );
 });
 
 async function checkUser() {
-  console.log('dededeee user');
   await scrape
     .getUser()
     .then((res) => {
@@ -95,9 +92,9 @@ async function checkUser() {
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   if (
     tab.url != null &&
-    tab.url != undefined &&
+    tab.url !== undefined &&
     tab.url.length > 0 &&
-    substringSearch('chrome', tab.url) == -1
+    substringSearch('chrome', tab.url) === -1
   ) {
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
@@ -109,23 +106,23 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 chrome.runtime.onInstalled.addListener(() => {});
 
 function substringSearch(pattern, text) {
-  if (pattern.length == 0) {
+  if (pattern.length === 0) {
     return 0; // Immediate match
   }
   var lsp = [0];
   for (var i = 1; i < pattern.length; i++) {
     var j = lsp[i - 1];
-    while (j > 0 && pattern.charAt(i) != pattern.charAt(j)) j = lsp[j - 1];
-    if (pattern.charAt(i) == pattern.charAt(j)) j++;
+    while (j > 0 && pattern.charAt(i) !== pattern.charAt(j)) j = lsp[j - 1];
+    if (pattern.charAt(i) === pattern.charAt(j)) j++;
     lsp.push(j);
   }
 
-  var j = 0;
-  for (var i = 0; i < text.length; i++) {
-    while (j > 0 && text.charAt(i) != pattern.charAt(j)) j = lsp[j - 1];
-    if (text.charAt(i) == pattern.charAt(j)) {
+  j = 0;
+  for (i = 0; i < text.length; i++) {
+    while (j > 0 && text.charAt(i) !== pattern.charAt(j)) j = lsp[j - 1];
+    if (text.charAt(i) === pattern.charAt(j)) {
       j++;
-      if (j == pattern.length) return i - (j - 1);
+      if (j === pattern.length) return i - (j - 1);
     }
   }
   return -1; // Not found
@@ -182,7 +179,7 @@ chrome.runtime.onMessage.addListener(async function (
     console.log('highlight elements');
     // get highlightElementsIndex from storage
     chrome.storage.sync.get(['highlightElements'], function (result) {
-      elems = JSON.parse(result);
+      var elems = JSON.parse(result);
       highlightElementsIndex = elems.updator;
     });
 
@@ -211,7 +208,7 @@ chrome.runtime.onMessage.addListener(async function (
       var x = 0;
       tabs.forEach((tab) => {
         let findPopupMatch = substringSearch('scrapeBuilder', tab.url);
-        if (findPopupMatch != -1) {
+        if (findPopupMatch !== -1) {
           chrome.windows.update(tabs[x].windowId, { focused: true });
         }
         x++;
@@ -260,7 +257,7 @@ chrome.runtime.onMessage.addListener(async function (
         var x = 0;
         tabs.forEach((tab) => {
           let findActiveMatch = substringSearch(sender.url, tab.url);
-          if (findActiveMatch != -1) {
+          if (findActiveMatch !== -1) {
             chrome.windows.update(tabs[x].windowId, { focused: true });
           }
           x++;
@@ -269,15 +266,3 @@ chrome.runtime.onMessage.addListener(async function (
     );
   }
 });
-
-function bringBackPopContextExe(info, tab) {
-  if (info.menuItemId !== BRING_BACK_POP_CTX) {
-    return;
-  }
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      files: ['bringBackPopContext.js'],
-    });
-  });
-}
