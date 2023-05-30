@@ -8,13 +8,13 @@ This is intended for research purposes.
 1. Clone this repository
 2. Open Chrome and navigate to `chrome://extensions`
 3. Enable Developer Mode
-4. Click "Load Unpacked" and select the `live-music-archiver-extension` directory
+4. Click "Load Unpacked" and select the `live-music-archiver-extension/build` directory
 5. Locate the extension in the list of extensions and click to open. 
 ![Extension Icon](src/src/assets/images/extensionIcon.PNG)
 
 ## Usage
 
-1. The main "Manager" page should open automatically. If you are not signed into your Google account, you will be unable to use the extension.
+1. The main page should open automatically. If you are not signed into your Google account, you will be unable to use the extension.
 2. There are currently two available options for scraping: Scrape Builder and Instagram Scraper.
 
 ### Scrape Builder
